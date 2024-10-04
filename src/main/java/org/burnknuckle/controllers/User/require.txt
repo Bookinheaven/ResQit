@@ -1,0 +1,92 @@
+1. Earthquake Scales:
+    - Richter Scale: Measures the magnitude of earthquakes.
+      - Example values:
+        - `0.0 - 2.0`: Micro (Not felt)
+        - `2.0 - 4.0`: Minor (Generally not felt but recorded)
+        - `4.0 - 6.0`: Light to Moderate (Noticeable shaking, but minor damage)
+        - `6.0 - 8.0`: Strong to Major (Potential for severe damage)
+        - `8.0+`: Great (Total destruction in affected areas)
+
+    - Moment Magnitude Scale: Similar to the Richter Scale but used for measuring larger quakes.
+      - Example values:
+        - `0.0 - 2.0`: Micro
+        - `2.0 - 4.0`: Small
+        - `4.0 - 6.0`: Medium
+        - `6.0 - 8.0`: Large
+        - `8.0+`: Huge
+
+    - Mercalli Scale: Measures the intensity of shaking on a scale from I to XII.
+      - Example values:
+        - `I`: Not felt
+        - `III`: Weak shaking
+        - `V`: Moderate shaking
+        - `VII`: Strong shaking
+        - `IX`: Violent shaking
+        - `XII`: Total destruction
+
+2. Flood Scales:
+    - Flood Stage: Indicates the severity of flooding.
+      - Example values:
+        - `0 - 10`: Normal flow
+        - `10 - 20`: Action Stage
+        - `20 - 30`: Minor Flooding
+        - `30 - 40`: Moderate Flooding
+        - `40+`: Major Flooding
+
+    - Inundation Level: Measures the depth of water in meters or feet.
+      - Example values:
+        - `0 - 1 meter (3.3 feet)`: Low risk
+        - `1 - 3 meters (3.3 - 10 feet)`: Medium risk
+        - `3+ meters (10+ feet)`: High risk
+
+3. Hurricane Scales:
+    - Saffir-Simpson Scale: Measures hurricane strength by wind speed.
+      - Example values:
+        - `Category 1`: 74-95 mph (Minor damage)
+        - `Category 2`: 96-110 mph (Moderate damage)
+        - `Category 3`: 111-129 mph (Devastating damage)
+        - `Category 4`: 130-156 mph (Catastrophic damage)
+        - `Category 5`: 157+ mph (Complete destruction)
+
+    - Beaufort Scale: Measures wind speed from 0 to 12.
+      - Example values:
+        - `0`: Calm (< 1 mph)
+        - `3`: Gentle breeze (7-10 mph)
+        - `6`: Strong breeze (25-31 mph)
+        - `9`: Strong gale (47-54 mph)
+        - `12`: Hurricane force (73+ mph)
+
+4. Tornado Scales:
+    - Enhanced Fujita Scale: Rates tornado intensity based on damage caused.
+      - Example values:
+        - `EF0`: 65-85 mph (Minor damage)
+        - `EF1`: 86-110 mph (Moderate damage)
+        - `EF2`: 111-135 mph (Considerable damage)
+        - `EF3`: 136-165 mph (Severe damage)
+        - `EF4`: 166-200 mph (Devastating damage)
+        - `EF5`: 200+ mph (Incredible damage)
+
+    - TORRO Scale: Measures tornado strength, ranging from T0 to T11.
+      - Example values:
+        - `T0 - T1`: Weak tornado (Minor damage)
+        - `T2 - T3`: Moderate tornado (Moderate damage)
+        - `T4 - T5`: Strong tornado (Severe damage)
+        - `T6 - T7`: Very strong tornado (Devastating damage)
+        - `T8 - T10`: Violent tornado (Massive damage)
+        - `T11`: Super tornado (Unprecedented damage)
+
+5. Wildfire Scales:
+    - Fire Danger Index (FDI): Measures potential fire danger.
+      - Example values:
+        - `0 - 5`: Low risk
+        - `6 - 12`: Moderate risk
+        - `13 - 25`: High risk
+        - `26 - 50`: Very high risk
+        - `50+`: Extreme risk
+
+    - Burn Area Index (BAI): Estimates the burn severity based on satellite data.
+      - Example values:
+        - `0 - 50`: Low severity
+        - `51 - 100`: Medium severity
+        - `101+`: High severity
+

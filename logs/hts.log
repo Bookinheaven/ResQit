@@ -1,0 +1,81 @@
+2024-10-04 07:45:24.041 [AWT-EventQueue-0] WARN  Main - Warning in ThemeManager.java: [FileNotFoundException while reading properties] 
+2024-10-04 07:45:24.388 [AWT-EventQueue-0] INFO  Main - App Loaded Successfully!
+2024-10-04 07:45:24.956 [AWT-EventQueue-0] WARN  Main - Warning in MainUtils.java: [FileNotFoundException] while reading in RememberMeReader
+2024-10-04 07:45:37.901 [AWT-EventQueue-0] INFO  Main - Database connection closed.
+2024-10-04 07:45:37.940 [AWT-EventQueue-0] INFO  Main - Database connection closed.
+2024-10-04 07:45:37.944 [AWT-EventQueue-0] WARN  Main - Warning in LoginPanel.java: [FileNotFoundException in rememberMeSaver] : Config file not found, a new one will be created
+2024-10-04 07:45:38.756 [AWT-EventQueue-0] INFO  Main - User Login successful!
+2024-10-04 07:46:37.978 [AWT-EventQueue-0] INFO  Main - App Loaded Successfully!
+2024-10-04 07:46:38.838 [AWT-EventQueue-0] INFO  Main - Database connection closed.
+2024-10-04 07:46:38.882 [AWT-EventQueue-0] INFO  Main - Database connection closed.
+2024-10-04 07:46:39.387 [JavaFX Application Thread] ERROR Main - Error in UserDashboardPanel.java: [IOException]: javafx.fxml.FXMLLoader.constructLoadException(FXMLLoader.java:2727)
+javafx.fxml.FXMLLoader$ValueElement.processAttribute(FXMLLoader.java:935)
+javafx.fxml.FXMLLoader$InstanceDeclarationElement.processAttribute(FXMLLoader.java:983)
+javafx.fxml.FXMLLoader$Element.processStartElement(FXMLLoader.java:230)
+javafx.fxml.FXMLLoader$ValueElement.processStartElement(FXMLLoader.java:757)
+javafx.fxml.FXMLLoader.processStartElement(FXMLLoader.java:2858)
+javafx.fxml.FXMLLoader.loadImpl(FXMLLoader.java:2654)
+javafx.fxml.FXMLLoader.loadImpl(FXMLLoader.java:2568)
+javafx.fxml.FXMLLoader.load(FXMLLoader.java:2536)
+org.burnknuckle.javafx.model.UserDashboardPanel.lambda$createHomePage$0(UserDashboardPanel.java:267)
+com.sun.javafx.application.PlatformImpl.lambda$runLater$10(PlatformImpl.java:456)
+java.base/java.security.AccessController.doPrivileged(AccessController.java:400)
+com.sun.javafx.application.PlatformImpl.lambda$runLater$11(PlatformImpl.java:455)
+com.sun.glass.ui.InvokeLaterDispatcher$Future.run(InvokeLaterDispatcher.java:95)
+com.sun.glass.ui.win.WinApplication._runLoop(Native Method)
+com.sun.glass.ui.win.WinApplication.lambda$runLoop$3(WinApplication.java:184)
+java.base/java.lang.Thread.run(Thread.java:1570)
+
+2024-10-04 07:46:39.392 [JavaFX Application Thread] ERROR Main - Error in UserDashboardPanel.java: [IOException]: javafx.fxml.FXMLLoader.constructLoadException(FXMLLoader.java:2727)
+javafx.fxml.FXMLLoader$ValueElement.processAttribute(FXMLLoader.java:935)
+javafx.fxml.FXMLLoader$InstanceDeclarationElement.processAttribute(FXMLLoader.java:983)
+javafx.fxml.FXMLLoader$Element.processStartElement(FXMLLoader.java:230)
+javafx.fxml.FXMLLoader$ValueElement.processStartElement(FXMLLoader.java:757)
+javafx.fxml.FXMLLoader.processStartElement(FXMLLoader.java:2858)
+javafx.fxml.FXMLLoader.loadImpl(FXMLLoader.java:2654)
+javafx.fxml.FXMLLoader.loadImpl(FXMLLoader.java:2568)
+javafx.fxml.FXMLLoader.load(FXMLLoader.java:2536)
+org.burnknuckle.javafx.model.UserDashboardPanel.lambda$createRequestResourcesSubPage$1(UserDashboardPanel.java:369)
+com.sun.javafx.application.PlatformImpl.lambda$runLater$10(PlatformImpl.java:456)
+java.base/java.security.AccessController.doPrivileged(AccessController.java:400)
+com.sun.javafx.application.PlatformImpl.lambda$runLater$11(PlatformImpl.java:455)
+com.sun.glass.ui.InvokeLaterDispatcher$Future.run(InvokeLaterDispatcher.java:95)
+com.sun.glass.ui.win.WinApplication._runLoop(Native Method)
+com.sun.glass.ui.win.WinApplication.lambda$runLoop$3(WinApplication.java:184)
+java.base/java.lang.Thread.run(Thread.java:1570)
+
+2024-10-04 07:46:39.401 [JavaFX Application Thread] ERROR Main - Error in UserDashboardPanel.java: [IOException]: javafx.fxml.FXMLLoader.constructLoadException(FXMLLoader.java:2727)
+javafx.fxml.FXMLLoader$ValueElement.processAttribute(FXMLLoader.java:935)
+javafx.fxml.FXMLLoader$InstanceDeclarationElement.processAttribute(FXMLLoader.java:983)
+javafx.fxml.FXMLLoader$Element.processStartElement(FXMLLoader.java:230)
+javafx.fxml.FXMLLoader$ValueElement.processStartElement(FXMLLoader.java:757)
+javafx.fxml.FXMLLoader.processStartElement(FXMLLoader.java:2858)
+javafx.fxml.FXMLLoader.loadImpl(FXMLLoader.java:2654)
+javafx.fxml.FXMLLoader.loadImpl(FXMLLoader.java:2568)
+javafx.fxml.FXMLLoader.load(FXMLLoader.java:2536)
+org.burnknuckle.javafx.model.UserDashboardPanel.lambda$createDisasterSubPage$2(UserDashboardPanel.java:385)
+com.sun.javafx.application.PlatformImpl.lambda$runLater$10(PlatformImpl.java:456)
+java.base/java.security.AccessController.doPrivileged(AccessController.java:400)
+com.sun.javafx.application.PlatformImpl.lambda$runLater$11(PlatformImpl.java:455)
+com.sun.glass.ui.InvokeLaterDispatcher$Future.run(InvokeLaterDispatcher.java:95)
+com.sun.glass.ui.win.WinApplication._runLoop(Native Method)
+com.sun.glass.ui.win.WinApplication.lambda$runLoop$3(WinApplication.java:184)
+java.base/java.lang.Thread.run(Thread.java:1570)
+
+2024-10-04 07:46:41.754 [AWT-EventQueue-0] INFO  Main - Clicked DisasterPage
+2024-10-04 07:46:47.115 [AWT-EventQueue-0] INFO  Main - Clicked HomePage
+2024-10-04 07:46:47.779 [AWT-EventQueue-0] INFO  Main - Clicked DisasterPage
+2024-10-04 07:46:48.784 [AWT-EventQueue-0] INFO  Main - Clicked HomePage
+2024-10-04 07:46:49.449 [AWT-EventQueue-0] INFO  Main - Clicked DisasterPage
+2024-10-04 07:46:50.219 [AWT-EventQueue-0] INFO  Main - Clicked HomePage
+2024-10-04 07:47:43.844 [AWT-EventQueue-0] INFO  Main - App Loaded Successfully!
+2024-10-04 07:47:44.588 [AWT-EventQueue-0] INFO  Main - Database connection closed.
+2024-10-04 07:47:44.628 [AWT-EventQueue-0] INFO  Main - Database connection closed.
+2024-10-04 07:47:46.766 [AWT-EventQueue-0] INFO  Main - Clicked DisasterPage
+2024-10-04 07:47:50.726 [AWT-EventQueue-0] INFO  Main - Clicked HomePage
+2024-10-04 07:47:51.517 [AWT-EventQueue-0] INFO  Main - Clicked DisasterPage
+2024-10-04 07:47:56.419 [AWT-EventQueue-0] INFO  Main - Clicked HomePage
+2024-10-04 07:47:57.363 [AWT-EventQueue-0] INFO  Main - Clicked DisasterPage
+2024-10-04 07:48:00.022 [AWT-EventQueue-0] INFO  Main - Clicked HomePage
+2024-10-04 07:48:01.094 [AWT-EventQueue-0] INFO  Main - Clicked Account
+2024-10-04 07:48:03.161 [AWT-EventQueue-0] INFO  Main - Properties Cleared!
