@@ -33,11 +33,13 @@ public class LoginSystem {
     private static BgPanel BgPanel;
     private static JPanel overlayPanel;
     public static String currentPage = "";
-    private static JProgressBar progressBar;
 
     public LoginSystem(JFrame frame) {
         this.MainFrame = frame;
+        currentPage = "";
         initialize();
+        frame.repaint();
+        frame.revalidate();
     }
     private static void rememberMeSaver(String username, String password) {
         Properties props = new Properties();
@@ -128,20 +130,10 @@ public class LoginSystem {
         };
         LoginPanel1 = new LoginPanel(MainFrame, MainPane);
         signUpPanel1 = new SignUpPanel(MainFrame, MainPane);
-
-        // Initialize Progress Bar
-        progressBar = new JProgressBar();
-        progressBar.setStringPainted(true);
-        progressBar.setIndeterminate(false);
-        progressBar.setVisible(false);
-        progressBar.setBounds(500, 300, 400, 30);
-        MainPane.add(progressBar, Integer.valueOf(2));
-
+        logger.info(LoginPanel1.getPanel().getHeight());
         bgLoader.execute();
-        SwingUtilities.invokeLater(() -> {
-            CenterOverlayPanel = BtwLS(MainFrame, MainPane, "login");
-            CenterOverlayPanel.setVisible(true);
-        });
+        CenterOverlayPanel = BtwLS(MainFrame, MainPane, "login");
+        CenterOverlayPanel.setVisible(true);
     }
 
     public static void Login(JFrame frame, JTextField usernameField, JPasswordField passwordField, JCheckBox rememberMeCheckbox, JButton loginButton, JLabel warningLabel) {
@@ -152,8 +144,6 @@ public class LoginSystem {
             return;
         }
         loginButton.setEnabled(username.length() > 3 && password.length() > 3);
-
-        progressBar.setVisible(true);
 
         String status = UserCredentialsCheck(username, password);
         Map<String, Object> userdata = Map.of();

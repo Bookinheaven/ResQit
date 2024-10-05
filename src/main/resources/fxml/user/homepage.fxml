@@ -6,10 +6,9 @@
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.text.Font?>
 
-
-<?import javafx.scene.layout.StackPane?>
 <StackPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.burnknuckle.controllers.User.homePageController">
 
    <GridPane BorderPane.alignment="CENTER">
@@ -20,7 +19,6 @@
       </columnConstraints>
       <rowConstraints>
          <RowConstraints maxHeight="50.0" minHeight="40.0" prefHeight="40.0" />
-         <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
       </rowConstraints>
@@ -36,7 +34,7 @@
          </BorderPane>
          <ScrollPane prefHeight="393.0" prefWidth="600.0" GridPane.columnSpan="3" GridPane.rowIndex="1" GridPane.rowSpan="2">
             <content>
-               <BorderPane>
+               <BorderPane prefHeight="323.0" prefWidth="588.0">
                   <center>
                      <GridPane prefHeight="604.0" prefWidth="588.0">
                        <columnConstraints>
@@ -47,6 +45,7 @@
                          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                           <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                        </rowConstraints>
                      </GridPane>
                   </center>

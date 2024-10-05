@@ -12,6 +12,7 @@ import java.io.InputStream;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 
+import static org.burnknuckle.controllers.LoginSystem.*;
 import static org.burnknuckle.model.ThemeManager.currentTheme;
 import static org.burnknuckle.utils.MainUtils.*;
 
@@ -21,8 +22,7 @@ public class Main {
     private static JFrame splashFrame;
     public static final Logger logger = LogManager.getLogger(Main.class.getName());
 
-
-    public static void setIcon(JFrame frame){
+    public static void setIcon(JFrame frame) {
         FlatSVGIcon.ColorFilter colorFilter = FlatSVGIcon.ColorFilter.getInstance()
                 .add(Color.black, Color.black, Color.white)
                 .add(Color.white, Color.white, Color.black);
@@ -32,7 +32,7 @@ public class Main {
         frame.setIconImage(logoSvg.getImage());
     }
 
-    private static void SplashScreenShow(){
+    private static void showSplashScreen() {
         splashFrame = new JFrame();
         setIcon(splashFrame);
         splashFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -49,60 +49,60 @@ public class Main {
 
         SwingWorker<Void, Void> worker = new SwingWorker<>() {
             @Override
-            protected Void doInBackground() { // 4000
-                Timer timer = new Timer(500, _ -> initializeLoginSystem(mainFrame));
-                timer.setRepeats(false);
-                timer.start();
+            protected Void doInBackground() throws InterruptedException {
+                Thread.sleep(3000);
+                initializeLoginSystem(mainFrame);
                 return null;
             }
+
             @Override
             protected void done() {
-                if (!splashFrame.isVisible()) {
-                    mainFrame.setVisible(true);
-                }
+                splashFrame.dispose();
+                mainFrame.setVisible(true);
+                logger.info("Splash Screen Closed, Main Frame is now visible.");
             }
         };
-        worker.execute(); // 5000
-        Timer timer = new Timer(500, _ -> {
-            splashFrame.dispose();
-            try {
-                worker.get();
-                mainFrame.setVisible(true);
-            } catch (InterruptedException | ExecutionException ex) {
-                logger.warn("SplashScreen Worker: %s".formatted(getStackTraceAsString(ex)));
-            }
-        });
-
-        timer.setRepeats(false);
-        timer.start();
+        worker.execute();
     }
-    private static void setFont(){
+
+    private static void setFont() {
         try {
             GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
             InputStream spaceGrotesk = Main.class.getClassLoader().getResourceAsStream("fonts/Inter.ttf");
             InputStream inter = Main.class.getClassLoader().getResourceAsStream("fonts/SpaceGrotesk.ttf");
-            if(spaceGrotesk != null) {Font spaceGroteskFont = Font.createFont(Font.TRUETYPE_FONT, spaceGrotesk); ge.registerFont(spaceGroteskFont);}
-            if(inter!=null) {Font interFont = Font.createFont(Font.TRUETYPE_FONT, inter);ge.registerFont(interFont);}
+            if (spaceGrotesk != null) {
+                Font spaceGroteskFont = Font.createFont(Font.TRUETYPE_FONT, spaceGrotesk);
+                ge.registerFont(spaceGroteskFont);
+            }
+            if (inter != null) {
+                Font interFont = Font.createFont(Font.TRUETYPE_FONT, inter);
+                ge.registerFont(interFont);
+            }
         } catch (Exception e) {
             logger.error("Error in Main.java: [setFont]: %s".formatted(getStackTraceAsString(e)));
         }
     }
-    public static void main(String[] args) {
+    public static void setUp() {
         setLoggerContext();
         SwingUtilities.invokeLater(() -> {
             try {
                 setFont();
-                Main window =  new Main();
-                SplashScreenShow();
+                Main window = new Main();
+                showSplashScreen();
                 logger.info("App Loaded Successfully!");
             } catch (Exception e) {
                 logger.error("Error in Main.java: [Exception while invoking the worker] %s \n".formatted(getStackTraceAsString(e)));
             }
         });
     }
+
+    public static void main(String[] args) {
+        setUp();
+    }
+
     public Main() {
         try {
-            if (Objects.equals(currentTheme, "dark")){
+            if (Objects.equals(currentTheme, "dark")) {
                 UIManager.setLookAndFeel(new FlatDarkLaf());
             } else if (Objects.equals(currentTheme, "light")) {
                 UIManager.setLookAndFeel(new FlatLightLaf());
@@ -120,5 +120,4 @@ public class Main {
         mainFrame.setVisible(false);
         addThemeSelectorMenu(mainFrame);
     }
-
 }

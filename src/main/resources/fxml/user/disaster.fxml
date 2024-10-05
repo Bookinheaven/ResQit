@@ -20,7 +20,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<StackPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="808.0" prefWidth="1308.0" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.burnknuckle.controllers.User.disasterPageController" >
+<StackPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="808.0" prefWidth="1308.0" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.burnknuckle.controllers.User.disasterPageController">
    <children>
       <GridPane BorderPane.alignment="CENTER">
          <columnConstraints>
@@ -64,7 +64,7 @@
                            <children>
                               <HBox alignment="CENTER" GridPane.columnSpan="3" GridPane.rowSpan="2">
                                  <children>
-                                    <VBox>
+                                    <VBox fx:id="vBoxFrame">
                                        <children>
                                           <Label text="Information">
                                              <font>
@@ -247,7 +247,7 @@
                                                       <Font name="Fira Code Regular" size="15.0" />
                                                    </font>
                                                 </Label>
-                                                <Button fx:id="submitButton" alignment="CENTER" mnemonicParsing="false" onAction="#submitData" prefHeight="30.0" prefWidth="203.0" text="Submit" styleClass="Submit-button">
+                                                <Button fx:id="submitButton" alignment="CENTER" mnemonicParsing="false" onAction="#submitData" prefHeight="30.0" prefWidth="203.0" styleClass="Submit-button" text="Submit">
                                                    <font>
                                                       <Font name="Fira Code Regular" size="14.0" />
                                                    </font>

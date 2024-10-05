@@ -143,15 +143,14 @@ public class AdminUsersLabel extends JPanel {
         userPanel.setBackground(getColorFromHex(ADPThemeData.get("background")));
 
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(13, 10, 13, 10);
+        gbc.insets = new Insets(13, 10, 30, 10);
         gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.weighty = 1.0;
+        gbc.weightx = 0.05;
         int row = 0;
         for (Map<String, Object> member : data) {
             int col = 0;
             gbc.gridy = row;
             gbc.gridx = col++;
-            gbc.weightx = 0.10;
             JCheckBox selectAllCheckBox = new JCheckBox();
             selectAllCheckBox.setIcon(new FlatSVGIcon(Objects.requireNonNull(AdminUsersLabel.class.getClassLoader().getResource("icons/checkBoxE.svg"))));
             selectAllCheckBox.setSelectedIcon(new FlatSVGIcon(Objects.requireNonNull(AdminUsersLabel.class.getClassLoader().getResource("icons/disabledBox.svg"))));
@@ -184,15 +183,13 @@ public class AdminUsersLabel extends JPanel {
         String text;
         if (temp != null && !title.equals("sno")) {
             text = temp;
-            gbc.weightx = 0.25;
         } else if (title.equals("sno")) {
             text = String.valueOf(row + 1);
-            gbc.weightx = 0.30;
         } else {
             text = "None";
-            gbc.weightx = 0.25;
         }
         boolean[] check = {false};
+        gbc.weightx = 1.0;
         JLabel userLabel = createUserLabel(text, check);
         userPanel.add(userLabel, gbc);
     }

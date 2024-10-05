@@ -8,7 +8,6 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import org.burnknuckle.controllers.LoginSystem;
 import org.burnknuckle.model.ThemeManager;
-import org.burnknuckle.ui.subParts.LoadingPageController;
 
 import javax.swing.*;
 import java.awt.*;
@@ -19,7 +18,8 @@ import java.util.*;
 
 import static org.burnknuckle.controllers.Main.logger;
 import static org.burnknuckle.model.ThemeManager.*;
-import static org.burnknuckle.utils.MainUtils.*;
+import static org.burnknuckle.utils.MainUtils.clearProperties;
+import static org.burnknuckle.utils.MainUtils.getStackTraceAsString;
 
 public class UserDashboardPanel {
     private final JFrame frame;
@@ -37,9 +37,7 @@ public class UserDashboardPanel {
     private String currentPage = "HomePage";
     private final Deque<String> pageStack = new LinkedList<>();
     private static final int MAX_PAGES = 5;
-    private String priPage = "HomePage";
     private String subPage = "";
-    private LoadingPageController loadingController;
     public static String currentUser;
     private JLabel resRequestLabel;
     private JLabel disasterAddReqMainLabel;
@@ -278,21 +276,20 @@ public class UserDashboardPanel {
                         JOptionPane.YES_NO_OPTION
                 );
                 if (choice == JOptionPane.YES_OPTION) {
-                    frame.dispose();
                     clearProperties(new Properties());
                     SwingUtilities.invokeLater(() -> {
-                        currentPage = "";
-                        priPage = "";
-                        changeSubPage("");
-                        JFrame mainFrame = new JFrame();
-                        mainFrame.setTitle("ResQit");
-                        mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-                        mainFrame.setSize(new Dimension(1400, 900));
-                        mainFrame.setMinimumSize(new Dimension(1400, 900));
-                        mainFrame.setLocationRelativeTo(null);
-                        mainFrame.setVisible(false);
-                        addThemeSelectorMenu(mainFrame);
-                        new LoginSystem(mainFrame);
+                        try {
+                            currentPage = "";
+                            frame.getContentPane().removeAll();
+                            frame.repaint();
+                            frame.revalidate();
+                            frame.setVisible(false);
+                            new LoginSystem(frame);
+                            JOptionPane.showMessageDialog(frame, "You have logged out successfully.");
+                        } catch (Exception exx) {
+                            logger.error(getStackTraceAsString(exx));
+                            JOptionPane.showMessageDialog(frame, "An error occurred during logout.");
+                        }
                     });
                 }
             }
@@ -322,32 +319,22 @@ public class UserDashboardPanel {
         cardLayout.show(mainContent, tabName);
     }
 
-    private JFXPanel createHomePage() {
-        JFXPanel homePage = new JFXPanel();
+    private JPanel createHomePage() {
+        JPanel homePage = new JPanel();
         dashSpace.setLayout(new BorderLayout());
         dashSpace.add(homePage, BorderLayout.CENTER);
-        Platform.runLater(() -> {
-            try {
-                FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/fxml/user/homepage.fxml"));
-                Parent root = fxmlLoader.load();
-                Scene scene = new Scene(root);
-                homePage.setScene(scene);
-            } catch (IOException e) {
-                logger.error("Error in UserDashboardPanel.java: [IOException]: %s".formatted(getStackTraceAsString(e)));
-            }
-        });
         return homePage;
     }
     private JPanel createDisasterPage() {
         JPanel disasterPanel = new JPanel();
         disasterPanel.setLayout(new GridBagLayout());
-        GridBagConstraints bgbc = new GridBagConstraints();
-        bgbc.gridx = 0;
-        bgbc.gridy = 0;
-        bgbc.fill = GridBagConstraints.HORIZONTAL;
-        bgbc.weighty = 1.0;
-        bgbc.weightx = 1.0;
-        bgbc.insets = new Insets(10,10,10,10);
+        GridBagConstraints bGbc = new GridBagConstraints();
+        bGbc.gridx = 0;
+        bGbc.gridy = 0;
+        bGbc.fill = GridBagConstraints.HORIZONTAL;
+        bGbc.weighty = 1.0;
+        bGbc.weightx = 1.0;
+        bGbc.insets = new Insets(10,10,10,10);
         JPanel ResRequestPanel = new JPanel();
         resRequestLabel = new JLabel(new FlatSVGIcon(Objects.requireNonNull(getClass().getClassLoader().getResource("UserDashboardPanel/resRequest.svg"))));
         resRequestLabel.setPreferredSize(new Dimension(250,250));
@@ -383,13 +370,13 @@ public class UserDashboardPanel {
         tasksLabel.setHorizontalTextPosition(JLabel.CENTER);
         tasksLabel.setBackground(getColorFromHex(ADPThemeData.get("default-menu-button")));
 
-        disasterPanel.add(resRequestLabel,bgbc);
-        bgbc.gridx = 1;
-        bgbc.gridy = 0;
-        disasterPanel.add(disasterAddReqMainLabel,bgbc);
-        bgbc.gridx = 2;
-        bgbc.gridy = 0;
-        disasterPanel.add(tasksLabel,bgbc);
+        disasterPanel.add(resRequestLabel,bGbc);
+        bGbc.gridx = 1;
+        bGbc.gridy = 0;
+        disasterPanel.add(disasterAddReqMainLabel,bGbc);
+        bGbc.gridx = 2;
+        bGbc.gridy = 0;
+        disasterPanel.add(tasksLabel,bGbc);
 
         resRequestLabel.addMouseListener(new MouseAdapter() {
             @Override
@@ -411,9 +398,7 @@ public class UserDashboardPanel {
             @Override
             public void mouseClicked(MouseEvent e) {
                 cardLayout.show(mainContent, "Disaster");
-
             }
-
             @Override
             public void mouseExited(MouseEvent e) {
                 disasterAddReqMainLabel.setBackground(getColorFromHex(ADPThemeData.get("default-menu-button")));

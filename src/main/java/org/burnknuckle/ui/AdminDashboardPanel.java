@@ -4,7 +4,6 @@ import com.formdev.flatlaf.extras.FlatSVGIcon;
 import com.formdev.flatlaf.extras.components.FlatTabbedPane;
 import com.formdev.flatlaf.ui.FlatTabbedPaneUI;
 import org.burnknuckle.controllers.LoginSystem;
-import org.burnknuckle.controllers.Main;
 import org.burnknuckle.utils.Database;
 
 import javax.swing.Timer;
@@ -17,12 +16,12 @@ import java.awt.geom.RoundRectangle2D;
 import java.util.List;
 import java.util.*;
 
-import static org.burnknuckle.controllers.LoginSystem.currentPage;
+import static org.burnknuckle.controllers.Main.logger;
 import static org.burnknuckle.model.ThemeManager.*;
 import static org.burnknuckle.ui.subParts.AdminUsersLabel.setTitleBar;
 import static org.burnknuckle.ui.subParts.AdminUsersLabel.userFrames;
-import static org.burnknuckle.utils.MainUtils.addThemeSelectorMenu;
 import static org.burnknuckle.utils.MainUtils.clearProperties;
+import static org.burnknuckle.utils.MainUtils.getStackTraceAsString;
 
 public class AdminDashboardPanel {
     private final JFrame frame;
@@ -41,7 +40,8 @@ public class AdminDashboardPanel {
     private JButton MenuButton;
     private JPanel mainContent;
     private Map<String, Object> userdata;
-    private static String currentPageTitle = "Dashboard";
+    private final Deque<String> pageStack = new LinkedList<>();
+    private String currentPage = "Dashboard";
 
 
     public AdminDashboardPanel(JFrame frame, Map<String, Object> userdata ) {
@@ -160,7 +160,7 @@ public class AdminDashboardPanel {
         buttonPanel = new JPanel();
         buttonPanel.setLayout(new GridLayout(6, 1, 10, 10));
         buttonPanel.setBackground(getColorFromHex(ADPThemeData.get("sidebar")));
-        String[] buttonLabels = {"Dashboard", "Resources", "Co-Admins", "Locations", "Delivery Status", "Volunteer Management"};
+        String[] buttonLabels = {"Dashboard", "Disaster", "Co-Admins", "Locations", "Delivery Status", "Volunteer Management"};
         for (String label : buttonLabels) {
             JButton button = createSidebarButton(label);
             buttonPanel.add(button);
@@ -198,22 +198,24 @@ public class AdminDashboardPanel {
                         JOptionPane.YES_NO_OPTION
                 );
                 if (choice == JOptionPane.YES_OPTION) {
-                    frame.dispose();
                     clearProperties(new Properties());
                     SwingUtilities.invokeLater(() -> {
-                        currentPage = "";
-                        JFrame mainFrame = new JFrame();
-                        mainFrame.setTitle("ResQit");
-                        mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-                        mainFrame.setSize(new Dimension(1400, 900));
-                        mainFrame.setMinimumSize(new Dimension(1400, 900));
-                        mainFrame.setLocationRelativeTo(null);
-                        mainFrame.setVisible(false);
-                        Main.setIcon(mainFrame);
-                        addThemeSelectorMenu(mainFrame);
-                        new LoginSystem(mainFrame);
+                        try {
+                            currentPage = "";
+                            frame.getContentPane().removeAll();
+                            frame.repaint();
+                            frame.revalidate();
+                            frame.setVisible(false);
+                            new LoginSystem(frame);
+//                            frame.setVisible(true);
+                            JOptionPane.showMessageDialog(frame, "You have logged out successfully.");
+                        } catch (Exception exx) {
+                            logger.error(getStackTraceAsString(exx));
+                            JOptionPane.showMessageDialog(frame, "An error occurred during logout.");
+                        }
                     });
                 }
+
             }
         });
         overlayPanel = new JPanel() {
@@ -245,7 +247,7 @@ public class AdminDashboardPanel {
         mainContent.setLayout(cardLayout);
 
         mainContent.add(createDashboardPanel(), "Dashboard");
-        mainContent.add(createResourcesPanel(), "Resources");
+        mainContent.add(createDisasterResourcesPanel(), "Disaster");
         mainContent.add(createCoAdminsPanel(), "Co-Admins");
         mainContent.add(createAddMarkersPanel(), "Locations");
         mainContent.add(createDeliveryStatusPanel(), "Delivery Status");
@@ -318,18 +320,16 @@ public class AdminDashboardPanel {
     }
 
     private JPanel createDashboardPanel() {
-        currentPageTitle = "Dashboard";
+        currentPage = "Dashboard";
         JPanel panel = new JPanel();
         panel.setBackground(getColorFromHex(ADPThemeData.get("background")));
         panel.add(new JLabel("Dashboard Content Here"));
         return panel;
     }
 
-    private JPanel createResourcesPanel() {
-        currentPageTitle = "Resources";
+    private JPanel createDisasterResourcesPanel() {
+        currentPage = "Disaster";
         JPanel panel = new JPanel();
-        panel.setBackground(getColorFromHex(ADPThemeData.get("background")));
-        panel.add(new JLabel("Resources Content Here"));
         return panel;
     }
     private String loadIconSort(String sortDirection, JButton sortButton){
@@ -344,7 +344,7 @@ public class AdminDashboardPanel {
         return sortDirection;
     }
     private JPanel createCoAdminsPanel() {
-        currentPageTitle = "CoAdmins";
+        currentPage = "CoAdmins";
         Database db = Database.getInstance();
         JPanel panel = new JPanel(new BorderLayout());
         JPanel inner = new JPanel(new GridBagLayout());
@@ -582,8 +582,6 @@ public class AdminDashboardPanel {
         panel.add(inner, BorderLayout.CENTER);
         return panel;
     }
-
-
     private JPanel createAddMarkersPanel() {
         JPanel panel = new JPanel();
         panel.setBackground(getColorFromHex(ADPThemeData.get("background")));
@@ -597,10 +595,23 @@ public class AdminDashboardPanel {
         panel.add(new JLabel("Delivery Status Content Here"));
         return panel;
     }
-
+    private static int targetCol(String Key, java.util.List<Map<String, Object>>  coAdminData){
+        String targetKey = "username";
+        int maxLength = 0;
+        for (Map<String, Object> userData : coAdminData) {
+            Object value = userData.get(targetKey);
+            if (value instanceof String) {
+                int length = ((String) value).length();
+                if (length > maxLength) {
+                    maxLength = length;
+                }
+            }
+        }
+        return maxLength;
+    }
     private JPanel createVolunteerManagementPanel() {
         Database db = Database.getInstance();
-        List<Map<String, Object>> coAdminData = db.getPrivilegeData("co-admin");
+        java.util.List<Map<String, Object>>  coAdminData = db.getPrivilegeData("co-admin");
         ArrayList<String> userDataDetails = new ArrayList<>(Arrays.asList(
                 "Sno", "Username", "Gender", "Role", "Email", "Privilege", "Password",
                 "First Name", "Last Name", "Phone Number", "Date of Birth",
@@ -614,19 +625,6 @@ public class AdminDashboardPanel {
         for (Integer index : selectedTitles) {
             selectedUserDataDetails.add(userDataDetails.get(index));
         }
-        Object[] rowData = new Object[0];
-        int id = 1;
-        for (Map<String, Object> userData : coAdminData) {
-            rowData = new Object[]{
-                    id++, userData.get("username"), userData.get("gender"), userData.get("role"),
-                    userData.get("email"), userData.get("privilege"), userData.get("password"),
-                    userData.get("first_name"), userData.get("last_name"), userData.get("phone_number"),
-                    userData.get("date_of_birth"), userData.get("account_created"), userData.get("last_login"),
-                    userData.get("is_active"), userData.get("address"), userData.get("profile_picture_url"),
-                    userData.get("bio"), userData.get("failed_login_attempts"), userData.get("password_last_updated"),
-            };
-        }
-
         JPanel pageBackGroundPanel = new JPanel();
         pageBackGroundPanel.setBackground(getColorFromHex(ADPThemeData.get("TabTitleBg")));
         pageBackGroundPanel.setLayout(new BorderLayout());
@@ -650,16 +648,22 @@ public class AdminDashboardPanel {
         pageInnerGbc.gridx = 0;
         pageInnerGbc.gridy = 0;
         pageInnerGbc.fill = GridBagConstraints.HORIZONTAL;
-        pageInnerGbc.weightx = 1.0;
+//        pageInnerGbc.weightx = 1.0;
         pageInnerGbc.anchor = GridBagConstraints.NORTHWEST;
+        pageInnerGbc.insets = new Insets(0,0,0,10);
 
         JPanel columnTitles = setTitleBar(selectedUserDataDetails);
+        columnTitles.setBackground(Color.red);
         pageInner.add(columnTitles, pageInnerGbc);
+        logger.info(coAdminData.toString());
+        logger.info(coAdminData.size());
 
         pageInnerGbc.gridy = 1;
         pageInnerGbc.weightx = 1.0;
         pageInnerGbc.weighty = 1.0;
         pageInnerGbc.fill = GridBagConstraints.BOTH;
+        pageInnerGbc.anchor = GridBagConstraints.CENTER;
+
         JScrollPane userBlock = new JScrollPane(userFrames(coAdminData, selectedUserDataDetails));
         userBlock.setBackground(Color.CYAN);
         pageInner.add(userBlock, pageInnerGbc);
@@ -668,7 +672,7 @@ public class AdminDashboardPanel {
         page1Gbc.fill = GridBagConstraints.BOTH;
         page1Gbc.weightx = 1.0;
         page1Gbc.weighty = 1.0;
-        page1Gbc.insets = new Insets(10, 10, 10, 30);
+        page1Gbc.insets = new Insets(10, 10, 10, 20);
 
         roleManagementInner.add(pageInner, page1Gbc);
 
