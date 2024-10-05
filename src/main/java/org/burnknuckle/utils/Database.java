@@ -1,18 +1,30 @@
 package org.burnknuckle.utils;
 
 import java.sql.*;
+import java.time.LocalDate;
 import java.util.*;
 
 import static org.burnknuckle.controllers.Main.logger;
 import static org.burnknuckle.utils.MainUtils.getStackTraceAsString;
 
 public class Database {
-    private static final String[] TABLE_NAME = {"userdata", "resdata"};
-    private Connection con; 
+    private static final String[] TABLE_NAME = {"userdata", "resdata", "disasterdata"};
+    private static Database instance;
+    private Connection con;
+    private Database() {
+        connectDatabase();
+    }
+    public static synchronized Database getInstance() {
+        if (instance == null) {
+            instance = new Database();
+        }
+        return instance;
+    }
+
     public void connectDatabase() {
         try {
             con = getConnection();
-            if (checkTableExists(TABLE_NAME[0]) || checkTableExists(TABLE_NAME[1])) {
+            if (checkTableExists(TABLE_NAME[0]) || checkTableExists(TABLE_NAME[1]) || checkTableExists(TABLE_NAME[2])) {
                 createTable();
             }
         } catch (SQLException e) {
@@ -28,6 +40,16 @@ public class Database {
             con = DriverManager.getConnection(dbUrl, dbUsername, dbPassword);
         }
         return con;
+    }
+    public void closeConnection() {
+        try {
+            if (con != null && !con.isClosed()) {
+                con.close();
+                logger.info("Database connection closed.");
+            }
+        } catch (SQLException e) {
+            logger.error("Error in Database.java: |SQLException while closeConnection| %s \n".formatted(getStackTraceAsString(e)));
+        }
     }
     private boolean checkTableExists(String tableName) {
         try (ResultSet rs = con.getMetaData().getTables(null, null, tableName.toLowerCase(), null)) {
@@ -50,33 +72,53 @@ public class Database {
                 "phone_number VARCHAR(15), " +
                 "date_of_birth DATE, " +
                 "account_created TIMESTAMP DEFAULT CURRENT_TIMESTAMP, " +
-                "last_login TIMESTAMP, " +    // Timestamp for the last login
-                "is_active BOOLEAN DEFAULT TRUE, " + // Status of the user account
-                "address TEXT, " +            // Additional field for address
-                "profile_picture_url VARCHAR(255), " + // Field for storing URL to profile picture
-                "bio TEXT, " +                // Field for a user bio or description
-                "failed_login_attempts INT DEFAULT 0, " + // Track failed login attempts for security
-                "password_last_updated TIMESTAMP, " + // Timestamp for last password update
-                "CONSTRAINT chk_phone_number CHECK (phone_number ~ '^\\+?[0-9]*$'))"; // Ensure valid phone number format
+                "last_login TIMESTAMP, " +
+                "is_active BOOLEAN DEFAULT TRUE, " +
+                "address TEXT, " +
+                "profile_picture_url VARCHAR(255), " +
+                "bio TEXT, " +
+                "failed_login_attempts INT DEFAULT 0, " +
+                "password_last_updated TIMESTAMP, " +
+                "CONSTRAINT chk_phone_number CHECK (phone_number ~ '^\\+?[0-9]*$'))";
 
-        String createResData = "CREATE TABLE IF NOT EXISTS resData ("
-                + "id SERIAL PRIMARY KEY, "                // Unique ID for each request, SERIAL handles auto-increment
-                + "username TEXT NOT NULL, "               // Username of the person making the request
-                + "userType TEXT CHECK(userType IN ('admin', 'user')) NOT NULL, " // Whether the requester is an admin or a user
-                + "location TEXT NOT NULL, "               // Location of the requester
-                + "resources TEXT NOT NULL, "              // Resources needed in JSON format
-                + "severity TEXT CHECK(severity IN ('low', 'moderate', 'high', 'critical')) NOT NULL, " // Severity level of the disaster
-                + "disasterType TEXT NOT NULL, "           // Type of disaster (e.g., flood, earthquake)
-                + "priorityLevel TEXT CHECK(priorityLevel IN ('low', 'medium', 'high', 'urgent')) NOT NULL, " // Priority level of the request
-                + "dateOfRequest TIMESTAMP DEFAULT CURRENT_TIMESTAMP, " // Date when the request was made
-                + "isApproved BOOLEAN DEFAULT FALSE, "     // Whether the request is approved or not
-                + "dateOfApproval TIMESTAMP, "             // Date when the request was approved (nullable)
-                + "comment TEXT, "                         // Comments regarding the request
-                + "contactInfo TEXT, "                     // Contact information of the requester
-                + "urgencyLevel TEXT CHECK(urgencyLevel IN ('immediate', 'within_24_hours', 'within_3_days')) NOT NULL, " // Urgency of the request
-                + "responseTeamAssigned TEXT, "            // Response team assigned to the request
-                + "lastUpdated TIMESTAMP DEFAULT CURRENT_TIMESTAMP " // Timestamp of the last update
-                + ");";
+        String createResData = "CREATE TABLE IF NOT EXISTS %s (".formatted(TABLE_NAME[1]) +
+                "id SERIAL PRIMARY KEY, " +
+                "username VARCHAR(25) NOT NULL, " +
+                "userType TEXT CHECK(userType IN ('admin', 'user')) NOT NULL, " +
+                "location TEXT NOT NULL, " +
+                "resources TEXT NOT NULL, " +
+                "severity TEXT CHECK(severity IN ('low', 'moderate', 'high', 'critical')) NOT NULL, " +
+                "disasterType TEXT NOT NULL, " +
+                "priorityLevel TEXT CHECK(priorityLevel IN ('low', 'medium', 'high', 'urgent')) NOT NULL, " +
+                "dateOfRequest TIMESTAMP DEFAULT CURRENT_TIMESTAMP, " +
+                "isApproved BOOLEAN DEFAULT FALSE, " +
+                "dateOfApproval TIMESTAMP, " +
+                "comment TEXT, " +
+                "contactInfo TEXT, " +
+                "urgencyLevel TEXT CHECK(urgencyLevel IN ('immediate', 'within_24_hours', 'within_3_days')) NOT NULL, " +
+                "responseTeamAssigned TEXT, " +
+                "lastUpdated TIMESTAMP DEFAULT CURRENT_TIMESTAMP, " +
+                "FOREIGN KEY (username) REFERENCES %s (username) ".formatted(TABLE_NAME[0]) +
+                ");";
+
+        String createDisasterData = "CREATE TABLE IF NOT EXISTS %s (".formatted(TABLE_NAME[2]) +
+                "id SERIAL PRIMARY KEY, " +
+                "disasterName VARCHAR(100) UNIQUE NOT NULL, " +
+                "disasterType TEXT NOT NULL, " +
+                "scaleMeter TEXT," +
+                "scale TEXT CHECK(scale IN ('local', 'regional', 'national')) NOT NULL, " +
+                "severity TEXT CHECK(severity IN ('low', 'moderate', 'high', 'critical')) NOT NULL, " +
+                "description TEXT, " +
+                "location TEXT NOT NULL, " +
+                "startDate TIMESTAMP NOT NULL, " +
+                "endDate TIMESTAMP, " +
+                "responseStatus TEXT CHECK(responseStatus IN ('requested', 'ongoing', 'resolved')) NOT NULL, " +
+                "impactAssessment TEXT, " +
+                "dateOfEntry TIMESTAMP DEFAULT CURRENT_TIMESTAMP, " +
+                "lastUpdated TIMESTAMP DEFAULT CURRENT_TIMESTAMP, " +
+                "userUploaded VARCHAR(25) NOT NULL, "+
+                "FOREIGN KEY (userUploaded) REFERENCES %s (username) ".formatted(TABLE_NAME[0]) +
+                ");";
         try (Statement st = con.createStatement()) {
             st.executeUpdate(createUserData);
             logger.info("Table '%s' created successfully or already exists".formatted(TABLE_NAME[0]));
@@ -85,27 +127,71 @@ public class Database {
         }
         try (Statement st = con.createStatement()) {
             st.executeUpdate(createResData);
-            logger.info("Table '%s' created successfully or already exists".formatted(TABLE_NAME[0]));
+            logger.info("Table '%s' created successfully or already exists".formatted(TABLE_NAME[1]));
         } catch (SQLException e) {
             logger.error("Error in Database.java: |SQLException while createResData| %s \n".formatted(getStackTraceAsString(e)));
         }
-    }
-
-    public void insertUserData(String username, String password, String privilege, String email, String gender, String role) {
-        String insertSQL = "INSERT INTO userdata(username, password, privilege, email, gender, role) VALUES (?, ?, ?, ?, ?, ?)";
-        System.out.println(username+" "+password+" "+privilege+" "+email+" "+ gender+" "+role);
-        try (PreparedStatement pStmt = con.prepareStatement(insertSQL)) {
-            pStmt.setString(1, username);
-            pStmt.setString(2, password);
-            pStmt.setString(3, privilege);
-            pStmt.setString(4, email);
-            pStmt.setString(5, gender);
-            pStmt.setString(6, role);
-            pStmt.executeUpdate();
+        try (Statement st = con.createStatement()) {
+            st.executeUpdate(createDisasterData);
+            logger.info("Table '%s' created successfully or already exists".formatted(TABLE_NAME[2]));
         } catch (SQLException e) {
-            logger.error("Error in Database.java: |SQLException while insertUserData| %s \n".formatted(getStackTraceAsString(e)));
+            logger.error("Error in Database.java: |SQLException while DisasterData| %s \n".formatted(getStackTraceAsString(e)));
         }
     }
+
+    public void insertData(int TableNo, Map<String, Object> data) {
+        Set<String> columns = data.keySet();
+        String columnsString = String.join(", ", columns);
+        String placeholders = String.join(", ", columns.stream().map(col -> "?").toArray(String[]::new));
+        String insertSQL = "INSERT INTO %s(".formatted(TABLE_NAME[TableNo]) + columnsString + ") VALUES (" + placeholders + ")";
+            try (PreparedStatement pStmt = con.prepareStatement(insertSQL)) {
+                int index = 1;
+                for (String column : columns) {
+                    Object value = data.get(column);
+                    if (value instanceof String) {
+                        pStmt.setString(index, ((String) value).toLowerCase());
+                    } else if (value instanceof Integer) {
+                        pStmt.setInt(index, (Integer) value);
+                    } else if (value instanceof Boolean) {
+                        pStmt.setBoolean(index, (Boolean) value);
+                    } else if (value instanceof java.sql.Timestamp) {
+                        pStmt.setTimestamp(index, (java.sql.Timestamp) value);
+                    } else {
+                        pStmt.setObject(index, value);
+                    }
+                    index++;
+                }
+                pStmt.executeUpdate();
+                System.out.println("Data inserted into userdata successfully!");
+
+        } catch (SQLException e) {
+                e.printStackTrace();
+                logger.error("Error in Database.java: |SQLException while insertUserData| %s \n".formatted(getStackTraceAsString(e)));
+        }
+    }
+    public boolean checkForDuplicateEntries(Map<String, Object> data) {
+        String disasterType = (String) data.get("disasterType");
+        String disasterName = (String) data.get("disasterName");
+        LocalDate startDate = (LocalDate) data.get("startDate");
+
+        String checkSQL = "SELECT COUNT(*) FROM %s WHERE disasterType = ? AND disasterName = ? AND startDate = ?".formatted(TABLE_NAME[2]);
+
+        try (PreparedStatement checkStmt = con.prepareStatement(checkSQL)) {
+            checkStmt.setString(1, disasterType.toLowerCase());
+            checkStmt.setString(2, disasterName.toLowerCase());
+            checkStmt.setDate(3, java.sql.Date.valueOf(startDate));
+
+            ResultSet resultSet = checkStmt.executeQuery();
+            if (resultSet.next()) {
+                return resultSet.getInt(1) > 0;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            logger.error("Error in Database.java: |SQLException while checkForDuplicateEntries| %s \n".formatted(getStackTraceAsString(e)));
+        }
+        return false;
+    }
+
 
     public void queryUserData() {
         String querySQL = "SELECT * FROM %s".formatted(TABLE_NAME[0]);
@@ -133,7 +219,10 @@ public class Database {
             return -1;
         }
     }
-
+//    public Map<String, Object> getDisasterDetails() {
+//    }
+//    public void setDisasterDetails() {
+//    }
     public Map<String, Object> getUsernameDetails(String username) {
         String searchByUsername = "SELECT username, password, privilege, email, gender FROM %s WHERE username = ?".formatted(TABLE_NAME[0]);
         try (PreparedStatement pStmt = con.prepareStatement(searchByUsername)) {
@@ -170,17 +259,6 @@ public class Database {
         } catch (SQLException e) {
             logger.error("Error in Database.java: |SQLException while deleteUserData| %s \n".formatted(getStackTraceAsString(e)));
             return -1;
-        }
-    }
-
-    public void closeConnection() {
-        try {
-            if (con != null && !con.isClosed()) {
-                con.close();
-                logger.info("Database connection closed.");
-            }
-        } catch (SQLException e) {
-            logger.error("Error in Database.java: |SQLException while closeConnection| %s \n".formatted(getStackTraceAsString(e)));
         }
     }
 

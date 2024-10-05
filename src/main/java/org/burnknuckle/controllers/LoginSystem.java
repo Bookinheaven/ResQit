@@ -33,11 +33,33 @@ public class LoginSystem {
     private static BgPanel BgPanel;
     private static JPanel overlayPanel;
     public static String currentPage = "";
+    private static JProgressBar progressBar;
 
     public LoginSystem(JFrame frame) {
         this.MainFrame = frame;
         initialize();
     }
+    private static void rememberMeSaver(String username, String password) {
+        Properties props = new Properties();
+        try (FileInputStream input = new FileInputStream("config.properties")) {
+            props.load(input);
+        } catch (FileNotFoundException e) {
+            logger.warn("Warning in LoginPanel.java: [FileNotFoundException in rememberMeSaver] : Config file not found, a new one will be created");
+        } catch (IOException e) {
+            logger.error("Error in LoginPanel.java: [IOException while loading properties]: \n%s \n".formatted(getStackTraceAsString(e)));
+        }
+        props.setProperty("us", username);
+        props.setProperty("ps", password);
+        props.setProperty("lastClearTime", String.valueOf(System.currentTimeMillis()));
+        try (FileOutputStream output = new FileOutputStream("config.properties")) {
+            props.store(output, "Properties updated");
+        } catch (FileNotFoundException e) {
+            logger.error("Error in LoginPanel.java: [FileNotFoundException]: \n%s \n".formatted(getStackTraceAsString(e)));
+        } catch (IOException e) {
+            logger.error("Error in LoginPanel.java: [IOException while saving properties]: \n%s \n".formatted(getStackTraceAsString(e)));
+        }
+    }
+
     public static JPanel BtwLS(JFrame MainFrame, JLayeredPane MainPane, String ChangeTo) {
         if (!currentPage.equals(ChangeTo)) {
             if (CenterOverlayPanel != null) CenterOverlayPanel.setVisible(false);
@@ -106,50 +128,42 @@ public class LoginSystem {
         };
         LoginPanel1 = new LoginPanel(MainFrame, MainPane);
         signUpPanel1 = new SignUpPanel(MainFrame, MainPane);
+
+        // Initialize Progress Bar
+        progressBar = new JProgressBar();
+        progressBar.setStringPainted(true);
+        progressBar.setIndeterminate(false);
+        progressBar.setVisible(false);
+        progressBar.setBounds(500, 300, 400, 30);
+        MainPane.add(progressBar, Integer.valueOf(2));
+
         bgLoader.execute();
         SwingUtilities.invokeLater(() -> {
             CenterOverlayPanel = BtwLS(MainFrame, MainPane, "login");
             CenterOverlayPanel.setVisible(true);
         });
-
-    }
-    private static void rememberMeSaver(String username, String password) {
-        Properties props = new Properties();
-        try (FileInputStream input = new FileInputStream("config.properties")) {
-            props.load(input);
-        } catch (FileNotFoundException e) {
-            logger.warn("Warning in LoginPanel.java: [FileNotFoundException in rememberMeSaver] : Config file not found, a new one will be created");
-        } catch (IOException e) {
-            logger.error("Error in LoginPanel.java: [IOException while loading properties]: \n%s \n".formatted(getStackTraceAsString(e)));
-        }
-        props.setProperty("us", username);
-        props.setProperty("ps", password);
-        props.setProperty("lastClearTime", String.valueOf(System.currentTimeMillis()));
-        try (FileOutputStream output = new FileOutputStream("config.properties")) {
-            props.store(output, "Properties updated");
-        } catch (FileNotFoundException e) {
-            logger.error("Error in LoginPanel.java: [FileNotFoundException]: \n%s \n".formatted(getStackTraceAsString(e)));
-        } catch (IOException e) {
-            logger.error("Error in LoginPanel.java: [IOException while saving properties]: \n%s \n".formatted(getStackTraceAsString(e)));
-        }
     }
 
-    public static void Login(JFrame frame, JTextField usernameField, JPasswordField passwordField, JCheckBox rememberMeCheckbox, JButton loginButton, JLabel warningLabel){
+    public static void Login(JFrame frame, JTextField usernameField, JPasswordField passwordField, JCheckBox rememberMeCheckbox, JButton loginButton, JLabel warningLabel) {
         String username = usernameField.getText();
         String password = new String(passwordField.getPassword());
         boolean check = rememberMeCheckbox.isSelected();
-        if (username.isEmpty() || password.isEmpty()){
+        if (username.isEmpty() || password.isEmpty()) {
             return;
         }
         loginButton.setEnabled(username.length() > 3 && password.length() > 3);
+
+        progressBar.setVisible(true);
+
         String status = UserCredentialsCheck(username, password);
         Map<String, Object> userdata = Map.of();
-        if (status.equals("admin") || status.equals("fxml/user")){
-            Database db = new Database();
+        if (status.equals("admin") || status.equals("user")) {
+            Database db = Database.getInstance();
             db.connectDatabase();
             userdata = db.getUsernameDetails(username);
             db.closeConnection();
         }
+        Map<String, Object> finalUserdata = userdata;
         switch (status) {
             case "admin" -> {
                 frame.getContentPane().removeAll();
@@ -160,17 +174,20 @@ public class LoginSystem {
                 logger.info("Admin Login successful!");
             }
             case "no user" -> showWarning(frame, "No User Found!", warningLabel);
-            case "fxml/user" -> {
+            case "user" -> {
                 frame.getContentPane().removeAll();
                 frame.revalidate();
                 frame.repaint();
                 if (check) rememberMeSaver(username, password);
-                new UserDashboardPanel(frame, userdata);
+                new UserDashboardPanel(frame, finalUserdata);
+                frame.revalidate();
+                frame.repaint();
                 logger.info("User Login successful!");
             }
             case "wrong password" -> showWarning(frame, "Incorrect Username or Password!", warningLabel);
         }
     }
+
     private static void showWarning(JFrame frame, String message, JLabel warningLabel) {
         warningLabel.setText(message);
         warningLabel.setVisible(true);

@@ -1,12 +1,14 @@
 package org.burnknuckle.javafx.model;
 
 import com.formdev.flatlaf.extras.FlatSVGIcon;
-import org.burnknuckle.controllers.LoginSystem;
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import org.burnknuckle.controllers.LoginSystem;
+import org.burnknuckle.model.ThemeManager;
+import org.burnknuckle.ui.subParts.LoadingPageController;
 
 import javax.swing.*;
 import java.awt.*;
@@ -18,8 +20,7 @@ import java.util.Objects;
 import java.util.Properties;
 
 import static org.burnknuckle.controllers.Main.logger;
-import static org.burnknuckle.model.ThemeManager.ADPThemeData;
-import static org.burnknuckle.model.ThemeManager.getColorFromHex;
+import static org.burnknuckle.model.ThemeManager.*;
 import static org.burnknuckle.utils.MainUtils.*;
 
 public class UserDashboardPanel {
@@ -31,22 +32,41 @@ public class UserDashboardPanel {
     private JLabel homeLabel;
     private JLabel disasterLabel;
     private JLabel accountLabel;
+    private JLabel logOut;
+    private JPanel fakeSpace;
+    private JPanel fakeSpace1;
     private String currentPage = "HomePage";
     private String priPage = "HomePage";
     private String subPage = "";
-
+    private LoadingPageController loadingController;
+    public static String currentUser;
+    private JLabel requestLabel;
+    private JLabel disasterMainLabel;
+    private JLabel tasksLabel;
 
     public UserDashboardPanel(JFrame frame, Map<String, Object> userdata) {
         this.frame = frame;
+        currentUser = (String) userdata.get("username");
         frame.getContentPane().removeAll();
         frame.setLayout(new BorderLayout());
-        frame.setBackground(Color.RED);
         frame.add(createUserDashboard(),BorderLayout.CENTER);
         frame.revalidate();
         frame.repaint();
         frame.setVisible(true);
     }
+    private void updateThemeColors(String change){
+        menuBar.setBackground(getColorFromHex(ADPThemeData.get("sidebar")));
+        changeSelectionMenu();
+        accountLabel.setBackground(getColorFromHex(ADPThemeData.get("default-menu-button")));
+        logOut.setBackground(getColorFromHex(ADPThemeData.get("default-menu-button")));
+        fakeSpace.setBackground(getColorFromHex(ADPThemeData.get("default-menu-button")));
+        fakeSpace1.setBackground(getColorFromHex(ADPThemeData.get("default-menu-button")));
+        requestLabel.setBackground(getColorFromHex(ADPThemeData.get("default-menu-button")));
+        disasterMainLabel.setBackground(getColorFromHex(ADPThemeData.get("default-menu-button")));
+        tasksLabel.setBackground(getColorFromHex(ADPThemeData.get("default-menu-button")));
 
+
+    }
     private JPanel createUserDashboard() {
         JPanel block = new JPanel();
         block.setLayout(new BorderLayout());
@@ -88,7 +108,7 @@ public class UserDashboardPanel {
         accountLabel.setOpaque(true);
         accountLabel.setBackground(getColorFromHex(ADPThemeData.get("default-menu-button")));
 
-        JLabel logOut = new JLabel();
+        logOut = new JLabel();
         logOut.setIcon(logOutIcon);
         logOut.setToolTipText("Log out");
         logOut.setHorizontalAlignment(SwingConstants.CENTER);
@@ -107,8 +127,8 @@ public class UserDashboardPanel {
         gbc.fill = GridBagConstraints.VERTICAL;
         gbc.anchor = GridBagConstraints.CENTER;
 
-        JPanel fakeSpace = new JPanel();
-        fakeSpace.setBackground(getColorFromHex(ADPThemeData.get("sidebar")));
+        fakeSpace = new JPanel();
+        fakeSpace.setBackground(getColorFromHex(ADPThemeData.get("default-menu-button")));
         fakeSpace.setPreferredSize(new Dimension(55,55));
         gbc.gridx = 0;
         gbc.gridy = 0;
@@ -130,9 +150,9 @@ public class UserDashboardPanel {
         gbc.weighty = 1.0;
         gbc.anchor = GridBagConstraints.CENTER;
 
-        JPanel fakeSpace1 = new JPanel();
+        fakeSpace1 = new JPanel();
         fakeSpace1.setPreferredSize(new Dimension(55,55));
-        fakeSpace1.setBackground(getColorFromHex(ADPThemeData.get("sidebar")));
+        fakeSpace1.setBackground(getColorFromHex(ADPThemeData.get("default-menu-button")));
         menuBar.add(fakeSpace1, gbc);
 
         gbc.gridx = 0;
@@ -242,6 +262,7 @@ public class UserDashboardPanel {
                 logOut.setBackground(getColorFromHex(ADPThemeData.get("hover-menu-button")));
             }
         });
+
         mainContent.add(createHomePage(), "HomePage");
         mainContent.add(createDisasterPage(), "DisasterPage");
         mainContent.add(AccountSubPage(), "Account");
@@ -251,7 +272,8 @@ public class UserDashboardPanel {
 
         block.add(menuBar, BorderLayout.WEST);
         block.add(mainContent, BorderLayout.CENTER);
-        return block;
+        addThemeChangeListener(this::updateThemeColors);
+            return block;
     }
     private void switchTabs(String tabName, JPanel mainContent){
         cardLayout.show(mainContent, tabName);
@@ -283,20 +305,20 @@ public class UserDashboardPanel {
         bgbc.weighty = 1.0;
         bgbc.weightx = 1.0;
         bgbc.insets = new Insets(10,10,10,10);
-        JLabel requestLabel = new JLabel(new FlatSVGIcon(Objects.requireNonNull(getClass().getClassLoader().getResource("UserDashboardPanel/request.svg"))));
+        requestLabel = new JLabel(new FlatSVGIcon(Objects.requireNonNull(getClass().getClassLoader().getResource("UserDashboardPanel/request.svg"))));
         requestLabel.setPreferredSize(new Dimension(250,250));
         requestLabel.setOpaque(true);
-        requestLabel.setBackground(getColorFromHex(ADPThemeData.get("hover-menu-button")));
+        requestLabel.setBackground(getColorFromHex(ADPThemeData.get("default-menu-button")));
 
-        JLabel disasterMainLabel = new JLabel(new FlatSVGIcon(Objects.requireNonNull(getClass().getClassLoader().getResource("UserDashboardPanel/disasterMain.svg"))));
+        disasterMainLabel = new JLabel(new FlatSVGIcon(Objects.requireNonNull(getClass().getClassLoader().getResource("UserDashboardPanel/disasterMain.svg"))));
         disasterMainLabel.setPreferredSize(new Dimension(250,250));
         disasterMainLabel.setOpaque(true);
-        disasterMainLabel.setBackground(getColorFromHex(ADPThemeData.get("hover-menu-button")));
+        disasterMainLabel.setBackground(getColorFromHex(ADPThemeData.get("default-menu-button")));
 
-        JLabel tasksLabel = new JLabel(new FlatSVGIcon(Objects.requireNonNull(getClass().getClassLoader().getResource("UserDashboardPanel/tasks.svg"))));
+        tasksLabel = new JLabel(new FlatSVGIcon(Objects.requireNonNull(getClass().getClassLoader().getResource("UserDashboardPanel/tasks.svg"))));
         tasksLabel.setPreferredSize(new Dimension(250,250));
         tasksLabel.setOpaque(true);
-        tasksLabel.setBackground(getColorFromHex(ADPThemeData.get("hover-menu-button")));
+        tasksLabel.setBackground(getColorFromHex(ADPThemeData.get("default-menu-button")));
 
         disasterPanel.add(requestLabel,bgbc);
         bgbc.gridx = 1;
@@ -365,31 +387,43 @@ public class UserDashboardPanel {
         dashSpace.add(requestPanel, BorderLayout.CENTER);
         Platform.runLater(() -> {
             try {
-                FXMLLoader fxmlLoader = new FXMLLoader(Objects.requireNonNull(getClass().getResource("/fxml/user/request.fxml")));
+                FXMLLoader fxmlLoader = new FXMLLoader(Objects.requireNonNull(getClass().getResource("/fxml/user/resourcesRequest.fxml")));
                 Parent root = fxmlLoader.load();
                 Scene scene = new Scene(root);
+//                scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/fxml/user/style.css")).toExternalForm());
                 requestPanel.setScene(scene);
             } catch (IOException e) {
-                logger.error("Error in UserDashboardPanel.java: [IOException]: %s".formatted(getStackTraceAsString(e)));
+                logger.error("Error in UserDashboardPanel.java:[createRequestResourcesSubPage] [IOException]: %s".formatted(getStackTraceAsString(e)));
             }
         });
         return requestPanel;
     }
     private JFXPanel createDisasterSubPage() {
-        JFXPanel requestPanel = new JFXPanel();
+        JFXPanel disasterRequestPanel = new JFXPanel();
         dashSpace.setLayout(new BorderLayout());
-        dashSpace.add(requestPanel, BorderLayout.CENTER);
+        dashSpace.add(disasterRequestPanel, BorderLayout.CENTER);
         Platform.runLater(() -> {
             try {
                 FXMLLoader fxmlLoader = new FXMLLoader(Objects.requireNonNull(getClass().getResource("/fxml/user/disaster.fxml")));
                 Parent root = fxmlLoader.load();
                 Scene scene = new Scene(root);
-                requestPanel.setScene(scene);
+                disasterRequestPanel.setScene(scene);
+                ThemeManager.addThemeChangeListener(theme -> {
+                    if (theme.equals("dark")) {
+                        scene.getStylesheets().clear();
+                        scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/fxml/user/disaster-dark.css")).toExternalForm());
+                    } else {
+                        scene.getStylesheets().clear();
+                        scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/fxml/user/disaster-light.css")).toExternalForm());
+                    }
+                });
+
             } catch (IOException e) {
-                logger.error("Error in UserDashboardPanel.java: [IOException]: %s".formatted(getStackTraceAsString(e)));
+                e.printStackTrace();
+                logger.error("Error in UserDashboardPanel.java: [createDisasterSubPage] [IOException]: %s".formatted(getStackTraceAsString(e)));
             }
         });
-        return requestPanel;
+        return disasterRequestPanel;
     }
 
     private JPanel AccountSubPage() {

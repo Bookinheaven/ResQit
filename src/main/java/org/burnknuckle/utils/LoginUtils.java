@@ -2,6 +2,8 @@ package org.burnknuckle.utils;
 
 import javax.swing.*;
 import java.awt.*;
+import java.sql.Timestamp;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
@@ -9,7 +11,7 @@ import static org.burnknuckle.controllers.Main.logger;
 
 public class LoginUtils {
     public static String UserCredentialsCheck(String username, String password){
-        Database db = new Database();
+        Database db = Database.getInstance();
         db.connectDatabase();
         Map<String, Object> data = db.getUsernameDetails(username);
         if (data.isEmpty()){
@@ -26,16 +28,16 @@ public class LoginUtils {
                 logger.warn("He is admin");
                 return "admin";
             }
-            return "fxml/user";
+            return "user";
         } else {
             return "wrong password";
         }
     }
     public static String SignUpUser(Map<String, Object> userdata){
-        Database db = new Database();
+        Database db = Database.getInstance();
         db.connectDatabase();
-        Map<String, Object> data = db.getUsernameDetails(userdata.get("username").toString());
-        if (!data.isEmpty()){
+        Map<String, Object> Indata = db.getUsernameDetails(userdata.get("username").toString());
+        if (!Indata.isEmpty()){
             return "user exist";
         }
         String username = userdata.get("username").toString();
@@ -44,8 +46,18 @@ public class LoginUtils {
         String email = userdata.get("email").toString();
         String gender = userdata.get("gender").toString();
         String role = userdata.get("role").toString();
+        Timestamp currentTime = new Timestamp(System.currentTimeMillis());
+        Map<String, Object> outData= new HashMap<>();
+        outData.put("username", username);
+        outData.put("password", password);
+        outData.put("privilege", privilege);
+        outData.put("email", email);
+        outData.put("gender", gender);
+        outData.put("role", role);
+        outData.put("account_created", currentTime);
+        outData.put("last_login", currentTime);
 
-        db.insertUserData(username, password,privilege ,email, gender, role);
+        db.insertData(0, outData);
         db.closeConnection();
         return "done";
     }

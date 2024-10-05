@@ -80,7 +80,7 @@ public class MainUtils {
                     return;
                 }
                 String status = UserCredentialsCheck(username, password);
-                Database db = new Database();
+                Database db = Database.getInstance();
                 db.connectDatabase();
                 Map<String, Object> userdata = db.getUsernameDetails(username);
                 db.closeConnection();
@@ -91,7 +91,7 @@ public class MainUtils {
                         new AdminDashboardPanel(mainFrame,userdata);
                         System.out.println("Admin Login successful!");
                     }
-                    case "fxml/user" -> {
+                    case "user" -> {
                         rememberMeCheck = true;
                         new UserDashboardPanel(mainFrame,userdata);
                         System.out.println("User Login successful!");
@@ -109,11 +109,23 @@ public class MainUtils {
     }
     public static String getStackTraceAsString(Exception e) {
         StringBuilder sb = new StringBuilder();
+
+        sb.append(e.toString()).append("\n");
         for (StackTraceElement element : e.getStackTrace()) {
-            sb.append(element.toString()).append("\n");
+            sb.append("\tat ").append(element.toString()).append("\n");
         }
+        Throwable cause = e.getCause();
+        while (cause != null) {
+            sb.append("Caused by: ").append(cause.toString()).append("\n");
+            for (StackTraceElement element : cause.getStackTrace()) {
+                sb.append("\tat ").append(element.toString()).append("\n");
+            }
+            cause = cause.getCause();
+        }
+
         return sb.toString();
     }
+
     public static void initializeLoginSystem(JFrame mainFrame) {
         RememberMeReader(mainFrame);
         if (!rememberMeCheck) { LoginSystem _ = new LoginSystem(mainFrame);}
@@ -123,7 +135,6 @@ public class MainUtils {
         JMenu themeMenu = new JMenu();
         themeMenu.setToolTipText("Theme");
 
-        // Load icons and ensure they are not null
         FlatSVGIcon settingsIcon = new FlatSVGIcon(Objects.requireNonNull(Main.class.getClassLoader().getResource("Common/settings.svg")));
         FlatSVGIcon darkThemeIcon = new FlatSVGIcon(Objects.requireNonNull(Main.class.getClassLoader().getResource("Common/dark_mode.svg")));
         FlatSVGIcon lightThemeIcon = new FlatSVGIcon(Objects.requireNonNull(Main.class.getClassLoader().getResource("Common/light_mode.svg")));

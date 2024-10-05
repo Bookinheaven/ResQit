@@ -4,6 +4,7 @@ import com.formdev.flatlaf.extras.FlatSVGIcon;
 import com.formdev.flatlaf.extras.components.FlatTabbedPane;
 import com.formdev.flatlaf.ui.FlatTabbedPaneUI;
 import org.burnknuckle.controllers.LoginSystem;
+import org.burnknuckle.controllers.Main;
 import org.burnknuckle.utils.Database;
 
 import javax.swing.Timer;
@@ -208,6 +209,7 @@ public class AdminDashboardPanel {
                         mainFrame.setMinimumSize(new Dimension(1400, 900));
                         mainFrame.setLocationRelativeTo(null);
                         mainFrame.setVisible(false);
+                        Main.setIcon(mainFrame);
                         addThemeSelectorMenu(mainFrame);
                         new LoginSystem(mainFrame);
                     });
@@ -343,7 +345,7 @@ public class AdminDashboardPanel {
     }
     private JPanel createCoAdminsPanel() {
         currentPageTitle = "CoAdmins";
-        Database db = new Database();
+        Database db = Database.getInstance();
         JPanel panel = new JPanel(new BorderLayout());
         JPanel inner = new JPanel(new GridBagLayout());
         GridBagConstraints innerGBC = new GridBagConstraints();
@@ -597,7 +599,7 @@ public class AdminDashboardPanel {
     }
 
     private JPanel createVolunteerManagementPanel() {
-        Database db = new Database();
+        Database db = Database.getInstance();
         List<Map<String, Object>> coAdminData = db.getPrivilegeData("co-admin");
         ArrayList<String> userDataDetails = new ArrayList<>(Arrays.asList(
                 "Sno", "Username", "Gender", "Role", "Email", "Privilege", "Password",

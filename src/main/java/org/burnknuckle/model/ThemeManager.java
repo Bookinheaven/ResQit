@@ -8,8 +8,10 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.List;
 import java.util.Timer;
 import java.util.*;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
 
 import static org.burnknuckle.controllers.Main.logger;
@@ -17,7 +19,7 @@ import static org.burnknuckle.utils.MainUtils.getStackTraceAsString;
 
 
 public class ThemeManager {
-    private static final java.util.List<Consumer<String>> themeChangeListeners = new ArrayList<>();
+    private static final List<Consumer<String>> themeChangeListeners = new CopyOnWriteArrayList<>();
     public static String currentTheme = readTheme();
     private static String lastTheme = currentTheme;
     public static Map<String, String> ADPThemeData = UpdateADPThemeData(currentTheme); // Admin DashBoard Color
@@ -91,11 +93,13 @@ public class ThemeManager {
     }
 
     private static void notifyThemeChangeListeners() {
-        for (Consumer<String> listener : themeChangeListeners) {
-            UpdateADPThemeData(currentTheme);
+        List<Consumer<String>> listenersCopy = new ArrayList<>(themeChangeListeners); // Create a copy
+        UpdateADPThemeData(currentTheme);
+        for (Consumer<String> listener : listenersCopy) {
             listener.accept(currentTheme);
         }
     }
+
     private static void checkForThemeChange() {
         if (!lastTheme.equals(currentTheme)) {
             lastTheme = currentTheme;
