@@ -144,31 +144,58 @@ public class Database {
         String columnsString = String.join(", ", columns);
         String placeholders = String.join(", ", columns.stream().map(col -> "?").toArray(String[]::new));
         String insertSQL = "INSERT INTO %s(".formatted(TABLE_NAME[TableNo]) + columnsString + ") VALUES (" + placeholders + ")";
-            try (PreparedStatement pStmt = con.prepareStatement(insertSQL)) {
-                int index = 1;
-                for (String column : columns) {
-                    Object value = data.get(column);
-                    if (value instanceof String) {
-                        pStmt.setString(index, ((String) value).toLowerCase());
-                    } else if (value instanceof Integer) {
-                        pStmt.setInt(index, (Integer) value);
-                    } else if (value instanceof Boolean) {
-                        pStmt.setBoolean(index, (Boolean) value);
-                    } else if (value instanceof java.sql.Timestamp) {
-                        pStmt.setTimestamp(index, (java.sql.Timestamp) value);
-                    } else {
-                        pStmt.setObject(index, value);
-                    }
-                    index++;
+        try (PreparedStatement pStmt = con.prepareStatement(insertSQL)) {
+            int index = 1;
+            for (String column : columns) {
+                Object value = data.get(column);
+                if (value instanceof String) {
+                    pStmt.setString(index, ((String) value).toLowerCase());
+                } else if (value instanceof Integer) {
+                    pStmt.setInt(index, (Integer) value);
+                } else if (value instanceof Boolean) {
+                    pStmt.setBoolean(index, (Boolean) value);
+                } else if (value instanceof java.sql.Timestamp) {
+                    pStmt.setTimestamp(index, (java.sql.Timestamp) value);
+                } else {
+                    pStmt.setObject(index, value);
                 }
-                pStmt.executeUpdate();
-                System.out.println("Data inserted into userdata successfully!");
+                index++;
+            }
+            pStmt.executeUpdate();
+            System.out.println("Data inserted into userdata successfully!");
 
         } catch (SQLException e) {
-                e.printStackTrace();
-                logger.error("Error in Database.java: |SQLException while insertUserData| %s \n".formatted(getStackTraceAsString(e)));
+            logger.error("Error in Database.java: |SQLException while insertUserData| %s \n".formatted(getStackTraceAsString(e)));
         }
     }
+    public Map<String, Object> getData(int TableNo, String parameters) {
+        Map<String, Object> data = new HashMap<>();
+        String getSQL;
+        if (!parameters.isEmpty()) {
+            Set<String> columns = new HashSet<>(Arrays.asList(parameters.trim().split(" ")));
+            String columnsString = String.join(", ", columns);
+            getSQL = "SELECT " + columnsString + " FROM %s;".formatted(TABLE_NAME[TableNo]);
+        } else {
+            getSQL = "SELECT * FROM %s;".formatted(TABLE_NAME[TableNo]);
+        }
+        try (PreparedStatement pStmt = con.prepareStatement(getSQL);
+             ResultSet rs = pStmt.executeQuery()) {
+            ResultSetMetaData rsMetaData = rs.getMetaData();
+            int columnCount = rsMetaData.getColumnCount();
+            if (rs.next()) {
+                for (int i = 1; i <= columnCount; i++) {
+                    String columnName = rsMetaData.getColumnName(i);
+                    Object columnValue = rs.getObject(columnName);
+                    data.put(columnName, columnValue);
+                }
+            }
+        } catch (SQLException e) {
+            logger.error("Error in Database.java: |SQLException while retrieving data| %s \n".formatted(getStackTraceAsString(e)));
+        }
+        return data;
+    }
+
+    // for disaster database
     public boolean checkForDuplicateEntries(Map<String, Object> data) {
         String disasterType = (String) data.get("disasterType");
         String disasterName = (String) data.get("disasterName");
@@ -186,28 +213,11 @@ public class Database {
                 return resultSet.getInt(1) > 0;
             }
         } catch (SQLException e) {
-            e.printStackTrace();
             logger.error("Error in Database.java: |SQLException while checkForDuplicateEntries| %s \n".formatted(getStackTraceAsString(e)));
         }
         return false;
     }
 
-
-    public void queryUserData() {
-        String querySQL = "SELECT * FROM %s".formatted(TABLE_NAME[0]);
-        try (Statement st = con.createStatement(); ResultSet rs = st.executeQuery(querySQL)) {
-            while (rs.next()) {
-                System.out.println("Username: " + rs.getString("username"));
-                System.out.println("Privilege: " + rs.getString("privilege"));
-                System.out.println("Email: " + rs.getString("email"));
-                System.out.println("Gender: " + rs.getString("gender"));
-                System.out.println("Role: "+ rs.getString("role"));
-                System.out.println("-------------");
-            }
-        } catch (SQLException e) {
-            logger.error("Error in Database.java: |SQLException while queryUserData| %s \n".formatted(getStackTraceAsString(e)));
-        }
-    }
     public int updateUserPrivilege(String username, String newPrivilege) {
         String updateSQL = "UPDATE %s SET privilege = ? WHERE username = ?".formatted(TABLE_NAME[0]);
         try (PreparedStatement pStmt = con.prepareStatement(updateSQL)) {
@@ -219,10 +229,6 @@ public class Database {
             return -1;
         }
     }
-//    public Map<String, Object> getDisasterDetails() {
-//    }
-//    public void setDisasterDetails() {
-//    }
     public Map<String, Object> getUsernameDetails(String username) {
         String searchByUsername = "SELECT username, password, privilege, email, gender FROM %s WHERE username = ?".formatted(TABLE_NAME[0]);
         try (PreparedStatement pStmt = con.prepareStatement(searchByUsername)) {

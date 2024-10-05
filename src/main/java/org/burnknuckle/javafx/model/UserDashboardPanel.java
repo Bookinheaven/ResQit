@@ -15,9 +15,7 @@ import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Properties;
+import java.util.*;
 
 import static org.burnknuckle.controllers.Main.logger;
 import static org.burnknuckle.model.ThemeManager.*;
@@ -30,18 +28,21 @@ public class UserDashboardPanel {
     private CardLayout cardLayout;
     private JPanel mainContent;
     private JLabel homeLabel;
-    private JLabel disasterLabel;
+    private JLabel disasterReqLabel;
     private JLabel accountLabel;
+    private JLabel backOptionLabel;
     private JLabel logOut;
     private JPanel fakeSpace;
     private JPanel fakeSpace1;
     private String currentPage = "HomePage";
+    private final Deque<String> pageStack = new LinkedList<>();
+    private static final int MAX_PAGES = 5;
     private String priPage = "HomePage";
     private String subPage = "";
     private LoadingPageController loadingController;
     public static String currentUser;
-    private JLabel requestLabel;
-    private JLabel disasterMainLabel;
+    private JLabel resRequestLabel;
+    private JLabel disasterAddReqMainLabel;
     private JLabel tasksLabel;
 
     public UserDashboardPanel(JFrame frame, Map<String, Object> userdata) {
@@ -53,6 +54,12 @@ public class UserDashboardPanel {
         frame.revalidate();
         frame.repaint();
         frame.setVisible(true);
+        frame.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                logger.info(pageStack.toString());
+            }
+        });
     }
     private void updateThemeColors(String change){
         menuBar.setBackground(getColorFromHex(ADPThemeData.get("sidebar")));
@@ -61,11 +68,10 @@ public class UserDashboardPanel {
         logOut.setBackground(getColorFromHex(ADPThemeData.get("default-menu-button")));
         fakeSpace.setBackground(getColorFromHex(ADPThemeData.get("default-menu-button")));
         fakeSpace1.setBackground(getColorFromHex(ADPThemeData.get("default-menu-button")));
-        requestLabel.setBackground(getColorFromHex(ADPThemeData.get("default-menu-button")));
-        disasterMainLabel.setBackground(getColorFromHex(ADPThemeData.get("default-menu-button")));
+        resRequestLabel.setBackground(getColorFromHex(ADPThemeData.get("default-menu-button")));
+        disasterAddReqMainLabel.setBackground(getColorFromHex(ADPThemeData.get("default-menu-button")));
         tasksLabel.setBackground(getColorFromHex(ADPThemeData.get("default-menu-button")));
-
-
+        backOptionLabel.setBackground(getColorFromHex(ADPThemeData.get("default-menu-button")));
     }
     private JPanel createUserDashboard() {
         JPanel block = new JPanel();
@@ -80,9 +86,10 @@ public class UserDashboardPanel {
         menuBar.setBackground(getColorFromHex(ADPThemeData.get("sidebar")));
 
         Icon homePageIcon = new FlatSVGIcon(Objects.requireNonNull(getClass().getClassLoader().getResource("icons/home.svg")));
-        Icon requestPageIcon = new FlatSVGIcon(Objects.requireNonNull(getClass().getClassLoader().getResource("UserDashboardPanel/disasters.svg")));
+        Icon requestPageIcon = new FlatSVGIcon(Objects.requireNonNull(getClass().getClassLoader().getResource("UserDashboardPanel/request.svg")));
         Icon UserIconDefault = new FlatSVGIcon(Objects.requireNonNull(getClass().getClassLoader().getResource("icons/account.svg")));
         Icon logOutIcon = new FlatSVGIcon(Objects.requireNonNull(getClass().getClassLoader().getResource("icons/log-out.svg")));
+        Icon backOptionIcon = new FlatSVGIcon(Objects.requireNonNull(getClass().getClassLoader().getResource("UserDashboardPanel/back-option.svg")));
 
         homeLabel = new JLabel();
         homeLabel.setIcon(homePageIcon);
@@ -92,13 +99,13 @@ public class UserDashboardPanel {
         homeLabel.setHorizontalAlignment(SwingConstants.CENTER);
         homeLabel.setBackground(getColorFromHex(ADPThemeData.get("hover-menu-button")));
 
-        disasterLabel = new JLabel();
-        disasterLabel.setIcon(requestPageIcon);
-        disasterLabel.setToolTipText("Request");
-        disasterLabel.setHorizontalAlignment(SwingConstants.CENTER);
-        disasterLabel.setPreferredSize(new Dimension(55,55));
-        disasterLabel.setOpaque(true);
-        disasterLabel.setBackground(getColorFromHex(ADPThemeData.get("default-menu-button")));
+        disasterReqLabel = new JLabel();
+        disasterReqLabel.setIcon(requestPageIcon);
+        disasterReqLabel.setToolTipText("Request");
+        disasterReqLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        disasterReqLabel.setPreferredSize(new Dimension(55,55));
+        disasterReqLabel.setOpaque(true);
+        disasterReqLabel.setBackground(getColorFromHex(ADPThemeData.get("default-menu-button")));
 
         accountLabel = new JLabel();
         accountLabel.setIcon(UserIconDefault);
@@ -107,6 +114,16 @@ public class UserDashboardPanel {
         accountLabel.setPreferredSize(new Dimension(55,55));
         accountLabel.setOpaque(true);
         accountLabel.setBackground(getColorFromHex(ADPThemeData.get("default-menu-button")));
+
+        backOptionLabel = new JLabel();
+        backOptionLabel.setIcon(backOptionIcon);
+        backOptionLabel.setToolTipText("Back");
+        backOptionLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        backOptionLabel.setVisible(false);
+        backOptionLabel.setPreferredSize(new Dimension(55,55));
+        backOptionLabel.setOpaque(true);
+        backOptionLabel.setBackground(getColorFromHex(ADPThemeData.get("default-menu-button")));
+        addPages("HomePage");
 
         logOut = new JLabel();
         logOut.setIcon(logOutIcon);
@@ -121,7 +138,7 @@ public class UserDashboardPanel {
                 .add(Color.white, Color.white, Color.black);
 
         ((FlatSVGIcon) homeLabel.getIcon()).setColorFilter(colorFilter);
-        ((FlatSVGIcon) disasterLabel.getIcon()).setColorFilter(colorFilter);
+        ((FlatSVGIcon) disasterReqLabel.getIcon()).setColorFilter(colorFilter);
         menuBar.setLayout(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.fill = GridBagConstraints.VERTICAL;
@@ -130,23 +147,29 @@ public class UserDashboardPanel {
         fakeSpace = new JPanel();
         fakeSpace.setBackground(getColorFromHex(ADPThemeData.get("default-menu-button")));
         fakeSpace.setPreferredSize(new Dimension(55,55));
+
         gbc.gridx = 0;
         gbc.gridy = 0;
+        gbc.weighty = 0;
+        menuBar.add(backOptionLabel, gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy = 1;
         gbc.weighty = 1.0;
         menuBar.add(fakeSpace, gbc);
 
         gbc.gridx = 0;
-        gbc.gridy = 1;
+        gbc.gridy = 2;
         gbc.weighty = 0;
         menuBar.add(homeLabel, gbc);
 
         gbc.gridx = 0;
-        gbc.gridy = 2;
+        gbc.gridy = 3;
         gbc.weighty = 0;
-        menuBar.add(disasterLabel, gbc);
+        menuBar.add(disasterReqLabel, gbc);
 
         gbc.gridx = 0;
-        gbc.gridy = 3;
+        gbc.gridy = 4;
         gbc.weighty = 1.0;
         gbc.anchor = GridBagConstraints.CENTER;
 
@@ -156,13 +179,13 @@ public class UserDashboardPanel {
         menuBar.add(fakeSpace1, gbc);
 
         gbc.gridx = 0;
-        gbc.gridy = 4;
+        gbc.gridy = 5;
         gbc.weighty = 0;
         gbc.anchor = GridBagConstraints.SOUTH;
         menuBar.add(accountLabel, gbc);
 
         gbc.gridx = 0;
-        gbc.gridy = 5;
+        gbc.gridy = 6;
         gbc.weighty = 0;
         gbc.anchor = GridBagConstraints.SOUTH;
         menuBar.add(logOut, gbc);
@@ -187,7 +210,7 @@ public class UserDashboardPanel {
                 if (!currentPage.equals("HomePage")) homeLabel.setBackground(getColorFromHex(ADPThemeData.get("hover-menu-button")));
             }
         });
-        disasterLabel.addMouseListener(new MouseAdapter() {
+        disasterReqLabel.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 if(!currentPage.equals("DisasterPage")) {
@@ -199,30 +222,50 @@ public class UserDashboardPanel {
             }
             @Override
             public void mouseExited(MouseEvent e) {
-                if (!currentPage.equals("DisasterPage")) disasterLabel.setBackground(getColorFromHex(ADPThemeData.get("default-menu-button")));
+                if (!currentPage.equals("DisasterPage")) disasterReqLabel.setBackground(getColorFromHex(ADPThemeData.get("default-menu-button")));
 
             }
             @Override
             public void mouseEntered(MouseEvent e) {
-                if (!currentPage.equals("DisasterPage")) disasterLabel.setBackground(getColorFromHex(ADPThemeData.get("hover-menu-button")));
+                if (!currentPage.equals("DisasterPage")) disasterReqLabel.setBackground(getColorFromHex(ADPThemeData.get("hover-menu-button")));
+            }
+        });
+        backOptionLabel.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                String back = goBack();
+                    changePage(back);
+                    changeSelectionMenu();
+                    switchTabs(back, mainContent);
+                    logger.info("Clicked backOption");
+            }
+            @Override
+            public void mouseExited(MouseEvent e) {
+                backOptionLabel.setBackground(getColorFromHex(ADPThemeData.get("default-menu-button")));
+
+            }
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                backOptionLabel.setBackground(getColorFromHex(ADPThemeData.get("hover-menu-button")));
             }
         });
         accountLabel.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                if(!subPage.equals("Account")) {
-                    changeSubPage("Account");
+                if(!currentPage.equals("Account")) {
+                    addPages("Account");
+                    changePage("Account");
                     cardLayout.show(mainContent, "Account");
                     logger.info("Clicked Account");
                 }
             }
             @Override
             public void mouseExited(MouseEvent e) {
-                if (!subPage.equals("Account")) accountLabel.setBackground(getColorFromHex(ADPThemeData.get("default-menu-button")));
+                if (!currentPage.equals("Account")) accountLabel.setBackground(getColorFromHex(ADPThemeData.get("default-menu-button")));
             }
             @Override
             public void mouseEntered(MouseEvent e) {
-                if (!subPage.equals("Account")) accountLabel.setBackground(getColorFromHex(ADPThemeData.get("hover-menu-button")));
+                if (!currentPage.equals("Account")) accountLabel.setBackground(getColorFromHex(ADPThemeData.get("hover-menu-button")));
             }
         });
         logOut.addMouseListener(new MouseAdapter() {
@@ -305,30 +348,50 @@ public class UserDashboardPanel {
         bgbc.weighty = 1.0;
         bgbc.weightx = 1.0;
         bgbc.insets = new Insets(10,10,10,10);
-        requestLabel = new JLabel(new FlatSVGIcon(Objects.requireNonNull(getClass().getClassLoader().getResource("UserDashboardPanel/request.svg"))));
-        requestLabel.setPreferredSize(new Dimension(250,250));
-        requestLabel.setOpaque(true);
-        requestLabel.setBackground(getColorFromHex(ADPThemeData.get("default-menu-button")));
+        JPanel ResRequestPanel = new JPanel();
+        resRequestLabel = new JLabel(new FlatSVGIcon(Objects.requireNonNull(getClass().getClassLoader().getResource("UserDashboardPanel/resRequest.svg"))));
+        resRequestLabel.setPreferredSize(new Dimension(250,250));
+        resRequestLabel.setOpaque(true);
+        resRequestLabel.setText("Resource Request");
+        resRequestLabel.setFont( new Font("Fira Code Retina",Font.PLAIN,20));
+        resRequestLabel.setVerticalTextPosition(JLabel.BOTTOM);
+        resRequestLabel.setHorizontalTextPosition(JLabel.CENTER);
 
-        disasterMainLabel = new JLabel(new FlatSVGIcon(Objects.requireNonNull(getClass().getClassLoader().getResource("UserDashboardPanel/disasterMain.svg"))));
-        disasterMainLabel.setPreferredSize(new Dimension(250,250));
-        disasterMainLabel.setOpaque(true);
-        disasterMainLabel.setBackground(getColorFromHex(ADPThemeData.get("default-menu-button")));
+        resRequestLabel.setBackground(getColorFromHex(ADPThemeData.get("default-menu-button")));
+        ResRequestPanel.add(resRequestLabel, BorderLayout.CENTER);
+
+        JLabel resReqText = new JLabel();
+        resReqText.setText("Resource Request");
+        ResRequestPanel.add(resRequestLabel, BorderLayout.CENTER);
+        ResRequestPanel.add(resReqText, BorderLayout.SOUTH);
+
+        disasterAddReqMainLabel = new JLabel(new FlatSVGIcon(Objects.requireNonNull(getClass().getClassLoader().getResource("UserDashboardPanel/disasterMain.svg"))));
+        disasterAddReqMainLabel.setPreferredSize(new Dimension(250,250));
+        disasterAddReqMainLabel.setOpaque(true);
+        disasterAddReqMainLabel.setText("Disaster Request");
+        disasterAddReqMainLabel.setFont( new Font("Fira Code Retina",Font.PLAIN,20));
+        disasterAddReqMainLabel.setVerticalTextPosition(JLabel.BOTTOM);
+        disasterAddReqMainLabel.setHorizontalTextPosition(JLabel.CENTER);
+        disasterAddReqMainLabel.setBackground(getColorFromHex(ADPThemeData.get("default-menu-button")));
 
         tasksLabel = new JLabel(new FlatSVGIcon(Objects.requireNonNull(getClass().getClassLoader().getResource("UserDashboardPanel/tasks.svg"))));
         tasksLabel.setPreferredSize(new Dimension(250,250));
         tasksLabel.setOpaque(true);
+        tasksLabel.setText("Task Request");
+        tasksLabel.setFont( new Font("Fira Code Retina",Font.PLAIN,20));
+        tasksLabel.setVerticalTextPosition(JLabel.BOTTOM);
+        tasksLabel.setHorizontalTextPosition(JLabel.CENTER);
         tasksLabel.setBackground(getColorFromHex(ADPThemeData.get("default-menu-button")));
 
-        disasterPanel.add(requestLabel,bgbc);
+        disasterPanel.add(resRequestLabel,bgbc);
         bgbc.gridx = 1;
         bgbc.gridy = 0;
-        disasterPanel.add(disasterMainLabel,bgbc);
+        disasterPanel.add(disasterAddReqMainLabel,bgbc);
         bgbc.gridx = 2;
         bgbc.gridy = 0;
         disasterPanel.add(tasksLabel,bgbc);
 
-        requestLabel.addMouseListener(new MouseAdapter() {
+        resRequestLabel.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 cardLayout.show(mainContent, "Request");
@@ -336,15 +399,15 @@ public class UserDashboardPanel {
 
             @Override
             public void mouseExited(MouseEvent e) {
-                requestLabel.setBackground(getColorFromHex(ADPThemeData.get("default-menu-button")));
+                resRequestLabel.setBackground(getColorFromHex(ADPThemeData.get("default-menu-button")));
             }
             @Override
             public void mouseEntered(MouseEvent e) {
-                requestLabel.setBackground(getColorFromHex(ADPThemeData.get("hover-menu-button")));
+                resRequestLabel.setBackground(getColorFromHex(ADPThemeData.get("hover-menu-button")));
             }
         });
 
-        disasterMainLabel.addMouseListener(new MouseAdapter() {
+        disasterAddReqMainLabel.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 cardLayout.show(mainContent, "Disaster");
@@ -353,11 +416,11 @@ public class UserDashboardPanel {
 
             @Override
             public void mouseExited(MouseEvent e) {
-                disasterMainLabel.setBackground(getColorFromHex(ADPThemeData.get("default-menu-button")));
+                disasterAddReqMainLabel.setBackground(getColorFromHex(ADPThemeData.get("default-menu-button")));
             }
             @Override
             public void mouseEntered(MouseEvent e) {
-                disasterMainLabel.setBackground(getColorFromHex(ADPThemeData.get("hover-menu-button")));
+                disasterAddReqMainLabel.setBackground(getColorFromHex(ADPThemeData.get("hover-menu-button")));
             }
         });
 
@@ -366,7 +429,6 @@ public class UserDashboardPanel {
             public void mouseClicked(MouseEvent e) {
                 cardLayout.show(mainContent, "Request");
             }
-
             @Override
             public void mouseExited(MouseEvent e) {
                 tasksLabel.setBackground(getColorFromHex(ADPThemeData.get("default-menu-button")));
@@ -398,6 +460,15 @@ public class UserDashboardPanel {
         });
         return requestPanel;
     }
+    private void setCSSTheme(String theme, Scene scene){
+        if (theme.equals("dark") || currentTheme.equals("dark")) {
+            scene.getStylesheets().clear();
+            scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/fxml/user/disaster-dark.css")).toExternalForm());
+        } else {
+            scene.getStylesheets().clear();
+            scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/fxml/user/disaster-light.css")).toExternalForm());
+        }
+    }
     private JFXPanel createDisasterSubPage() {
         JFXPanel disasterRequestPanel = new JFXPanel();
         dashSpace.setLayout(new BorderLayout());
@@ -407,19 +478,12 @@ public class UserDashboardPanel {
                 FXMLLoader fxmlLoader = new FXMLLoader(Objects.requireNonNull(getClass().getResource("/fxml/user/disaster.fxml")));
                 Parent root = fxmlLoader.load();
                 Scene scene = new Scene(root);
+                setCSSTheme(currentTheme,scene);
                 disasterRequestPanel.setScene(scene);
                 ThemeManager.addThemeChangeListener(theme -> {
-                    if (theme.equals("dark")) {
-                        scene.getStylesheets().clear();
-                        scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/fxml/user/disaster-dark.css")).toExternalForm());
-                    } else {
-                        scene.getStylesheets().clear();
-                        scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/fxml/user/disaster-light.css")).toExternalForm());
-                    }
+                    setCSSTheme(theme,scene);
                 });
-
             } catch (IOException e) {
-                e.printStackTrace();
                 logger.error("Error in UserDashboardPanel.java: [createDisasterSubPage] [IOException]: %s".formatted(getStackTraceAsString(e)));
             }
         });
@@ -443,24 +507,47 @@ public class UserDashboardPanel {
         return backgroundPanel;
     }
     private void changePage(String newPage){
-        priPage = currentPage;
         currentPage = newPage;
+        addPages(newPage);
     }
     private void changeSubPage(String newSubPage){
         subPage = newSubPage;
     }
+    public String goBack() {
+        if (pageStack.size() > 1) {
+            pageStack.pop();
+        }
+        backOptionLabel.setVisible(pageStack.size() > 1);
+
+        logger.info("removed page current %s".formatted(pageStack.peek()));
+        return pageStack.peek();
+    }
+
+    public void addPages(String newPage) {
+        if(newPage == null) return;
+        if (pageStack.peek() == null || !pageStack.peek().equals(newPage)){
+            if (pageStack.size() >= MAX_PAGES) {
+                pageStack.removeLast();
+            }
+            pageStack.push(newPage);
+            logger.info("Added new page %s".formatted(newPage));
+        }
+        backOptionLabel.setVisible(pageStack.size() > 1);
+
+    }
+
     private void changeSelectionMenu() {
         switch (currentPage) {
             case "HomePage" -> {
                 changeSubPage("");
                 homeLabel.setBackground(getColorFromHex(ADPThemeData.get("hover-menu-button")));
-                disasterLabel.setBackground(getColorFromHex(ADPThemeData.get("default-menu-button")));
+                disasterReqLabel.setBackground(getColorFromHex(ADPThemeData.get("default-menu-button")));
                 accountLabel.setBackground(getColorFromHex(ADPThemeData.get("default-menu-button")));
             }
             case "DisasterPage" -> {
                 changeSubPage("");
                 homeLabel.setBackground(getColorFromHex(ADPThemeData.get("default-menu-button")));
-                disasterLabel.setBackground(getColorFromHex(ADPThemeData.get("hover-menu-button")));
+                disasterReqLabel.setBackground(getColorFromHex(ADPThemeData.get("hover-menu-button")));
                 accountLabel.setBackground(getColorFromHex(ADPThemeData.get("default-menu-button")));
             }
         }
