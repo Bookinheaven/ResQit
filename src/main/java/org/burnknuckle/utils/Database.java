@@ -1,6 +1,11 @@
 package org.burnknuckle.utils;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import java.sql.*;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.*;
 
@@ -9,6 +14,7 @@ import static org.burnknuckle.utils.MainUtils.getStackTraceAsString;
 
 public class Database {
     private static final String[] TABLE_NAME = {"userdata", "resdata", "disasterdata"};
+    private static final Log log = LogFactory.getLog(Database.class);
     private static Database instance;
     private Connection con;
     private Database() {
@@ -138,24 +144,107 @@ public class Database {
             logger.error("Error in Database.java: |SQLException while DisasterData| %s \n".formatted(getStackTraceAsString(e)));
         }
     }
+    private Timestamp convertStringToTimestamp(String dateString) {
+        if (dateString == null || dateString.equalsIgnoreCase("null")) {
+            return null; // Return null if the input is null or "null"
+        }
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        try {
+            return new Timestamp(dateFormat.parse(dateString).getTime());
+        } catch (ParseException e) {
+            logger.error("Error parsing date: " + dateString + " - " + e.getMessage());
+            return null; // Handle this case as needed
+        }
+    }
+
+    public void updateData(int TableNo, Map<String, Object> data) {
+        Object idObj = data.get("id");
+        if (idObj != null) {
+            data.remove("id");
+        }
+        Set<String> columns = data.keySet();
+        String setClause = String.join(", ", columns.stream().map(col -> col + " = ?").toArray(String[]::new));
+        String updateSQL = "UPDATE %s SET %s WHERE id = ?".formatted(TABLE_NAME[TableNo], setClause);
+        try (PreparedStatement pStmt = con.prepareStatement(updateSQL)) {
+            int index = 1;
+            for (String column : columns) {
+                Object value = data.get(column.toLowerCase());
+                if (value instanceof String) {
+                    String strValue = ((String) value).toLowerCase();
+                    if (column.equalsIgnoreCase("startdate") || column.equalsIgnoreCase("enddate")) {
+                        if (strValue.isEmpty()) {
+                            pStmt.setNull(index, java.sql.Types.TIMESTAMP);
+                        } else {
+                            pStmt.setTimestamp(index, convertStringToTimestamp(strValue));
+                        }
+                    } else {
+                        pStmt.setString(index, (String) value);
+                    }
+                } else if (value instanceof Integer) {
+                    pStmt.setInt(index, (Integer) value);
+                } else if (value instanceof Boolean) {
+                    pStmt.setBoolean(index, (Boolean) value);
+                } else if (value instanceof java.sql.Timestamp) {
+                    pStmt.setTimestamp(index, (Timestamp) value);
+                }else {
+                    pStmt.setObject(index, value);
+                }
+                index++;
+            }
+            if (idObj instanceof Integer) {
+                logger.info(idObj);
+                pStmt.setInt(index, (Integer) idObj);
+            } else if (idObj instanceof String) {
+                logger.info(idObj);
+                pStmt.setInt(index, Integer.parseInt((String) idObj));
+            } else {
+                logger.info("ID is of an unknown type: {}", idObj.getClass().getName());
+            }
+            pStmt.executeUpdate();
+            System.out.println("Data updated successfully!");
+        } catch (SQLException e) {
+            logger.error("Error in Database.java: |SQLException while updateUserData| %s \n".formatted(getStackTraceAsString(e)));
+        }
+    }
 
     public void insertData(int TableNo, Map<String, Object> data) {
         Set<String> columns = data.keySet();
         String columnsString = String.join(", ", columns);
         String placeholders = String.join(", ", columns.stream().map(col -> "?").toArray(String[]::new));
         String insertSQL = "INSERT INTO %s(".formatted(TABLE_NAME[TableNo]) + columnsString + ") VALUES (" + placeholders + ")";
+
         try (PreparedStatement pStmt = con.prepareStatement(insertSQL)) {
             int index = 1;
             for (String column : columns) {
-                Object value = data.get(column);
+                logger.info(column);
+                Object value = data.get(column.toLowerCase());
+
                 if (value instanceof String) {
-                    pStmt.setString(index, ((String) value).toLowerCase());
+                    String strValue = ((String) value).toLowerCase();
+
+                    if (column.equalsIgnoreCase("startdate") || column.equalsIgnoreCase("enddate")) {
+                        if (strValue.isEmpty()) {
+                            pStmt.setNull(index, java.sql.Types.TIMESTAMP);
+                        } else {
+                            pStmt.setTimestamp(index, convertStringToTimestamp(strValue));
+                        }
+                    } else if (column.equalsIgnoreCase("id")) {
+                        try {
+                            int idValue = Integer.parseInt(strValue);
+                            pStmt.setInt(index, idValue);
+                        } catch (NumberFormatException e) {
+                            logger.error("Invalid id value: " + strValue + " - " + e.getMessage());
+                            pStmt.setNull(index, java.sql.Types.INTEGER);
+                        }
+                    } else {
+                        pStmt.setString(index, strValue);
+                    }
                 } else if (value instanceof Integer) {
                     pStmt.setInt(index, (Integer) value);
                 } else if (value instanceof Boolean) {
                     pStmt.setBoolean(index, (Boolean) value);
                 } else if (value instanceof java.sql.Timestamp) {
-                    pStmt.setTimestamp(index, (java.sql.Timestamp) value);
+                    pStmt.setTimestamp(index, (Timestamp) value);
                 } else {
                     pStmt.setObject(index, value);
                 }
@@ -163,14 +252,41 @@ public class Database {
             }
             pStmt.executeUpdate();
             System.out.println("Data inserted into userdata successfully!");
-
         } catch (SQLException e) {
             logger.error("Error in Database.java: |SQLException while insertUserData| %s \n".formatted(getStackTraceAsString(e)));
         }
     }
-    public Map<String, Object> getData(int TableNo, String parameters) {
-        Map<String, Object> data = new HashMap<>();
+
+
+    public void deleteData(int TableNo, String columnName, Object value) {
+        columnName = columnName.toLowerCase();
+        String deleteSQL = "DELETE FROM %s WHERE %s = ?".formatted(TABLE_NAME[TableNo], columnName);
+
+        try (PreparedStatement pStmt = con.prepareStatement(deleteSQL)) {
+            if (value instanceof String) {
+                pStmt.setString(1, ((String) value).toLowerCase());
+            } else if (value instanceof Integer) {
+                pStmt.setInt(1, (Integer) value);
+            } else if (value instanceof Boolean) {
+                pStmt.setBoolean(1, (Boolean) value);
+            } else if (value instanceof java.sql.Timestamp) {
+                pStmt.setTimestamp(1, (java.sql.Timestamp) value);
+            } else {
+                pStmt.setObject(1, value);
+            }
+
+            int rowsAffected = pStmt.executeUpdate();
+            System.out.printf("Successfully deleted %d row(s) from table: %s\n", rowsAffected, TABLE_NAME[TableNo]);
+
+        } catch (SQLException e) {
+            logger.error("Error in Database.java: |SQLException while deleteData| %s \n".formatted(getStackTraceAsString(e)));
+        }
+    }
+
+    public java.util.List<Map<String, Object>> getData(int TableNo, String parameters) {
+        java.util.List<Map<String, Object>> data = new ArrayList<>();
         String getSQL;
+
         if (!parameters.isEmpty()) {
             Set<String> columns = new HashSet<>(Arrays.asList(parameters.trim().split(" ")));
             String columnsString = String.join(", ", columns);
@@ -180,20 +296,25 @@ public class Database {
         }
         try (PreparedStatement pStmt = con.prepareStatement(getSQL);
              ResultSet rs = pStmt.executeQuery()) {
+
             ResultSetMetaData rsMetaData = rs.getMetaData();
             int columnCount = rsMetaData.getColumnCount();
-            if (rs.next()) {
+            while (rs.next()) {
+                Map<String, Object> cell = new HashMap<>();
                 for (int i = 1; i <= columnCount; i++) {
                     String columnName = rsMetaData.getColumnName(i);
                     Object columnValue = rs.getObject(columnName);
-                    data.put(columnName, columnValue);
+                    cell.put(columnName, columnValue);
                 }
+                data.add(cell);
             }
         } catch (SQLException e) {
             logger.error("Error in Database.java: |SQLException while retrieving data| %s \n".formatted(getStackTraceAsString(e)));
         }
+        logger.info("Data : " + data.toString());
         return data;
     }
+
 
     // for disaster database
     public boolean checkForDuplicateEntries(Map<String, Object> data) {
