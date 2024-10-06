@@ -4,7 +4,7 @@ import com.formdev.flatlaf.FlatDarkLaf;
 import com.formdev.flatlaf.FlatLightLaf;
 import com.formdev.flatlaf.extras.FlatSVGIcon;
 import org.burnknuckle.controllers.LoginSystem;
-import org.burnknuckle.controllers.Main;
+import org.burnknuckle.Main;
 import org.burnknuckle.javafx.model.UserDashboardPanel;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.LoggerContext;
@@ -20,9 +20,9 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
 
-import static org.burnknuckle.controllers.Main.*;
-import static org.burnknuckle.model.ThemeManager.currentTheme;
-import static org.burnknuckle.model.ThemeManager.writeTheme;
+import static org.burnknuckle.Main.*;
+import static org.burnknuckle.utils.ThemeManager.currentTheme;
+import static org.burnknuckle.utils.ThemeManager.writeTheme;
 import static org.burnknuckle.utils.LoginUtils.UserCredentialsCheck;
 
 public class MainUtils {

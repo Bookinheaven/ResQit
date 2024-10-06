@@ -7,7 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-import static org.burnknuckle.controllers.Main.logger;
+import static org.burnknuckle.Main.logger;
 
 public class LoginUtils {
     public static String UserCredentialsCheck(String username, String password){

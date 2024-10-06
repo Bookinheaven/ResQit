@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.TreeMap;
 
-import static org.burnknuckle.controllers.Main.logger;
+import static org.burnknuckle.Main.logger;
 import static org.burnknuckle.utils.LoginUtils.SignUpUser;
 
 public class SignUpSystem {

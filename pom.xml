@@ -106,7 +106,11 @@
             <artifactId>log4j-api</artifactId>
             <version>2.24.1</version>
         </dependency>
-
+        <dependency>
+            <groupId>io.github.dj-raven</groupId>
+            <artifactId>swing-datetime-picker</artifactId>
+            <version>1.4.0</version>
+        </dependency>
     </dependencies>
 
     <groupId>org.burnknuckle</groupId>

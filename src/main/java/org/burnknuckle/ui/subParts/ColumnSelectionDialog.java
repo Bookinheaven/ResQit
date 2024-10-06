@@ -2,40 +2,35 @@ package org.burnknuckle.ui.subParts;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.List;
 
 public class ColumnSelectionDialog extends JDialog {
     private final Map<String, JCheckBox> columnCheckBoxes = new HashMap<>();
-    private final String[] columnNames;
+    private String[] columnNames;
     public String[] selectedColumns;
 
-    public ColumnSelectionDialog(Frame parent, String[] columnNames, Map<String, String> columnMapping) {
+    public ColumnSelectionDialog(Frame parent, String[] givenColumnNames, Map<String, String> columnMapping) {
         super(parent, "Select Columns", true);
-
-        // Initialize columnNames array with the keys of columnMapping
         this.columnNames = columnMapping.keySet().toArray(new String[0]);
-
-        // Create a list to hold selected checkboxes
+        Set<String> givenColumnNamesSet = new HashSet<>(Arrays.asList(givenColumnNames));
         JCheckBox[] checkBoxes = new JCheckBox[this.columnNames.length];
         for (int i = 0; i < this.columnNames.length; i++) {
-            checkBoxes[i] = new JCheckBox(this.columnNames[i], true); // Default to selected
+            if (this.columnNames[i].equals("ID")){
+                checkBoxes[i] = new JCheckBox(this.columnNames[i], true);
+                checkBoxes[i].setEnabled(false);
+            } else {
+                boolean tick = givenColumnNamesSet.contains(this.columnNames[i]);
+                checkBoxes[i] = new JCheckBox(this.columnNames[i], tick);
+            }
         }
-
-        // Create a panel for the checkboxes
         JPanel panel = new JPanel(new GridLayout(0, 1));
         for (JCheckBox checkBox : checkBoxes) {
             panel.add(checkBox);
         }
-
-        // Add the panel to the dialog
         add(panel, BorderLayout.CENTER);
-
-        // Create OK and Cancel buttons
         JButton okButton = new JButton("OK");
         okButton.addActionListener(e -> {
-            // Retrieve selected columns
             selectedColumns = Arrays.stream(checkBoxes)
                     .filter(JCheckBox::isSelected)
                     .map(JCheckBox::getText)
@@ -43,25 +38,38 @@ public class ColumnSelectionDialog extends JDialog {
             setVisible(false);
             if (selectedColumns == null || selectedColumns.length == 0){
                 selectedColumns = columnNames;
+                setOrder(columnMapping);
+
+            }
+            if(Arrays.equals(selectedColumns, givenColumnNames)){
+                selectedColumns = givenColumnNames;
+                setOrder(columnMapping);
             }
         });
-
         JButton cancelButton = new JButton("Cancel");
         cancelButton.addActionListener(e -> {
             setVisible(false);
             if (selectedColumns == null || selectedColumns.length == 0){
-                selectedColumns = columnNames;
+                selectedColumns = givenColumnNames;
+                setOrder(columnMapping);
             }
         });
-
-        // Create a button panel
         JPanel buttonPanel = new JPanel();
         buttonPanel.add(okButton);
         buttonPanel.add(cancelButton);
-
         add(buttonPanel, BorderLayout.SOUTH);
-
-        setSize(300, 300); // Set size for the dialog
-        setLocationRelativeTo(parent); // Center the dialog relative to the parent
+        setSize(300, 300);
+        setLocationRelativeTo(parent);
+    }
+    private void setOrder(Map<String, String> columnMapping) {
+        List<String> priorityOrder = new ArrayList<>(columnMapping.keySet());
+        List<String> selectedColumnsList = new ArrayList<>(Arrays.asList(selectedColumns));
+        List<String> sortedColumns = new ArrayList<>();
+        for (String column : priorityOrder) {
+            if (selectedColumnsList.contains(column)) {
+                sortedColumns.add(column);
+            }
+        }
+        selectedColumns = sortedColumns.toArray(new String[0]);
     }
 }

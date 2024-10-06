@@ -11,8 +11,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import static org.burnknuckle.model.ThemeManager.ADPThemeData;
-import static org.burnknuckle.model.ThemeManager.getColorFromHex;
+import static org.burnknuckle.utils.ThemeManager.ADPThemeData;
+import static org.burnknuckle.utils.ThemeManager.getColorFromHex;
 
 public class AdminUsersLabel extends JPanel {
     public static Icon arrowDownIcon = new FlatSVGIcon(Objects.requireNonNull(AdminUsersLabel.class.getClassLoader().getResource("Common/triangle_down.svg")));

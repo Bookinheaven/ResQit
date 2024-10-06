@@ -4,26 +4,32 @@ import com.formdev.flatlaf.extras.FlatSVGIcon;
 import com.formdev.flatlaf.extras.components.FlatTabbedPane;
 import com.formdev.flatlaf.ui.FlatTabbedPaneUI;
 import org.burnknuckle.controllers.LoginSystem;
+import org.burnknuckle.ui.subParts.ColumnSelectionDialog;
 import org.burnknuckle.utils.Database;
+import raven.datetime.component.date.DatePicker;
 
 import javax.swing.Timer;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.awt.event.*;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.geom.RoundRectangle2D;
 import java.sql.SQLException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.*;
 
-import static org.burnknuckle.controllers.Main.logger;
-import static org.burnknuckle.model.ThemeManager.*;
+import static org.burnknuckle.Main.logger;
+import static org.burnknuckle.utils.ThemeManager.*;
 import static org.burnknuckle.ui.subParts.AdminUsersLabel.setTitleBar;
 import static org.burnknuckle.ui.subParts.AdminUsersLabel.userFrames;
 import static org.burnknuckle.utils.MainUtils.clearProperties;
 import static org.burnknuckle.utils.MainUtils.getStackTraceAsString;
-import org.burnknuckle.ui.subParts.ColumnSelectionDialog;
 
 public class AdminDashboardPanel {
     private final JFrame frame;
@@ -43,7 +49,6 @@ public class AdminDashboardPanel {
     private JPanel mainContent;
     private Map<String, Object> userdata;
     private final Deque<String> pageStack = new LinkedList<>();
-    private String currentPage = "Dashboard";
     private List<Map<String, Object>> data;
     private DefaultTableModel resolvedTableModel ;
     private DefaultTableModel requestedTableModel;
@@ -51,6 +56,8 @@ public class AdminDashboardPanel {
     private boolean isTableEditable = false;
     private Map<String, String> columnMapping;
     private String[] selectedColumns;
+    private Object[][] usersData;
+
     public AdminDashboardPanel(JFrame frame, Map<String, Object> userdata ) {
         this.frame = frame;
         this.userdata = userdata;
@@ -99,8 +106,8 @@ public class AdminDashboardPanel {
         MenuPanel.setSize(frame.getWidth(), frame.getHeight());
         menuBar.setSize((frame.getWidth()/4) + 10, frame.getHeight());
         overlayPanel.setSize(frame.getWidth() - menuBar.getWidth(), frame.getHeight());
-        mainContent.setBounds(SlipSidePanel.getWidth(),0,frame.getWidth()-SlipSidePanel.getWidth(), frame.getHeight());
         SlipSidePanel.setSize(((MenuButton.getWidth() + logoutButton.getWidth()) / 2)+10, 2 + frame.getHeight()-MenuButton.getHeight());
+        mainContent.setBounds(SlipSidePanel.getWidth(),0, frame.getWidth()-SlipSidePanel.getWidth()-15, frame.getHeight()-40);
         frame.revalidate();
         frame.repaint();
     }
@@ -167,7 +174,7 @@ public class AdminDashboardPanel {
         buttonPanel = new JPanel();
         buttonPanel.setLayout(new GridLayout(6, 1, 10, 10));
         buttonPanel.setBackground(getColorFromHex(ADPThemeData.get("sidebar")));
-        String[] buttonLabels = {"Dashboard", "Disaster", "Co-Admins", "Locations", "Delivery Status", "Volunteer Management"};
+        String[] buttonLabels = {"Dashboard", "Disaster", "Co-Admins", "User Management", "Delivery Status", "Volunteer Management"};
         for (String label : buttonLabels) {
             JButton button = createSidebarButton(label);
             buttonPanel.add(button);
@@ -208,7 +215,6 @@ public class AdminDashboardPanel {
                     clearProperties(new Properties());
                     SwingUtilities.invokeLater(() -> {
                         try {
-                            currentPage = "";
                             frame.getContentPane().removeAll();
                             frame.repaint();
                             frame.revalidate();
@@ -252,11 +258,10 @@ public class AdminDashboardPanel {
         mainContent = new JPanel();
         cardLayout = new CardLayout();
         mainContent.setLayout(cardLayout);
-        mainContent.setBackground(Color.BLUE);
         mainContent.add(createDashboardPanel(), "Dashboard");
         mainContent.add(createDisasterResourcesPanel(), "Disaster");
         mainContent.add(createCoAdminsPanel(), "Co-Admins");
-        mainContent.add(createAddMarkersPanel(), "Locations");
+        mainContent.add(createUsersCoAdminsPanel(), "User Management");
         mainContent.add(createDeliveryStatusPanel(), "Delivery Status");
         mainContent.add(createVolunteerManagementPanel(), "Volunteer Management");
 
@@ -314,27 +319,29 @@ public class AdminDashboardPanel {
         button.setBorderPainted(false);
         button.setFocusPainted(true);
         setButtonHoverAndActiveColors(button, ADPThemeData, "sidebar");
-        button.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                removeMenu();
-                cardLayout.show(mainContent, text);
-                frame.revalidate();
-                frame.repaint();
-            }
+        button.addActionListener(_ -> {
+            removeMenu();
+            cardLayout.show(mainContent, text);
+            frame.revalidate();
+            frame.repaint();
         });
         return button;
     }
 
     private JPanel createDashboardPanel() {
-        currentPage = "Dashboard";
         JPanel panel = new JPanel();
+        panel.setLayout(new BorderLayout());
         panel.setBackground(getColorFromHex(ADPThemeData.get("background")));
-        panel.add(new JLabel("Dashboard Content Here"));
+
+        JLabel headerLabel = new JLabel("Admin Dashboard", SwingConstants.CENTER);
+        headerLabel.setFont(new Font("Arial", Font.BOLD, 24));
+        headerLabel.setForeground(Color.WHITE);
+        panel.add(headerLabel, BorderLayout.NORTH);
+
+
         return panel;
     }
-    private JPanel createDisasterResourcesPanel() {
-        currentPage = "Disaster";
+    private JPanel createUsersCoAdminsPanel() {
         JPanel outer = new JPanel(new BorderLayout());
         outer.setOpaque(false);
         outer.setBackground(Color.red);
@@ -346,7 +353,121 @@ public class AdminDashboardPanel {
         gbc.weightx = 1;
         gbc.weighty = 1;
 
-        columnMapping = new HashMap<>();
+        Map<String, String> userColumnMapping = new LinkedHashMap<>();
+        userColumnMapping.put("ID", "id");
+        userColumnMapping.put("Username", "username");
+        userColumnMapping.put("Email", "email");
+        userColumnMapping.put("Role", "role");
+        userColumnMapping.put("Last Login", "lastLogin");
+        userColumnMapping.put("Status", "status");
+
+        String[] userColumnNames = new String[]{"ID", "Username", "Email", "Role", "Last Login", "Status"};
+        DefaultTableModel adminTableModel = new DefaultTableModel(userColumnNames, 0);
+        DefaultTableModel coAdminTableModel = new DefaultTableModel(userColumnNames, 0);
+
+        usersData = refreshUserData(adminTableModel, coAdminTableModel, userColumnMapping);
+
+        JTable adminTable = new JTable(adminTableModel);
+        JTable coAdminTable = new JTable(coAdminTableModel);
+
+        adminTable.setEnabled(false);
+        coAdminTable.setEnabled(false);
+
+        JScrollPane adminScrollPane = new JScrollPane(adminTable);
+        JScrollPane coAdminScrollPane = new JScrollPane(coAdminTable);
+
+        JLabel adminLabel = new JLabel("Admins", SwingConstants.LEFT);
+        adminLabel.setFont(new Font("Inter", Font.BOLD, 38));
+
+        JLabel coAdminLabel = new JLabel("Co-Admins", SwingConstants.LEFT);
+        coAdminLabel.setFont(new Font("Inter", Font.BOLD, 38));
+
+        JButton adminEditButton = new JButton("Edit");
+        JButton adminSaveButton = new JButton("Save");
+        JButton adminDeleteButton = new JButton("Delete");
+
+        JButton coAdminEditButton = new JButton("Edit");
+        JButton coAdminSaveButton = new JButton("Save");
+        JButton coAdminDeleteButton = new JButton("Delete");
+
+        addUserTableButtonListeners(adminTable, adminTableModel, adminEditButton, adminSaveButton, adminDeleteButton, userColumnMapping, usersData);
+        addUserTableButtonListeners(coAdminTable, coAdminTableModel, coAdminEditButton, coAdminSaveButton, coAdminDeleteButton, userColumnMapping, usersData);
+
+        JButton refreshButton = new JButton("Refresh");
+        refreshButton.addActionListener(_ -> usersData = refreshUserData(adminTableModel, coAdminTableModel, userColumnMapping));
+
+        gbc.gridwidth = 3;
+        gbc.weighty = 0.1;
+        gbc.gridx = 0; gbc.gridy = 0; panel.add(adminLabel, gbc);
+        gbc.gridx = 0; gbc.gridy = 3; panel.add(coAdminLabel, gbc);
+
+        gbc.gridwidth = 3;
+        gbc.weighty = 1;
+        gbc.gridx = 0; gbc.gridy = 1; panel.add(adminScrollPane, gbc);
+        gbc.gridx = 0; gbc.gridy = 4; panel.add(coAdminScrollPane, gbc);
+
+        gbc.gridwidth = 1;
+        gbc.weighty = 0.1;
+        gbc.gridx = 0; gbc.gridy = 2; panel.add(adminEditButton, gbc);
+        gbc.gridx = 1; gbc.gridy = 2; panel.add(adminSaveButton, gbc);
+        gbc.gridx = 2; gbc.gridy = 2; panel.add(adminDeleteButton, gbc);
+
+        gbc.gridx = 0; gbc.gridy = 5; panel.add(coAdminEditButton, gbc);
+        gbc.gridx = 1; gbc.gridy = 5; panel.add(coAdminSaveButton, gbc);
+        gbc.gridx = 2; gbc.gridy = 5; panel.add(coAdminDeleteButton, gbc);
+
+        gbc.gridwidth = 3;
+        gbc.weighty = 0.1;
+        gbc.gridx = 0; gbc.gridy = 6; panel.add(refreshButton, gbc);
+
+        outer.add(panel, BorderLayout.CENTER);
+        return outer;
+    }
+
+    private Object[][] refreshUserData(DefaultTableModel adminTableModel, DefaultTableModel coAdminTableModel, Map<String, String> userColumnMapping) {
+       try {
+           Database db = Database.getInstance();
+           db.getConnection();
+           db.getData(0, "");
+       } catch (SQLException e) {
+           throw new RuntimeException(e);
+       }
+        return new Object[][] {};
+    }
+
+    private void addUserTableButtonListeners(JTable table, DefaultTableModel tableModel, JButton editButton, JButton saveButton, JButton deleteButton, Map<String, String> columnMapping, Object[][] userData) {
+        editButton.addActionListener(e -> {
+            int selectedRow = table.getSelectedRow();
+        });
+
+        saveButton.addActionListener(e -> {
+            int selectedRow = table.getSelectedRow();
+
+        });
+
+        deleteButton.addActionListener(e -> {
+            int selectedRow = table.getSelectedRow();
+            if (selectedRow != -1) {
+                tableModel.removeRow(selectedRow);
+                logger.info("User deleted successfully.");
+                JOptionPane.showMessageDialog(null, "User deleted successfully.");
+            }
+        });
+    }
+
+    private JPanel createDisasterResourcesPanel() {
+        JPanel outer = new JPanel(new BorderLayout());
+        outer.setOpaque(false);
+        outer.setBackground(Color.red);
+
+        JPanel panel = new JPanel(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(5, 5, 5, 5);
+        gbc.fill = GridBagConstraints.BOTH;
+        gbc.weightx = 1;
+        gbc.weighty = 1;
+
+        columnMapping = new LinkedHashMap<>(); // HashMap is not saving in ordered manner
         columnMapping.put("ID", "id");
         columnMapping.put("Name", "disastername");
         columnMapping.put("Type", "disastertype");
@@ -357,8 +478,8 @@ public class AdminDashboardPanel {
         columnMapping.put("End Date", "enddate");
         columnMapping.put("Status", "responsestatus");
         columnMapping.put("Uploaded User", "userUploaded");
-        columnMapping.put("Impact Assessment", "impactAssessment");
         columnMapping.put("Entry date", "dateOfEntry");
+        columnMapping.put("Impact Assessment", "impactAssessment");
         columnMapping.put("Last Updated", "lastUpdated");
         columnMapping.put("Description", "description");
         columnMapping.put("Meter", "scaleMeter");
@@ -392,7 +513,6 @@ public class AdminDashboardPanel {
         JLabel ongoingLabel = new JLabel("Ongoing Disasters", SwingConstants.LEFT);
         ongoingLabel.setFont(new Font("Inter", Font.BOLD, 38));
 
-        // Create buttons for each section
         JButton resolvedEditButton = new JButton("Edit");
         JButton resolvedSaveButton = new JButton("Save");
         JButton resolvedDeleteButton = new JButton("Delete");
@@ -409,23 +529,16 @@ public class AdminDashboardPanel {
         addTableButtonListeners(requestedTable, requestedTableModel, requestedEditButton, requestedSaveButton, requestedDeleteButton, columnMapping, data);
         addTableButtonListeners(ongoingTable, ongoingTableModel, ongoingEditButton, ongoingSaveButton, ongoingDeleteButton, columnMapping, data);
 
-        // Create a refresh button
         JButton refreshButton = new JButton("Refresh");
-        refreshButton.addActionListener(e -> {
-            data = refreshData(resolvedTableModel, requestedTableModel, ongoingTableModel, columnMapping, selectedColumns);
-        });
+        refreshButton.addActionListener(_ -> data = refreshData(resolvedTableModel, requestedTableModel, ongoingTableModel, columnMapping, selectedColumns));
         JButton columnSelectionButton = new JButton("Select Columns");
-        columnSelectionButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                ColumnSelectionDialog dialog = new ColumnSelectionDialog(null, selectedColumns, columnMapping);
-                dialog.setVisible(true);
-                selectedColumns = dialog.selectedColumns;
+        columnSelectionButton.addActionListener(_ -> {
+            ColumnSelectionDialog dialog = new ColumnSelectionDialog(null, selectedColumns, columnMapping);
+            dialog.setVisible(true);
+            selectedColumns = dialog.selectedColumns;
 
-                updateTableModels(selectedColumns);
-            }
+            updateTableModels(selectedColumns);
         });
-
         gbc.gridwidth = 1;
         gbc.weighty = 0.1;
         gbc.gridx = 1; gbc.gridy = 0; panel.add(columnSelectionButton, gbc);
@@ -465,7 +578,6 @@ public class AdminDashboardPanel {
         return outer;
     }
     private void updateTableModels(String[] selectedColumns) {
-        // Update the table models with selected columns
         resolvedTableModel.setColumnCount(0);
         requestedTableModel.setColumnCount(0);
         ongoingTableModel.setColumnCount(0);
@@ -477,7 +589,6 @@ public class AdminDashboardPanel {
         data = refreshData(resolvedTableModel, requestedTableModel, ongoingTableModel, columnMapping, selectedColumns);
     }
     private List<Map<String, Object>> refreshData(DefaultTableModel resolvedTableModel, DefaultTableModel requestedTableModel, DefaultTableModel ongoingTableModel, Map<String, String> columnMapping, String[] selectedColumns) {
-        // Clear existing rows in the table models
         resolvedTableModel.setRowCount(0);
         requestedTableModel.setRowCount(0);
         ongoingTableModel.setRowCount(0);
@@ -490,16 +601,13 @@ public class AdminDashboardPanel {
         } catch (SQLException e) {
             logger.error("Error in AdminDashboardPanel.java: |SQLException while refreshing data| %s \n".formatted(getStackTraceAsString(e)));
         }
-
         if (data != null) {
             for (Map<String, Object> item : data) {
                 List<String> row = new ArrayList<>();
-                for (int i = 0; i < selectedColumns.length; i++){
-                    String current = columnMapping.get(selectedColumns[i]);
+                for (String selectedColumn : selectedColumns) {
+                    String current = columnMapping.get(selectedColumn);
                     row.add(String.valueOf(item.get(current)));
-
                 }
-
                 String status = String.valueOf(item.get("responsestatus"));
                 switch (status) {
                     case "resolved":
@@ -517,17 +625,12 @@ public class AdminDashboardPanel {
         return data;
     }
 
-
-
-
     private void addTableButtonListeners(JTable table, DefaultTableModel tableModel, JButton editButton, JButton saveButton, JButton deleteButton, Map<String, String> columnMapping, List<Map<String, Object>> changeData) {
-        // Edit button action
-        editButton.addActionListener(e -> {
-            isTableEditable = !isTableEditable; // Toggle the editing state
-            table.setEnabled(isTableEditable); // Enable or disable table based on the flag
+        editButton.addActionListener(_ -> {
+            isTableEditable = !isTableEditable;
+            table.setEnabled(isTableEditable);
         });
-        // Save button action
-        saveButton.addActionListener(e -> {
+        saveButton.addActionListener(_ -> {
             table.setEnabled(false);
             int selectedRow = table.getSelectedRow();
             if (selectedRow >= 0 && selectedRow < changeData.size()) {
@@ -541,29 +644,106 @@ public class AdminDashboardPanel {
                     }
                 }
                 Database.getInstance().updateData(2,rowData);
-                logger.info("Data updated successfully for row: " + selectedRow);
+                JOptionPane.showMessageDialog(
+                        null,
+                        "Data updated successfully for row: " + selectedRow,
+                        "Update Successful",
+                        JOptionPane.INFORMATION_MESSAGE
+                );
+                logger.info("Data updated successfully for row: {}", selectedRow);
                 data = refreshData(resolvedTableModel, requestedTableModel, ongoingTableModel, columnMapping, selectedColumns);
 
             } else {
-                logger.error("Invalid selected row: " + selectedRow);
+                logger.error("Invalid selected row: {}", selectedRow);
             }
             table.setEnabled(false);
         });
 
-        // Delete button action
-        deleteButton.addActionListener(e -> {
+        deleteButton.addActionListener(_ -> {
             int selectedRow = table.getSelectedRow();
             if (selectedRow != -1) {
                 Object idValue = table.getValueAt(selectedRow, 0);
                 tableModel.removeRow(selectedRow);
                 Database.getInstance().deleteData(2, "id", idValue);
-                logger.info("Row deleted at index: " + selectedRow + ", with ID: " + idValue);
+                logger.info("Row deleted at index: {}, with ID: {}", selectedRow, idValue);
+                JOptionPane.showMessageDialog(
+                        null,
+                        "Data deleted successfully for row: " + selectedRow,
+                        "Deleted Successful",
+                        JOptionPane.INFORMATION_MESSAGE
+                );
                 data = refreshData(resolvedTableModel, requestedTableModel, ongoingTableModel, columnMapping, selectedColumns);
             }
+        });
+        table.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if(!isTableEditable) return;
+                int row = table.rowAtPoint(e.getPoint());
+                int column = table.columnAtPoint(e.getPoint());
+                String columnName = tableModel.getColumnName(column);
+                logger.info("here");
 
+                if (columnName.equals("Start Date") || columnName.equals("End Date")) {
+                    showDateTimePicker(table, row, column);
+                    logger.info("here");
+                }
+            }
         });
     }
+    private void saveAllChanges(JTable table, DefaultTableModel tableModel, Map<String, String> columnMapping) {
+        int rowCount = tableModel.getRowCount();
+        boolean hasChanges = false;
 
+        for (int i = 0; i < rowCount; i++) {
+            Map<String, Object> rowData = new HashMap<>();
+            for (int j = 0; j < tableModel.getColumnCount(); j++) {
+                String columnName = tableModel.getColumnName(j);
+                String dbColumnName = columnMapping.get(columnName);
+                if (dbColumnName != null) {
+                    Object value = table.getValueAt(i, j);
+                    if (value != null) {
+                        rowData.put(dbColumnName, value.toString());
+                    }
+                }
+            }
+            Object idValue = table.getValueAt(i, 0);
+            if (idValue != null) {
+                rowData.put("id", idValue.toString());
+                Database.getInstance().updateData(2, rowData);
+                hasChanges = true;
+            }
+        }
+        if (hasChanges) {
+            JOptionPane.showMessageDialog(null, "All changes saved successfully!", "Save Successful", JOptionPane.INFORMATION_MESSAGE);
+            logger.info("All changes saved successfully.");
+        } else {
+            JOptionPane.showMessageDialog(null, "No changes detected to save.", "No Changes", JOptionPane.WARNING_MESSAGE);
+        }
+    }
+
+    private void showDateTimePicker(JTable table, int row, int column) {
+        JSpinner timeSpinner = new JSpinner(new SpinnerDateModel());
+        JSpinner.DateEditor timeEditor = new JSpinner.DateEditor(timeSpinner, "HH:mm:ss");
+        timeSpinner.setEditor(timeEditor);
+        timeSpinner.setValue(new java.util.Date());
+
+        DatePicker datePicker = new DatePicker();
+        JFormattedTextField editor = new JFormattedTextField();
+        datePicker.setEditor(editor);
+
+        JPanel panel = new JPanel();
+        panel.add(datePicker);
+        panel.add(timeSpinner);
+
+        int option = JOptionPane.showConfirmDialog(null, panel, "Select Date and Time", JOptionPane.OK_CANCEL_OPTION);
+        if (option == JOptionPane.OK_OPTION) {
+            LocalDateTime selectedDateTime = LocalDateTime.of(datePicker.getSelectedDate(), ((java.util.Date) timeSpinner.getValue()).toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalTime());
+
+            String formattedDateTime = selectedDateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+            table.setValueAt(formattedDateTime, row, column);
+        }
+    }
     private String loadIconSort(String sortDirection, JButton sortButton){
         if (sortDirection.equals("inc")){
             sortDirection = "dec";
@@ -576,7 +756,6 @@ public class AdminDashboardPanel {
         return sortDirection;
     }
     private JPanel createCoAdminsPanel() {
-        currentPage = "CoAdmins";
         Database db = Database.getInstance();
         JPanel panel = new JPanel(new BorderLayout());
         JPanel inner = new JPanel(new GridBagLayout());
@@ -772,13 +951,10 @@ public class AdminDashboardPanel {
                         String password = (String) coAdminData.get(row).get("password");
 
                         coAdminTable.setValueAt(password, row, col);
-                        Timer timer = new Timer(3000, new ActionListener() {
-                            @Override
-                            public void actionPerformed(ActionEvent e) {
-                                coAdminTable.setValueAt("show", row, col);
-                                frame.revalidate();
-                                frame.repaint();
-                            }
+                        Timer timer = new Timer(3000, _ -> {
+                            coAdminTable.setValueAt("show", row, col);
+                            frame.revalidate();
+                            frame.repaint();
                         });
                         timer.setRepeats(false);
                         timer.start();

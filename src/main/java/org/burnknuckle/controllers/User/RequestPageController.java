@@ -11,11 +11,11 @@ import javax.swing.*;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.burnknuckle.controllers.Main.logger;
+import static org.burnknuckle.Main.logger;
 import static org.burnknuckle.javafx.model.UserDashboardPanel.currentUser;
 import static org.burnknuckle.utils.MainUtils.getStackTraceAsString;
 
-public class disasterPageController {
+public class RequestPageController {
     @FXML
     private ComboBox<String> disasterTypeCombo;
 
@@ -60,24 +60,23 @@ public class disasterPageController {
 
     public void submitData() {
         Map<String, Object> formData = new HashMap<>();
-        formData.put("disasterName", disasterName.getText());
-        formData.put("disasterType", disasterTypeCombo.getValue());
-        formData.put("scaleMeter", scaleCombo.getValue() +" | "+scaleSlider.getValue());
+        formData.put("disastername", disasterName.getText());
+        formData.put("disastertype", disasterTypeCombo.getValue());
+        formData.put("scalemeter", scaleCombo.getValue() +" | "+scaleSlider.getValue());
         formData.put("scale", disasterScaleLevel.getValue());
         formData.put("severity", severityLevelCombo.getValue());
-        formData.put("responseStatus", "requested");
+        formData.put("responsestatus", "requested");
         formData.put("description", descriptionTextArea.getText());
         formData.put("location", locationTextArea.getText());
-        formData.put("impactAssessment", ImpactTextArea.getText());
-        formData.put("startDate", startDatePicker.getValue());
-        formData.put("endDate", endDatePicker.getValue());
-        formData.put("userUploaded", currentUser);
+        formData.put("impactassessment", ImpactTextArea.getText());
+        formData.put("startdate", startDatePicker.getValue());
+        formData.put("enddate", endDatePicker.getValue());
+        formData.put("useruploaded", currentUser);
 
 
         try {
             Database db = Database.getInstance();
             db.getConnection();
-            logger.info(db.checkForDuplicateEntries(formData));
             if (db.checkForDuplicateEntries(formData)) {
                 warningLabel.setVisible(true);
                 Timer timer = new Timer(3000, _ -> {

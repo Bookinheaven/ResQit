@@ -9,7 +9,7 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.*;
 
-import static org.burnknuckle.controllers.Main.logger;
+import static org.burnknuckle.Main.logger;
 import static org.burnknuckle.utils.MainUtils.getStackTraceAsString;
 
 public class Database {
@@ -26,7 +26,6 @@ public class Database {
         }
         return instance;
     }
-
     public void connectDatabase() {
         try {
             con = getConnection();
@@ -146,14 +145,14 @@ public class Database {
     }
     private Timestamp convertStringToTimestamp(String dateString) {
         if (dateString == null || dateString.equalsIgnoreCase("null")) {
-            return null; // Return null if the input is null or "null"
+            return null;
         }
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         try {
             return new Timestamp(dateFormat.parse(dateString).getTime());
         } catch (ParseException e) {
-            logger.error("Error parsing date: " + dateString + " - " + e.getMessage());
-            return null; // Handle this case as needed
+            logger.error("Error parsing date: {} - {}", dateString, e.getMessage());
+            return null;
         }
     }
 
@@ -169,44 +168,39 @@ public class Database {
             int index = 1;
             for (String column : columns) {
                 Object value = data.get(column.toLowerCase());
-                if (value instanceof String) {
-                    String strValue = ((String) value).toLowerCase();
-                    if (column.equalsIgnoreCase("startdate") || column.equalsIgnoreCase("enddate")) {
-                        if (strValue.isEmpty()) {
-                            pStmt.setNull(index, java.sql.Types.TIMESTAMP);
+                switch (value) {
+                    case String s -> {
+                        String strValue = s.toLowerCase();
+                        if (column.equalsIgnoreCase("startdate") || column.equalsIgnoreCase("enddate")) {
+                            if (strValue.isEmpty()) {
+                                pStmt.setNull(index, Types.TIMESTAMP);
+                            } else {
+                                pStmt.setTimestamp(index, convertStringToTimestamp(strValue));
+                            }
                         } else {
-                            pStmt.setTimestamp(index, convertStringToTimestamp(strValue));
+                            pStmt.setString(index, (String) value);
                         }
-                    } else {
-                        pStmt.setString(index, (String) value);
                     }
-                } else if (value instanceof Integer) {
-                    pStmt.setInt(index, (Integer) value);
-                } else if (value instanceof Boolean) {
-                    pStmt.setBoolean(index, (Boolean) value);
-                } else if (value instanceof java.sql.Timestamp) {
-                    pStmt.setTimestamp(index, (Timestamp) value);
-                }else {
-                    pStmt.setObject(index, value);
+                    case Integer i -> pStmt.setInt(index, i);
+                    case Boolean b -> pStmt.setBoolean(index, b);
+                    case Timestamp timestamp -> pStmt.setTimestamp(index, timestamp);
+                    case null, default -> pStmt.setObject(index, value);
                 }
                 index++;
             }
             if (idObj instanceof Integer) {
-                logger.info(idObj);
                 pStmt.setInt(index, (Integer) idObj);
             } else if (idObj instanceof String) {
-                logger.info(idObj);
                 pStmt.setInt(index, Integer.parseInt((String) idObj));
             } else {
-                logger.info("ID is of an unknown type: {}", idObj.getClass().getName());
+                logger.info("Error in Database.java: [insertData] ID is of an unknown type: {}", idObj.getClass().getName());
             }
             pStmt.executeUpdate();
-            System.out.println("Data updated successfully!");
+            logger.info("Data updated successfully!");
         } catch (SQLException e) {
-            logger.error("Error in Database.java: |SQLException while updateUserData| %s \n".formatted(getStackTraceAsString(e)));
+            logger.error("Error in Database.java: |SQLException while updateData| %s \n".formatted(getStackTraceAsString(e)));
         }
     }
-
     public void insertData(int TableNo, Map<String, Object> data) {
         Set<String> columns = data.keySet();
         String columnsString = String.join(", ", columns);
@@ -216,67 +210,67 @@ public class Database {
         try (PreparedStatement pStmt = con.prepareStatement(insertSQL)) {
             int index = 1;
             for (String column : columns) {
-                logger.info(column);
                 Object value = data.get(column.toLowerCase());
+                switch (value) {
+                    case String s -> {
+                        String strValue = s.toLowerCase();
 
-                if (value instanceof String) {
-                    String strValue = ((String) value).toLowerCase();
-
-                    if (column.equalsIgnoreCase("startdate") || column.equalsIgnoreCase("enddate")) {
-                        if (strValue.isEmpty()) {
-                            pStmt.setNull(index, java.sql.Types.TIMESTAMP);
+                        if (column.equalsIgnoreCase("startdate") || column.equalsIgnoreCase("enddate")) {
+                            if (strValue.isEmpty()) {
+                                pStmt.setNull(index, Types.TIMESTAMP);
+                            } else {
+                                pStmt.setTimestamp(index, convertStringToTimestamp(strValue));
+                            }
+                        } else if (column.equalsIgnoreCase("id")) {
+                            try {
+                                int idValue = Integer.parseInt(strValue);
+                                pStmt.setInt(index, idValue);
+                            } catch (NumberFormatException e) {
+                                logger.error("Error in Database.java: [insertData] Invalid id value: {} - {}", strValue, e.getMessage());
+                                pStmt.setNull(index, Types.INTEGER);
+                            }
                         } else {
-                            pStmt.setTimestamp(index, convertStringToTimestamp(strValue));
+                            pStmt.setString(index, strValue);
                         }
-                    } else if (column.equalsIgnoreCase("id")) {
-                        try {
-                            int idValue = Integer.parseInt(strValue);
-                            pStmt.setInt(index, idValue);
-                        } catch (NumberFormatException e) {
-                            logger.error("Invalid id value: " + strValue + " - " + e.getMessage());
-                            pStmt.setNull(index, java.sql.Types.INTEGER);
-                        }
-                    } else {
-                        pStmt.setString(index, strValue);
                     }
-                } else if (value instanceof Integer) {
-                    pStmt.setInt(index, (Integer) value);
-                } else if (value instanceof Boolean) {
-                    pStmt.setBoolean(index, (Boolean) value);
-                } else if (value instanceof java.sql.Timestamp) {
-                    pStmt.setTimestamp(index, (Timestamp) value);
-                } else {
-                    pStmt.setObject(index, value);
+                    case Integer i -> pStmt.setInt(index, i);
+                    case Boolean b -> pStmt.setBoolean(index, b);
+                    case Timestamp timestamp -> pStmt.setTimestamp(index, timestamp);
+                    case null, default -> pStmt.setObject(index, value);
                 }
                 index++;
             }
             pStmt.executeUpdate();
-            System.out.println("Data inserted into userdata successfully!");
+            logger.info("Data inserted into userdata successfully!");
         } catch (SQLException e) {
             logger.error("Error in Database.java: |SQLException while insertUserData| %s \n".formatted(getStackTraceAsString(e)));
         }
     }
-
 
     public void deleteData(int TableNo, String columnName, Object value) {
         columnName = columnName.toLowerCase();
         String deleteSQL = "DELETE FROM %s WHERE %s = ?".formatted(TABLE_NAME[TableNo], columnName);
 
         try (PreparedStatement pStmt = con.prepareStatement(deleteSQL)) {
-            if (value instanceof String) {
-                pStmt.setString(1, ((String) value).toLowerCase());
-            } else if (value instanceof Integer) {
-                pStmt.setInt(1, (Integer) value);
-            } else if (value instanceof Boolean) {
-                pStmt.setBoolean(1, (Boolean) value);
-            } else if (value instanceof java.sql.Timestamp) {
-                pStmt.setTimestamp(1, (java.sql.Timestamp) value);
+            if(columnName.equals("id")){
+                if (value instanceof Integer) {
+                    pStmt.setInt(1, (Integer) value);
+                } else if (value instanceof String) {
+                    pStmt.setInt(1, Integer.parseInt((String) value));
+                } else {
+                    logger.info("Error in Database.java: [deleteData] ID is of an unknown type: {}", value.getClass().getName());
+                }
             } else {
-                pStmt.setObject(1, value);
+                switch (value) {
+                    case String s -> pStmt.setString(1, s.toLowerCase());
+                    case Integer i -> pStmt.setInt(1, i);
+                    case Boolean b -> pStmt.setBoolean(1, b);
+                    case Timestamp timestamp -> pStmt.setTimestamp(1, timestamp);
+                    case null, default -> pStmt.setObject(1, value);
+                }
             }
-
             int rowsAffected = pStmt.executeUpdate();
-            System.out.printf("Successfully deleted %d row(s) from table: %s\n", rowsAffected, TABLE_NAME[TableNo]);
+            logger.info("Successfully deleted %d row(s) from table: %s\n".formatted(rowsAffected, TABLE_NAME[TableNo]));
 
         } catch (SQLException e) {
             logger.error("Error in Database.java: |SQLException while deleteData| %s \n".formatted(getStackTraceAsString(e)));
@@ -311,18 +305,15 @@ public class Database {
         } catch (SQLException e) {
             logger.error("Error in Database.java: |SQLException while retrieving data| %s \n".formatted(getStackTraceAsString(e)));
         }
-        logger.info("Data : " + data.toString());
         return data;
     }
-
-
     // for disaster database
     public boolean checkForDuplicateEntries(Map<String, Object> data) {
-        String disasterType = (String) data.get("disasterType");
-        String disasterName = (String) data.get("disasterName");
-        LocalDate startDate = (LocalDate) data.get("startDate");
+        String disasterType = (String) data.get("disastertype");
+        String disasterName = (String) data.get("disastername");
+        LocalDate startDate = (LocalDate) data.get("startdate");
 
-        String checkSQL = "SELECT COUNT(*) FROM %s WHERE disasterType = ? AND disasterName = ? AND startDate = ?".formatted(TABLE_NAME[2]);
+        String checkSQL = "SELECT COUNT(*) FROM %s WHERE disastertype = ? AND disastername = ? AND startdate = ?".formatted(TABLE_NAME[2]);
 
         try (PreparedStatement checkStmt = con.prepareStatement(checkSQL)) {
             checkStmt.setString(1, disasterType.toLowerCase());
@@ -408,40 +399,5 @@ public class Database {
     public boolean canCreateCoAdmin(String username) {
         return isAdmin(username);
     }
-    public List<Map<String, Object>> getPrivilegeData(String privilege) {
-        List<Map<String, Object>> coAdmins = new ArrayList<>();
-        String querySQL = "SELECT * FROM userdata WHERE privilege = ?";
 
-        try (PreparedStatement ps = getConnection().prepareStatement(querySQL)) {
-            ps.setString(1, privilege);
-
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    Map<String, Object> row = new HashMap<>();
-                    row.put("username", rs.getString("username"));
-                    row.put("password", rs.getString("password"));
-                    row.put("privilege", rs.getString("privilege"));
-                    row.put("email", rs.getString("email"));
-                    row.put("gender", rs.getString("gender"));
-                    row.put("role", rs.getString("role"));
-                    row.put("first_name", rs.getString("first_name"));
-                    row.put("last_name", rs.getString("last_name"));
-                    row.put("phone_number", rs.getString("phone_number"));
-                    row.put("date_of_birth", rs.getDate("date_of_birth"));
-                    row.put("account_created", rs.getTimestamp("account_created"));
-                    row.put("last_login", rs.getTimestamp("last_login"));
-                    row.put("is_active", rs.getBoolean("is_active"));
-                    row.put("address", rs.getString("address"));
-                    row.put("profile_picture_url", rs.getString("profile_picture_url"));
-                    row.put("bio", rs.getString("bio"));
-                    row.put("failed_login_attempts", rs.getInt("failed_login_attempts"));
-                    row.put("password_last_updated", rs.getTimestamp("password_last_updated"));
-                    coAdmins.add(row);
-                }
-            }
-        } catch (SQLException e) {
-            logger.error("Error in Database.java: |SQLException while canCreateCoAdmin| %s \n".formatted(getStackTraceAsString(e)));
-        }
-        return coAdmins;
-    }
 }

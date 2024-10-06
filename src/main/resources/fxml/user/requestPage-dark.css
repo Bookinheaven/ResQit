@@ -18,16 +18,12 @@ label {
 .text-field:focused, .text-area:focused, .combo-box:focused {
     -fx-border-color: #007BFF;
 }
-.button {
-    -fx-background-color: #ffffff;
-
-}
 #Submit-button {
     -fx-background-color: #007BFF;
-    -fx-text-fill: white;
+    -fx-text-fill: black;
     -fx-font-weight: bold;
     -fx-border-radius: 5;
-    -fx-padding: 10;
+    -fx-padding: 15;
 }
 
 #Submit-button:hover {

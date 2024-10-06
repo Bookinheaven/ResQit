@@ -1,4 +1,4 @@
-package org.burnknuckle.model;
+package org.burnknuckle.utils;
 
 import javax.swing.*;
 import java.awt.*;
@@ -14,7 +14,7 @@ import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
 
-import static org.burnknuckle.controllers.Main.logger;
+import static org.burnknuckle.Main.logger;
 import static org.burnknuckle.utils.MainUtils.getStackTraceAsString;
 
 

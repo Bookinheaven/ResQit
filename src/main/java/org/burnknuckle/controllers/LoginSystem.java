@@ -19,7 +19,7 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.Properties;
 
-import static org.burnknuckle.controllers.Main.logger;
+import static org.burnknuckle.Main.logger;
 import static org.burnknuckle.utils.LoginUtils.UserCredentialsCheck;
 import static org.burnknuckle.utils.LoginUtils.updatePanelSizes;
 import static org.burnknuckle.utils.MainUtils.getStackTraceAsString;
