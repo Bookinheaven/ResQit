@@ -193,7 +193,7 @@ public class Database {
             } else if (idObj instanceof String) {
                 pStmt.setInt(index, Integer.parseInt((String) idObj));
             } else {
-                logger.info("Error in Database.java: [insertData] ID is of an unknown type: {}", idObj.getClass().getName());
+                logger.info("Error in Database.java: [insertData] ID is of an unknown type: {}", Objects.requireNonNull(idObj).getClass().getName());
             }
             pStmt.executeUpdate();
             logger.info("Data updated successfully!");

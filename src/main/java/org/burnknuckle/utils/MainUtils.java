@@ -47,7 +47,7 @@ public class MainUtils {
                 System.err.println("Configuration file not found in the classpath: /log4j.xml");
                 return;
             }
-            URI configUri = ((URL) resourceUrl).toURI();
+            URI configUri = resourceUrl.toURI();
             File configFile = Paths.get(configUri).toFile();
 
             if (configFile.exists() && configFile.isFile()) {
@@ -116,7 +116,7 @@ public class MainUtils {
         }
         Throwable cause = e.getCause();
         while (cause != null) {
-            sb.append("Caused by: ").append(cause.toString()).append("\n");
+            sb.append("Caused by: ").append(cause).append("\n");
             for (StackTraceElement element : cause.getStackTrace()) {
                 sb.append("\tat ").append(element.toString()).append("\n");
             }

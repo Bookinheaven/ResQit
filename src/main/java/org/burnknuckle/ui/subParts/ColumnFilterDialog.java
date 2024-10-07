@@ -5,13 +5,13 @@ import java.awt.*;
 import java.util.*;
 import java.util.List;
 
-public class ColumnSelectionDialog extends JDialog {
+public class ColumnFilterDialog extends JDialog {
     private final Map<String, JCheckBox> columnCheckBoxes = new HashMap<>();
-    private String[] columnNames;
+    private final String[] columnNames;
     public String[] selectedColumns;
 
-    public ColumnSelectionDialog(Frame parent, String[] givenColumnNames, Map<String, String> columnMapping) {
-        super(parent, "Select Columns", true);
+    public ColumnFilterDialog(Frame parent, String[] givenColumnNames, Map<String, String> columnMapping) {
+        super(parent, "Columns Filter", true);
         this.columnNames = columnMapping.keySet().toArray(new String[0]);
         Set<String> givenColumnNamesSet = new HashSet<>(Arrays.asList(givenColumnNames));
         JCheckBox[] checkBoxes = new JCheckBox[this.columnNames.length];
@@ -54,6 +54,7 @@ public class ColumnSelectionDialog extends JDialog {
                 setOrder(columnMapping);
             }
         });
+
         JPanel buttonPanel = new JPanel();
         buttonPanel.add(okButton);
         buttonPanel.add(cancelButton);

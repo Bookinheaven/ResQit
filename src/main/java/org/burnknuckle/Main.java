@@ -29,7 +29,7 @@ public class Main {
         frame.setIconImage(logoSvg.getImage());
     }
 
-    private static void showSplashScreen() {
+    private void showSplashScreen() {
         splashFrame = new JFrame();
         setIcon(splashFrame);
         splashFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -84,8 +84,8 @@ public class Main {
         SwingUtilities.invokeLater(() -> {
             try {
                 setFont();
-                Main window = new Main();
-                showSplashScreen();
+                Main resQit = new Main("ResQit");
+                resQit.showSplashScreen();
                 logger.info("App Loaded Successfully!");
             } catch (Exception e) {
                 logger.error("Error in Main.java: [Exception while invoking the worker] %s \n".formatted(getStackTraceAsString(e)));
@@ -97,7 +97,7 @@ public class Main {
         setUp();
     }
 
-    public Main() {
+    public Main(String name) {
         try {
             if (Objects.equals(currentTheme, "dark")) {
                 UIManager.setLookAndFeel(new FlatDarkLaf());
@@ -109,7 +109,7 @@ public class Main {
         }
         mainFrame = new JFrame();
         setIcon(mainFrame);
-        mainFrame.setTitle("ResQit");
+        mainFrame.setTitle(name);
         mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         mainFrame.setSize(new Dimension(1400, 900));
         mainFrame.setMinimumSize(new Dimension(1400, 900));

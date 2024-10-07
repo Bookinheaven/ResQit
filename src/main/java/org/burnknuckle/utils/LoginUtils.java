@@ -36,8 +36,8 @@ public class LoginUtils {
     public static String SignUpUser(Map<String, Object> userdata){
         Database db = Database.getInstance();
         db.connectDatabase();
-        Map<String, Object> Indata = db.getUsernameDetails(userdata.get("username").toString());
-        if (!Indata.isEmpty()){
+        Map<String, Object> inData = db.getUsernameDetails(userdata.get("username").toString());
+        if (!inData.isEmpty()){
             return "user exist";
         }
         String username = userdata.get("username").toString();
