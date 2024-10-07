@@ -489,9 +489,36 @@ public class AdminDashboardPanel {
 
         defaultColumnNames = new String[]{"ID", "Name", "Type", "Scale", "Severity", "Location", "Start Date", "End Date", "Status"};
         selectedColumns = defaultColumnNames;
-        resolvedTableModel = new DefaultTableModel(defaultColumnNames, 0);
-        requestedTableModel = new DefaultTableModel(defaultColumnNames, 0);
-        ongoingTableModel = new DefaultTableModel(defaultColumnNames, 0);
+        resolvedTableModel = new DefaultTableModel(defaultColumnNames, 0){
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                String name = getColumnName(column);
+                if (name.equals("Start Date") || name.equals("End Date")){
+                    return false;
+                }
+                return super.isCellEditable(row, column);
+            }
+        };
+        requestedTableModel = new DefaultTableModel(defaultColumnNames, 0){
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                String name = getColumnName(column);
+                if (name.equals("Start Date") || name.equals("End Date")){
+                    return false;
+                }
+                return super.isCellEditable(row, column);
+            }
+        };
+        ongoingTableModel = new DefaultTableModel(defaultColumnNames, 0){
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                String name = getColumnName(column);
+                if (name.equals("Start Date") || name.equals("End Date")){
+                    return false;
+                }
+                return super.isCellEditable(row, column);
+            }
+        };
 
         data = refreshData(resolvedTableModel, requestedTableModel, ongoingTableModel, columnMapping, defaultColumnNames);
 
@@ -583,10 +610,9 @@ public class AdminDashboardPanel {
         ongoingDeleteButton.setPreferredSize(new Dimension(40,40));
         onGoingPanel.add(ongoingDeleteButton);
 
-
-        addTableButtonListeners(resolvedTable, resolvedTableModel, resolvedEditButton, resolvedSaveButton, resolvedDeleteButton, columnMapping, data);
-        addTableButtonListeners(requestedTable, requestedTableModel, requestedEditButton, requestedSaveButton, requestedDeleteButton, columnMapping, data);
-        addTableButtonListeners(ongoingTable, ongoingTableModel, ongoingEditButton, ongoingSaveButton, ongoingDeleteButton, columnMapping, data);
+        addTableButtonListeners(resolvedTable, resolvedTableModel, resolvedLabel , resolvedEditButton, resolvedSaveButton, resolvedDeleteButton, columnMapping, data);
+        addTableButtonListeners(requestedTable, requestedTableModel, requestedLabel, requestedEditButton, requestedSaveButton, requestedDeleteButton, columnMapping, data);
+        addTableButtonListeners(ongoingTable, ongoingTableModel, ongoingLabel, ongoingEditButton, ongoingSaveButton, ongoingDeleteButton, columnMapping, data);
 
         JPanel topBar = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         JButton refreshButton = new JButton();
@@ -648,11 +674,9 @@ public class AdminDashboardPanel {
         resolvedTableModel.setColumnCount(0);
         requestedTableModel.setColumnCount(0);
         ongoingTableModel.setColumnCount(0);
-
         resolvedTableModel.setColumnIdentifiers(selectedColumns);
         requestedTableModel.setColumnIdentifiers(selectedColumns);
         ongoingTableModel.setColumnIdentifiers(selectedColumns);
-
         data = refreshData(resolvedTableModel, requestedTableModel, ongoingTableModel, columnMapping, selectedColumns);
     }
 
@@ -695,11 +719,15 @@ public class AdminDashboardPanel {
         }
         return data;
     }
-
-    private void addTableButtonListeners(JTable table, DefaultTableModel tableModel, JButton editButton, JButton saveButton, JButton deleteButton, Map<String, String> columnMapping, List<Map<String, Object>> changeData) {
+    private void addTableButtonListeners(JTable table, DefaultTableModel tableModel, JLabel tableLabel ,JButton editButton, JButton saveButton, JButton deleteButton, Map<String, String> columnMapping, List<Map<String, Object>> changeData) {
         editButton.addActionListener(_ -> {
             isTableEditable = !isTableEditable;
             table.setEnabled(isTableEditable);
+            if (isTableEditable) {
+                tableLabel.setText(tableLabel.getText().concat(" (Editing)*"));
+            } else {
+                tableLabel.setText(tableLabel.getText().replace(" (Editing)*", ""));
+            }
         });
         table.addFocusListener(new FocusListener() {
             @Override
@@ -764,14 +792,14 @@ public class AdminDashboardPanel {
             @Override
             public void mouseClicked(MouseEvent e) {
                 if(!isTableEditable) return;
-                int row = table.rowAtPoint(e.getPoint());
-                int column = table.columnAtPoint(e.getPoint());
-                String columnName = tableModel.getColumnName(column);
-                logger.info("here");
-
-                if (columnName.equals("Start Date") || columnName.equals("End Date")) {
-                    showDateTimePicker(table, row, column);
-                    logger.info("here");
+                if(e.getClickCount() == 2 && !e.isConsumed()){
+                    e.consume();
+                    int row = table.rowAtPoint(e.getPoint());
+                    int column = table.columnAtPoint(e.getPoint());
+                    String columnName = tableModel.getColumnName(column);
+                    if (columnName.equals("Start Date") || columnName.equals("End Date")) {
+                        showDateTimePicker(table, row, column);
+                    }
                 }
             }
         });
@@ -829,6 +857,7 @@ public class AdminDashboardPanel {
             table.setValueAt(formattedDateTime, row, column);
         }
     }
+
     private String loadIconSort(String sortDirection, JButton sortButton){
         if (sortDirection.equals("inc")){
             sortDirection = "dec";
@@ -836,10 +865,10 @@ public class AdminDashboardPanel {
         } else {
             sortDirection = "inc";
             sortButton.setIcon(new FlatSVGIcon(Objects.requireNonNull(getClass().getClassLoader().getResource("Common/north.svg"))));
-
         }
         return sortDirection;
     }
+
     private JPanel createCoAdminsPanel() {
         Database db = Database.getInstance();
         JPanel panel = new JPanel(new BorderLayout());
