@@ -7,10 +7,10 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.Objects;
 
-public class BgPanel extends JPanel {
+public class LoginBgPanel extends JPanel {
     private BufferedImage backgroundImage;
 
-    public BgPanel(String imagePath) {
+    public LoginBgPanel(String imagePath) {
         loadImage(imagePath);
     }
 

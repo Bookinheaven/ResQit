@@ -1,6 +1,6 @@
-package org.burnknuckle.controllers;
+package org.burnknuckle.controllers.swing;
 
-import org.burnknuckle.javafx.model.UserDashboardPanel;
+import org.burnknuckle.ui.UserDashboardPanel;
 
 import javax.swing.*;
 import java.awt.*;

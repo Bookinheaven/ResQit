@@ -3,7 +3,7 @@
     <Appenders>
         <RollingFile name="RollingFileAppender" fileName="logs/eye.log"
                      filePattern="logs/backup-%d{yyyy-MM-dd}-%i.log.gz">
-            <PatternLayout pattern="%d{[yyyy-MM-dd] : [HH:mm:ss.SSS]} | [%t] |===> [ %-5level ] | %c{1}: [%F] [Line: :%L] ==> %msg %n"/>
+            <PatternLayout pattern="%d{[yyyy-MM-dd] : [HH:mm:ss.SSS]} | [%t] |===> [ %-5level ] | %c{1}: [%F] [Line: %L] ==> %msg %n"/>
             <Policies>
                 <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
                 <SizeBasedTriggeringPolicy size="10MB"/>
@@ -11,7 +11,7 @@
             <DefaultRolloverStrategy max="7"/>
         </RollingFile>
         <Console name="ConsoleAppender" target="SYSTEM_OUT">
-            <PatternLayout pattern="%d{[yyyy-MM-dd] : [HH:mm:ss.SSS]} | [%t] |===> [ %-5level ] | %c{1}: [%F] [Line: :%L] ==> %msg %n"/>
+            <PatternLayout pattern="%d{[yyyy-MM-dd] : [HH:mm:ss.SSS]} | [%t] |===> [ %-5level ] | %c{1}: [%F] [Line: %L] ==> %msg %n"/>
         </Console>
     </Appenders>
 

@@ -56,7 +56,6 @@ public class Main {
             protected void done() {
                 splashFrame.dispose();
                 mainFrame.setVisible(true);
-                logger.info("Splash Screen Closed, Main Frame is now visible.");
             }
         };
         worker.execute();

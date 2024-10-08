@@ -191,7 +191,7 @@ public class Database {
             } else if (idObj instanceof String) {
                 pStmt.setInt(index, Integer.parseInt((String) idObj));
             } else {
-                logger.info("Error in Database.java: [insertData] ID is of an unknown type: {}", Objects.requireNonNull(idObj).getClass().getName());
+                logger.info("Error in Database.java: [updateData] ID is of an unknown type: {}", Objects.requireNonNull(idObj).getClass().getName());
             }
             pStmt.executeUpdate();
             logger.info("Data updated successfully!");
@@ -239,7 +239,7 @@ public class Database {
                 index++;
             }
             pStmt.executeUpdate();
-            logger.info("Data inserted into userdata successfully!");
+//            logger.info("Data inserted into userdata successfully!");
         } catch (SQLException e) {
             logger.error("Error in Database.java: |SQLException while insertUserData| %s \n".formatted(getStackTraceAsString(e)));
         }

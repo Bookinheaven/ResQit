@@ -1,10 +1,10 @@
-package org.burnknuckle.controllers;
+package org.burnknuckle.controllers.swing;
 
-import org.burnknuckle.javafx.model.UserDashboardPanel;
+import org.burnknuckle.ui.UserDashboardPanel;
 import org.burnknuckle.ui.AdminDashboardPanel;
 import org.burnknuckle.ui.LoginPanel;
 import org.burnknuckle.ui.SignUpPanel;
-import org.burnknuckle.ui.subParts.BgPanel;
+import org.burnknuckle.ui.subParts.LoginBgPanel;
 import org.burnknuckle.utils.Database;
 
 import javax.swing.*;
@@ -32,7 +32,7 @@ public class LoginSystem {
     public static SignUpPanel signUpPanel1;
     private static JPanel CenterOverlayPanel;
     private JLayeredPane MainPane;
-    private static BgPanel BgPanel;
+    private static LoginBgPanel LoginBgPanel;
     private static JPanel overlayPanel;
     public static String currentPage = "";
 
@@ -80,7 +80,7 @@ public class LoginSystem {
             Dimension newSize = MainFrame.getSize();
             MainPane.setPreferredSize(newSize);
             MainPane.setBounds(0, 0, newSize.width, newSize.height);
-            updatePanelSizes(newSize, overlayPanel, CenterOverlayPanel, BgPanel, MainPane, currentPage);
+            updatePanelSizes(newSize, overlayPanel, CenterOverlayPanel, LoginBgPanel, MainPane, currentPage);
             MainFrame.addComponentListener(new ComponentAdapter() {
                 @Override
                 public void componentResized(ComponentEvent e) {
@@ -88,7 +88,7 @@ public class LoginSystem {
                         Dimension newSize = MainFrame.getSize();
                         MainPane.setPreferredSize(newSize);
                         MainPane.setBounds(0, 0, newSize.width, newSize.height);
-                        updatePanelSizes(newSize, overlayPanel, CenterOverlayPanel, BgPanel, MainPane, currentPage);
+                        updatePanelSizes(newSize, overlayPanel, CenterOverlayPanel, LoginBgPanel, MainPane, currentPage);
                     });
                 }
             });
@@ -117,14 +117,14 @@ public class LoginSystem {
         SwingWorker<Void, Void> bgLoader = new SwingWorker<>() {
             @Override
             protected Void doInBackground() {
-                BgPanel = new BgPanel("Common/loginBg.jpg");
-                BgPanel.setBounds(0, 0, MainFrame.getWidth(), MainFrame.getHeight());
+                LoginBgPanel = new LoginBgPanel("Common/loginBg.jpg");
+                LoginBgPanel.setBounds(0, 0, MainFrame.getWidth(), MainFrame.getHeight());
                 return null;
             }
 
             @Override
             protected void done() {
-                MainPane.add(BgPanel, Integer.valueOf(0));
+                MainPane.add(LoginBgPanel, Integer.valueOf(0));
                 MainPane.add(overlayPanel, Integer.valueOf(1));
                 MainFrame.setContentPane(MainPane);
                 MainFrame.setVisible(true);
@@ -132,7 +132,6 @@ public class LoginSystem {
         };
         LoginPanel1 = new LoginPanel(MainFrame, MainPane);
         signUpPanel1 = new SignUpPanel(MainFrame, MainPane);
-        logger.info(LoginPanel1.getPanel().getHeight());
         bgLoader.execute();
         CenterOverlayPanel = BtwLS(MainFrame, MainPane, "login");
         CenterOverlayPanel.setVisible(true);
@@ -146,7 +145,6 @@ public class LoginSystem {
             return;
         }
         loginButton.setEnabled(username.length() > 3 && password.length() > 3);
-
         String status = UserCredentialsCheck(username, password);
         Map<String, Object> userdata = Map.of();
         if (status.equals("admin") || status.equals("user")) {

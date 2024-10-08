@@ -1,4 +1,4 @@
-package org.burnknuckle.controllers.User;
+package org.burnknuckle.controllers.javafx.User;
 
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;

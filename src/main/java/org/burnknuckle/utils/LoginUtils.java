@@ -21,11 +21,10 @@ public class LoginUtils {
         String checkPassword = (String) data.get("password");
         String checkPrivilege = (String) data.get("privilege");
         db.closeConnection();
-        System.out.println(checkPassword+ checkPrivilege);
 
         if (Objects.equals(checkPassword, password)){
             if (checkPrivilege.equals("admin")){
-                logger.warn("He is admin");
+//                logger.warn("He is admin");
                 return "admin";
             }
             return "user";

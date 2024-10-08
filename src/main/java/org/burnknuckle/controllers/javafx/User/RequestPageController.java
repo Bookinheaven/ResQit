@@ -1,4 +1,4 @@
-package org.burnknuckle.controllers.User;
+package org.burnknuckle.controllers.javafx.User;
 
 import javafx.beans.binding.Bindings;
 import javafx.collections.FXCollections;
@@ -12,7 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.burnknuckle.Main.logger;
-import static org.burnknuckle.javafx.model.UserDashboardPanel.currentUser;
+import static org.burnknuckle.ui.UserDashboardPanel.currentUser;
 import static org.burnknuckle.utils.MainUtils.getStackTraceAsString;
 
 public class RequestPageController {
