@@ -51,9 +51,6 @@ public class ThemeManager {
             ADPThemeData.put("sidebar-default-menu-button", "#4f4f4f");
             ADPThemeData.put("text", "#f6f6f6");
 
-            // UserDashBoardPanel
-//            ADPThemeData.put("", "#f6f6f6");
-
         } else if (Objects.equals(newTheme, "light")) {
             ADPThemeData.put("sidebar", "#e0e0e0");
             ADPThemeData.put("background", "#656565");
@@ -62,7 +59,7 @@ public class ThemeManager {
             ADPThemeData.put("TabTitleSelected", "#4f4f4f");
             ADPThemeData.put("TabTitleTextColorSelected", "#0661ff");
             ADPThemeData.put("TabTitleTextColorNormal", "#edf7ff");
-            ADPThemeData.put("spliter", "#cccccc");
+            ADPThemeData.put("splitter", "#e0e0e0");
             ADPThemeData.put("overlay", "#989898cc");
             ADPThemeData.put("default-menu-button", "#f0f0f0");
             ADPThemeData.put("hover-menu-button", "#e0e0e0");

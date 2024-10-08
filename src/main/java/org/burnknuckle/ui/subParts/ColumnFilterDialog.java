@@ -6,7 +6,6 @@ import java.util.*;
 import java.util.List;
 
 public class ColumnFilterDialog extends JDialog {
-    private final Map<String, JCheckBox> columnCheckBoxes = new HashMap<>();
     private final String[] columnNames;
     public String[] selectedColumns;
 
@@ -29,8 +28,9 @@ public class ColumnFilterDialog extends JDialog {
             panel.add(checkBox);
         }
         add(panel, BorderLayout.CENTER);
-        JButton okButton = new JButton("OK");
-        okButton.addActionListener(e -> {
+        JButton okButton = new JButton();
+        okButton.setText("OK");
+        okButton.addActionListener(_ -> {
             selectedColumns = Arrays.stream(checkBoxes)
                     .filter(JCheckBox::isSelected)
                     .map(JCheckBox::getText)
@@ -47,7 +47,7 @@ public class ColumnFilterDialog extends JDialog {
             }
         });
         JButton cancelButton = new JButton("Cancel");
-        cancelButton.addActionListener(e -> {
+        cancelButton.addActionListener(_ -> {
             setVisible(false);
             if (selectedColumns == null || selectedColumns.length == 0){
                 selectedColumns = givenColumnNames;

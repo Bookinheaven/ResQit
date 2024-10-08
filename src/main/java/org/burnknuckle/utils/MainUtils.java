@@ -108,22 +108,10 @@ public class MainUtils {
         }
     }
     public static String getStackTraceAsString(Exception e) {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append(e.toString()).append("\n");
-        for (StackTraceElement element : e.getStackTrace()) {
-            sb.append("\tat ").append(element.toString()).append("\n");
-        }
-        Throwable cause = e.getCause();
-        while (cause != null) {
-            sb.append("Caused by: ").append(cause).append("\n");
-            for (StackTraceElement element : cause.getStackTrace()) {
-                sb.append("\tat ").append(element.toString()).append("\n");
-            }
-            cause = cause.getCause();
-        }
-
-        return sb.toString();
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+        e.printStackTrace(pw);
+        return sw.toString();
     }
 
     public static void initializeLoginSystem(JFrame mainFrame) {

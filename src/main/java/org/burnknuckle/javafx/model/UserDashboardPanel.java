@@ -41,7 +41,7 @@ public class UserDashboardPanel {
     public static String currentUser;
     private JLabel resRequestLabel;
     private JLabel disasterAddReqMainLabel;
-    private JLabel tasksLabel;
+    private JLabel teamAssignmentLabel;
 
     public UserDashboardPanel(JFrame frame, Map<String, Object> userdata) {
         this.frame = frame;
@@ -68,7 +68,7 @@ public class UserDashboardPanel {
         fakeSpace1.setBackground(getColorFromHex(ADPThemeData.get("default-menu-button")));
         resRequestLabel.setBackground(getColorFromHex(ADPThemeData.get("default-menu-button")));
         disasterAddReqMainLabel.setBackground(getColorFromHex(ADPThemeData.get("default-menu-button")));
-        tasksLabel.setBackground(getColorFromHex(ADPThemeData.get("default-menu-button")));
+        teamAssignmentLabel.setBackground(getColorFromHex(ADPThemeData.get("default-menu-button")));
         backOptionLabel.setBackground(getColorFromHex(ADPThemeData.get("default-menu-button")));
     }
     private JPanel createUserDashboard() {
@@ -308,6 +308,7 @@ public class UserDashboardPanel {
         mainContent.add(AccountPage(), "Account");
         mainContent.add(createRequestResourcesSubPage(), "Request");
         mainContent.add(createDisasterSubPage(),"Disaster");
+        mainContent.add(createTeamAssignmentsSubPage(),"Team Assignments");
         cardLayout.show(mainContent, "HomePage");
 
         block.add(menuBar, BorderLayout.WEST);
@@ -362,14 +363,14 @@ public class UserDashboardPanel {
         disasterAddReqMainLabel.setHorizontalTextPosition(JLabel.CENTER);
         disasterAddReqMainLabel.setBackground(getColorFromHex(ADPThemeData.get("default-menu-button")));
 
-        tasksLabel = new JLabel(new FlatSVGIcon(Objects.requireNonNull(getClass().getClassLoader().getResource("UserDashboardPanel/tasks.svg"))));
-        tasksLabel.setPreferredSize(new Dimension(250,250));
-        tasksLabel.setOpaque(true);
-        tasksLabel.setText("Task Request");
-        tasksLabel.setFont( new Font("Fira Code Retina",Font.PLAIN,20));
-        tasksLabel.setVerticalTextPosition(JLabel.BOTTOM);
-        tasksLabel.setHorizontalTextPosition(JLabel.CENTER);
-        tasksLabel.setBackground(getColorFromHex(ADPThemeData.get("default-menu-button")));
+        teamAssignmentLabel = new JLabel(new FlatSVGIcon(Objects.requireNonNull(getClass().getClassLoader().getResource("UserDashboardPanel/tasks.svg"))));
+        teamAssignmentLabel.setPreferredSize(new Dimension(250,250));
+        teamAssignmentLabel.setOpaque(true);
+        teamAssignmentLabel.setText("Task Request");
+        teamAssignmentLabel.setFont( new Font("Fira Code Retina",Font.PLAIN,20));
+        teamAssignmentLabel.setVerticalTextPosition(JLabel.BOTTOM);
+        teamAssignmentLabel.setHorizontalTextPosition(JLabel.CENTER);
+        teamAssignmentLabel.setBackground(getColorFromHex(ADPThemeData.get("default-menu-button")));
 
         disasterPanel.add(resRequestLabel,bGbc);
         bGbc.gridx = 1;
@@ -377,7 +378,7 @@ public class UserDashboardPanel {
         disasterPanel.add(disasterAddReqMainLabel,bGbc);
         bGbc.gridx = 2;
         bGbc.gridy = 0;
-        disasterPanel.add(tasksLabel,bGbc);
+        disasterPanel.add(teamAssignmentLabel,bGbc);
 
         resRequestLabel.addMouseListener(new MouseAdapter() {
             @Override
@@ -410,24 +411,30 @@ public class UserDashboardPanel {
             }
         });
 
-        tasksLabel.addMouseListener(new MouseAdapter() {
+        teamAssignmentLabel.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                cardLayout.show(mainContent, "Request");
+                cardLayout.show(mainContent, "Team Assignments");
             }
             @Override
             public void mouseExited(MouseEvent e) {
-                tasksLabel.setBackground(getColorFromHex(ADPThemeData.get("default-menu-button")));
+                teamAssignmentLabel.setBackground(getColorFromHex(ADPThemeData.get("default-menu-button")));
             }
             @Override
             public void mouseEntered(MouseEvent e) {
-                tasksLabel.setBackground(getColorFromHex(ADPThemeData.get("hover-menu-button")));
+                teamAssignmentLabel.setBackground(getColorFromHex(ADPThemeData.get("hover-menu-button")));
             }
         });
 
         dashSpace.setLayout(new BorderLayout());
         dashSpace.add(disasterPanel, BorderLayout.CENTER);
         return disasterPanel;
+    }
+    private JPanel createTeamAssignmentsSubPage(){
+        JPanel inner = new JPanel();
+        inner.setBackground(Color.GREEN);
+
+        return inner;
     }
     private JFXPanel createRequestResourcesSubPage() {
         JFXPanel requestPanel = new JFXPanel();
@@ -481,7 +488,6 @@ public class UserDashboardPanel {
         JPanel accountPanel = new JPanel();
         accountPanel.setPreferredSize(new Dimension(frame.getWidth() / 2, frame.getHeight() / 2));
         accountPanel.setBackground(Color.GRAY);
-
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridx = 0;
         gbc.gridy = 0;
@@ -504,8 +510,7 @@ public class UserDashboardPanel {
             pageStack.pop();
         }
         backOptionLabel.setVisible(pageStack.size() > 1);
-
-        logger.info("removed page current %s".formatted(pageStack.peek()));
+//        logger.info("removed page current %s".formatted(pageStack.peek()));
         return pageStack.peek();
     }
 
@@ -516,7 +521,7 @@ public class UserDashboardPanel {
                 pageStack.removeLast();
             }
             pageStack.push(newPage);
-            logger.info("Added new page %s".formatted(newPage));
+//            logger.info("Added new page %s".formatted(newPage));
         }
         backOptionLabel.setVisible(pageStack.size() > 1);
 

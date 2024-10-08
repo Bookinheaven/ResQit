@@ -16,6 +16,8 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.sql.Timestamp;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
@@ -151,7 +153,13 @@ public class LoginSystem {
             Database db = Database.getInstance();
             db.connectDatabase();
             userdata = db.getUsernameDetails(username);
-            db.closeConnection();
+            Map<String, Object> lastLogin = new HashMap<>();
+            lastLogin.put("last_login",new Timestamp(System.currentTimeMillis()));
+            try {
+                db.updateData12(0, username,lastLogin);
+            } catch (Exception e){
+                logger.error("Error %s".formatted(getStackTraceAsString(e)));
+            }
         }
         Map<String, Object> finalUserdata = userdata;
         switch (status) {

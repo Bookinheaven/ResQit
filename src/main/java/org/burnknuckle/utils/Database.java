@@ -1,8 +1,6 @@
 package org.burnknuckle.utils;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
+import java.sql.Date;
 import java.sql.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -14,7 +12,6 @@ import static org.burnknuckle.utils.MainUtils.getStackTraceAsString;
 
 public class Database {
     private static final String[] TABLE_NAME = {"userdata", "resdata", "disasterdata"};
-    private static final Log log = LogFactory.getLog(Database.class);
     private static Database instance;
     private Connection con;
     private Database() {
@@ -89,7 +86,7 @@ public class Database {
         String createResData = "CREATE TABLE IF NOT EXISTS %s (".formatted(TABLE_NAME[1]) +
                 "id SERIAL PRIMARY KEY, " +
                 "username VARCHAR(25) NOT NULL, " +
-                "userType TEXT CHECK(userType IN ('admin', 'user')) NOT NULL, " +
+                "privilege VARCHAR(10) NOT NULL, " +
                 "location TEXT NOT NULL, " +
                 "resources TEXT NOT NULL, " +
                 "severity TEXT CHECK(severity IN ('low', 'moderate', 'high', 'critical')) NOT NULL, " +
@@ -104,6 +101,7 @@ public class Database {
                 "responseTeamAssigned TEXT, " +
                 "lastUpdated TIMESTAMP DEFAULT CURRENT_TIMESTAMP, " +
                 "FOREIGN KEY (username) REFERENCES %s (username) ".formatted(TABLE_NAME[0]) +
+                "FOREIGN KEY (privilege) REFERENCES %s (privilege) ".formatted(TABLE_NAME[0]) +
                 ");";
 
         String createDisasterData = "CREATE TABLE IF NOT EXISTS %s (".formatted(TABLE_NAME[2]) +
@@ -204,7 +202,7 @@ public class Database {
     public void insertData(int TableNo, Map<String, Object> data) {
         Set<String> columns = data.keySet();
         String columnsString = String.join(", ", columns);
-        String placeholders = String.join(", ", columns.stream().map(col -> "?").toArray(String[]::new));
+        String placeholders = String.join(", ", columns.stream().map(_ -> "?").toArray(String[]::new));
         String insertSQL = "INSERT INTO %s(".formatted(TABLE_NAME[TableNo]) + columnsString + ") VALUES (" + placeholders + ")";
 
         try (PreparedStatement pStmt = con.prepareStatement(insertSQL)) {
@@ -277,8 +275,8 @@ public class Database {
         }
     }
 
-    public java.util.List<Map<String, Object>> getData(int TableNo, String parameters) {
-        java.util.List<Map<String, Object>> data = new ArrayList<>();
+    public List<Map<String, Object>> getData(int TableNo, String parameters) {
+        List<Map<String, Object>> data = new ArrayList<>();
         String getSQL;
 
         if (!parameters.isEmpty()) {
@@ -318,7 +316,7 @@ public class Database {
         try (PreparedStatement checkStmt = con.prepareStatement(checkSQL)) {
             checkStmt.setString(1, disasterType.toLowerCase());
             checkStmt.setString(2, disasterName.toLowerCase());
-            checkStmt.setDate(3, java.sql.Date.valueOf(startDate));
+            checkStmt.setDate(3, Date.valueOf(startDate));
 
             ResultSet resultSet = checkStmt.executeQuery();
             if (resultSet.next()) {
@@ -339,6 +337,28 @@ public class Database {
         } catch (SQLException e) {
             logger.error("Error in Database.java: |SQLException while updateUserPrivilege| %s \n".formatted(getStackTraceAsString(e)));
             return -1;
+        }
+    }
+    public void updateData12(int TableNo, String username, Map<String, Object> data) {
+        Set<String> columns = data.keySet();
+        String setClause = String.join(", ", columns.stream().map(col -> col + " = ?").toArray(String[]::new));
+        String updateSQL = "UPDATE %s SET %s WHERE username = ?".formatted(TABLE_NAME[TableNo], setClause);
+        try (PreparedStatement pStmt = con.prepareStatement(updateSQL)) {
+            int index = 1;
+            for (String column : columns) {
+                Object value = data.get(column.toLowerCase());
+                switch (value) {
+                    case String s -> pStmt.setString(index, s);
+                    case Integer i -> pStmt.setInt(index, i);
+                    case Timestamp t -> pStmt.setTimestamp(index, t);
+                    case null -> pStmt.setNull(index, Types.INTEGER);
+                    default -> logger.error("Error in Database.java: [updateData12]: Type not found %s".formatted(value.toString()));
+                }
+            }
+            pStmt.setString(index+1, username);
+            pStmt.executeUpdate();
+        } catch (SQLException e) {
+            logger.error("Error in Database.java: |SQLException while updateUserPrivilege| %s \n".formatted(getStackTraceAsString(e)));
         }
     }
     public Map<String, Object> getUsernameDetails(String username) {
