@@ -7,6 +7,9 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.Objects;
 
+import static org.burnknuckle.Main.logger;
+import static org.burnknuckle.utils.MainUtils.getStackTraceAsString;
+
 public class LoginBgPanel extends JPanel {
     private BufferedImage backgroundImage;
 
@@ -21,7 +24,7 @@ public class LoginBgPanel extends JPanel {
                 backgroundImage = scaleImage(backgroundImage, getWidth(), getHeight());
                 repaint();
             } catch (IOException e) {
-                e.printStackTrace();
+                logger.error("Cant find the bg image: %s".formatted(getStackTraceAsString(e)));
             }
         });
     }

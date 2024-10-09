@@ -35,8 +35,14 @@ public class LoginSystem {
     private static LoginBgPanel LoginBgPanel;
     private static JPanel overlayPanel;
     public static String currentPage = "";
-    public static String Pusername ;
+    public static String GlobalUsername ;
 
+    public static String getUsername(){
+        return GlobalUsername;
+    }
+    private static void setUsername(String name){
+        GlobalUsername = name;
+    }
     public LoginSystem(JFrame frame) {
         this.MainFrame = frame;
         currentPage = "";
@@ -153,7 +159,7 @@ public class LoginSystem {
             db.connectDatabase();
             userdata = db.getUsernameDetails(username);
             Map<String, Object> lastLogin = new HashMap<>();
-            Pusername = username;
+            setUsername(username);
             lastLogin.put("last_login",new Timestamp(System.currentTimeMillis()));
             lastLogin.put("is_active",true);
             try {

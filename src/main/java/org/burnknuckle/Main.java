@@ -17,9 +17,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-import static org.burnknuckle.controllers.swing.LoginSystem.Pusername;
-import static org.burnknuckle.utils.ThemeManager.currentTheme;
+import static org.burnknuckle.controllers.swing.LoginSystem.getUsername;
 import static org.burnknuckle.utils.MainUtils.*;
+import static org.burnknuckle.utils.ThemeManager.currentTheme;
 
 public class Main {
     private static JFrame mainFrame;
@@ -58,7 +58,6 @@ public class Main {
                 initializeLoginSystem(mainFrame);
                 return null;
             }
-
             @Override
             protected void done() {
                 splashFrame.dispose();
@@ -121,7 +120,7 @@ public class Main {
             @Override
             public void windowClosing(WindowEvent e) {
                 super.windowClosing(e);
-                String username = Pusername;
+                String username = getUsername();
                 if (username != null){
                     Map<String, Object> lastLogin = new HashMap<>();
                     lastLogin.put("last_login",new Timestamp(System.currentTimeMillis()));
