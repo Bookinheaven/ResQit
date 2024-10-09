@@ -5,12 +5,19 @@ import com.formdev.flatlaf.FlatLightLaf;
 import com.formdev.flatlaf.extras.FlatSVGIcon;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.burnknuckle.utils.Database;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.InputStream;
+import java.sql.Timestamp;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
+import static org.burnknuckle.controllers.swing.LoginSystem.Pusername;
 import static org.burnknuckle.utils.ThemeManager.currentTheme;
 import static org.burnknuckle.utils.MainUtils.*;
 
@@ -32,7 +39,7 @@ public class Main {
     private void showSplashScreen() {
         splashFrame = new JFrame();
         setIcon(splashFrame);
-        splashFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        splashFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         splashFrame.setSize(600, 600);
         splashFrame.setLocationRelativeTo(null);
         splashFrame.setUndecorated(true);
@@ -110,6 +117,25 @@ public class Main {
         setIcon(mainFrame);
         mainFrame.setTitle(name);
         mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        mainFrame.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                super.windowClosing(e);
+                String username = Pusername;
+                if (username != null){
+                    Map<String, Object> lastLogin = new HashMap<>();
+                    lastLogin.put("last_login",new Timestamp(System.currentTimeMillis()));
+                    lastLogin.put("is_active",false);
+                    try {
+                        Database db = Database.getInstance();
+                        db.connectDatabase();
+                        db.updateData12(0, username,lastLogin);
+                    } catch (Exception x){
+                        logger.error("Error %s".formatted(getStackTraceAsString(x)));
+                    }
+                }
+            }
+        });
         mainFrame.setSize(new Dimension(1400, 900));
         mainFrame.setMinimumSize(new Dimension(1400, 900));
         mainFrame.setLocationRelativeTo(null);

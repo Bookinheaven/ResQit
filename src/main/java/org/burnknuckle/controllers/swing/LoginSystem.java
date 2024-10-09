@@ -35,6 +35,7 @@ public class LoginSystem {
     private static LoginBgPanel LoginBgPanel;
     private static JPanel overlayPanel;
     public static String currentPage = "";
+    public static String Pusername ;
 
     public LoginSystem(JFrame frame) {
         this.MainFrame = frame;
@@ -152,7 +153,9 @@ public class LoginSystem {
             db.connectDatabase();
             userdata = db.getUsernameDetails(username);
             Map<String, Object> lastLogin = new HashMap<>();
+            Pusername = username;
             lastLogin.put("last_login",new Timestamp(System.currentTimeMillis()));
+            lastLogin.put("is_active",true);
             try {
                 db.updateData12(0, username,lastLogin);
             } catch (Exception e){

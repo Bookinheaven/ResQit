@@ -344,18 +344,21 @@ public class Database {
         String setClause = String.join(", ", columns.stream().map(col -> col + " = ?").toArray(String[]::new));
         String updateSQL = "UPDATE %s SET %s WHERE username = ?".formatted(TABLE_NAME[TableNo], setClause);
         try (PreparedStatement pStmt = con.prepareStatement(updateSQL)) {
-            int index = 1;
+            int index = 0;
             for (String column : columns) {
                 Object value = data.get(column.toLowerCase());
+                index++;
                 switch (value) {
                     case String s -> pStmt.setString(index, s);
                     case Integer i -> pStmt.setInt(index, i);
+                    case Boolean b -> pStmt.setBoolean(index, b);
                     case Timestamp t -> pStmt.setTimestamp(index, t);
                     case null -> pStmt.setNull(index, Types.INTEGER);
                     default -> logger.error("Error in Database.java: [updateData12]: Type not found %s".formatted(value.toString()));
                 }
             }
             pStmt.setString(index+1, username);
+            logger.info(pStmt.toString());
             pStmt.executeUpdate();
         } catch (SQLException e) {
             logger.error("Error in Database.java: |SQLException while updateUserPrivilege| %s \n".formatted(getStackTraceAsString(e)));
