@@ -121,7 +121,7 @@ public class SignUpPanel {
 
         // Title Label
         JLabel titleLabel = new JLabel("Sign Up");
-        titleLabel.setFont(new Font("Fira Code Retina", Font.PLAIN, 34));
+        titleLabel.setFont(new Font("Inter", Font.PLAIN, 34));
         titleLabel.setForeground(Color.WHITE);
         leftGbc.gridx = 0;
         leftGbc.gridy = 1;

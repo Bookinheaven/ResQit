@@ -3,6 +3,8 @@ package org.burnknuckle.ui.subParts;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.Objects;
@@ -15,21 +17,37 @@ public class LoginBgPanel extends JPanel {
 
     public LoginBgPanel(String imagePath) {
         loadImage(imagePath);
-    }
 
-    private void loadImage(String imagePath) {
-        SwingUtilities.invokeLater(() -> {
-            try {
-                backgroundImage = ImageIO.read(Objects.requireNonNull(getClass().getClassLoader().getResource(imagePath)));
-                backgroundImage = scaleImage(backgroundImage, getWidth(), getHeight());
-                repaint();
-            } catch (IOException e) {
-                logger.error("Cant find the bg image: %s".formatted(getStackTraceAsString(e)));
+        // Add a ComponentListener to listen for size changes
+        this.addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentResized(ComponentEvent e) {
+                if (backgroundImage != null && getWidth() > 0 && getHeight() > 0) {
+                    backgroundImage = scaleImage(backgroundImage, getWidth(), getHeight());
+                    repaint(); // Repaint with the newly scaled image
+                }
             }
         });
     }
 
+    private void loadImage(String imagePath) {
+        try {
+            backgroundImage = ImageIO.read(Objects.requireNonNull(getClass().getClassLoader().getResource(imagePath)));
+            // Initial scaling if size is already non-zero
+            if (getWidth() > 0 && getHeight() > 0) {
+                backgroundImage = scaleImage(backgroundImage, getWidth(), getHeight());
+                repaint();
+            }
+        } catch (IOException e) {
+            logger.error("Cannot find the background image: %s".formatted(getStackTraceAsString(e)));
+        }
+    }
+
     private BufferedImage scaleImage(BufferedImage originalImage, int width, int height) {
+        if (width <= 0 || height <= 0) {
+            // Avoid scaling with zero or negative dimensions
+            return originalImage;
+        }
         Image scaledImage = originalImage.getScaledInstance(width, height, Image.SCALE_SMOOTH);
         BufferedImage bufferedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g2d = bufferedImage.createGraphics();
@@ -51,8 +69,9 @@ public class LoginBgPanel extends JPanel {
     @Override
     public void setSize(Dimension d) {
         super.setSize(d);
-        if (backgroundImage != null) {
+        if (backgroundImage != null && d.width > 0 && d.height > 0) {
             backgroundImage = scaleImage(backgroundImage, d.width, d.height);
+            repaint(); // Repaint the component with the new scaled image
         }
     }
 }

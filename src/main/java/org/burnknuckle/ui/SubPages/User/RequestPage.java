@@ -13,12 +13,12 @@ import static org.burnknuckle.utils.ThemeManager.*;
 public class RequestPage {
     private JLabel resRequestLabel;
     private JLabel disasterAddReqMainLabel;
-    private JLabel teamAssignmentLabel;
+    private JLabel volunteerRegistrationLabel;
 
     private void updateThemeColors(String change){
         resRequestLabel.setBackground(getColorFromHex(ADPThemeData.get("default-menu-button")));
         disasterAddReqMainLabel.setBackground(getColorFromHex(ADPThemeData.get("default-menu-button")));
-        teamAssignmentLabel.setBackground(getColorFromHex(ADPThemeData.get("default-menu-button")));
+        volunteerRegistrationLabel.setBackground(getColorFromHex(ADPThemeData.get("default-menu-button")));
     }
     public JPanel createRequestPage(CardLayout cardLayout, JPanel mainContent, JPanel dashSpace) {
         JPanel disasterPanel = new JPanel();
@@ -56,14 +56,14 @@ public class RequestPage {
         disasterAddReqMainLabel.setHorizontalTextPosition(JLabel.CENTER);
         disasterAddReqMainLabel.setBackground(getColorFromHex(ADPThemeData.get("default-menu-button")));
 
-        teamAssignmentLabel = new JLabel(new FlatSVGIcon(Objects.requireNonNull(getClass().getClassLoader().getResource("UserDashboardPanel/tasks.svg"))));
-        teamAssignmentLabel.setPreferredSize(new Dimension(250,250));
-        teamAssignmentLabel.setOpaque(true);
-        teamAssignmentLabel.setText("Task Request");
-        teamAssignmentLabel.setFont( new Font("Fira Code Retina",Font.PLAIN,20));
-        teamAssignmentLabel.setVerticalTextPosition(JLabel.BOTTOM);
-        teamAssignmentLabel.setHorizontalTextPosition(JLabel.CENTER);
-        teamAssignmentLabel.setBackground(getColorFromHex(ADPThemeData.get("default-menu-button")));
+        volunteerRegistrationLabel = new JLabel(new FlatSVGIcon(Objects.requireNonNull(getClass().getClassLoader().getResource("UserDashboardPanel/tasks.svg"))));
+        volunteerRegistrationLabel.setPreferredSize(new Dimension(250,250));
+        volunteerRegistrationLabel.setOpaque(true);
+        volunteerRegistrationLabel.setText("Volunteer Registration");
+        volunteerRegistrationLabel.setFont( new Font("Fira Code Retina",Font.PLAIN,20));
+        volunteerRegistrationLabel.setVerticalTextPosition(JLabel.BOTTOM);
+        volunteerRegistrationLabel.setHorizontalTextPosition(JLabel.CENTER);
+        volunteerRegistrationLabel.setBackground(getColorFromHex(ADPThemeData.get("default-menu-button")));
 
         disasterPanel.add(resRequestLabel,bGbc);
         bGbc.gridx = 1;
@@ -71,7 +71,7 @@ public class RequestPage {
         disasterPanel.add(disasterAddReqMainLabel,bGbc);
         bGbc.gridx = 2;
         bGbc.gridy = 0;
-        disasterPanel.add(teamAssignmentLabel,bGbc);
+        disasterPanel.add(volunteerRegistrationLabel,bGbc);
 
         resRequestLabel.addMouseListener(new MouseAdapter() {
             @Override
@@ -104,18 +104,18 @@ public class RequestPage {
             }
         });
 
-        teamAssignmentLabel.addMouseListener(new MouseAdapter() {
+        volunteerRegistrationLabel.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                cardLayout.show(mainContent, "Team Assignments");
+                cardLayout.show(mainContent, "Volunteer Registration");
             }
             @Override
             public void mouseExited(MouseEvent e) {
-                teamAssignmentLabel.setBackground(getColorFromHex(ADPThemeData.get("default-menu-button")));
+                volunteerRegistrationLabel.setBackground(getColorFromHex(ADPThemeData.get("default-menu-button")));
             }
             @Override
             public void mouseEntered(MouseEvent e) {
-                teamAssignmentLabel.setBackground(getColorFromHex(ADPThemeData.get("hover-menu-button")));
+                volunteerRegistrationLabel.setBackground(getColorFromHex(ADPThemeData.get("hover-menu-button")));
             }
         });
 

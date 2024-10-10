@@ -389,7 +389,7 @@ public class AdminDashboardPanel {
         AdminMenu.setLayout(new GridLayout());
 
         JLabel label = new JLabel("Co-Admins Management");
-        label.setFont(new Font("Fira Code Retina", Font.PLAIN, 35));
+        label.setFont(new Font("Inter", Font.PLAIN, 35));
         label.setHorizontalAlignment(JLabel.CENTER);
         innerGBC.insets = new Insets(10, 10, 10, 10);
         innerGBC.gridx = 0;
