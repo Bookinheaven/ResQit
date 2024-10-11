@@ -471,7 +471,7 @@ public class AdminDashboardPanel {
         innerGBC.fill = GridBagConstraints.HORIZONTAL;
         inner.add(topBar, innerGBC);
 
-        List<Map<String, Object>> coAdminData = db.getData(0,"privilege");
+        List<Map<String, Object>> coAdminData = db.getAllData(0,"privilege");
         String[] columnNames = {
                 "ID",
                 "Username",

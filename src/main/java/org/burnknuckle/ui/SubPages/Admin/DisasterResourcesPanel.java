@@ -261,7 +261,7 @@ public class DisasterResourcesPanel {
         try {
             Database db = Database.getInstance();
             db.getConnection();
-            data = db.getData(2, "");
+            data = db.getAllData(2, "");
         } catch (SQLException e) {
             logger.error("Error in AdminDashboardPanel.java: |SQLException while refreshing data| %s \n".formatted(getStackTraceAsString(e)));
         }

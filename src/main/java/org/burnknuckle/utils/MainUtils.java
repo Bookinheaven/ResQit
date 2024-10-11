@@ -89,16 +89,15 @@ public class MainUtils {
                     case "admin" -> {
                         rememberMeCheck = true;
                         new AdminDashboardPanel(mainFrame,userdata);
-                        System.out.println("Admin Login successful!");
+                        logger.info("Admin Login successful!");
                     }
                     case "user" -> {
                         rememberMeCheck = true;
                         new UserDashboardPanel(mainFrame,userdata);
-                        System.out.println("User Login successful!");
+                        logger.info("User Login successful!");
                     }
                 }
-                System.out.println("Username: " + username);
-                System.out.println("Password: " + password);
+                logger.info("Username: %s Password: %s".formatted(username,password));
             }
 
         } catch (FileNotFoundException e) {

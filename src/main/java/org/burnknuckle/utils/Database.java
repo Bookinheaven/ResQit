@@ -275,7 +275,7 @@ public class Database {
         }
     }
 
-    public List<Map<String, Object>> getData(int TableNo, String parameters) {
+    public List<Map<String, Object>> getAllData(int TableNo, String parameters) {
         List<Map<String, Object>> data = new ArrayList<>();
         String getSQL;
 
@@ -365,28 +365,22 @@ public class Database {
         }
     }
     public Map<String, Object> getUsernameDetails(String username) {
-        String searchByUsername = "SELECT username, password, privilege, email, gender FROM %s WHERE username = ?".formatted(TABLE_NAME[0]);
+        String searchByUsername = "SELECT * FROM %s WHERE username = ?".formatted(TABLE_NAME[0]);
         try (PreparedStatement pStmt = con.prepareStatement(searchByUsername)) {
             pStmt.setString(1, username);
-            try (ResultSet rs = pStmt.executeQuery()) {
-                if (rs.next()) {
-                    String retrievedUsername = rs.getString("username");
-                    String privilege = rs.getString("privilege");
-                    String email = rs.getString("email");
-                    String gender = rs.getString("gender");
-                    String password = rs.getString("password");
-                    return new TreeMap<>() {{
-                        put("username", retrievedUsername);
-                        put("password", password);
-                        put("privilege", privilege);
-                        put("email", email);
-                        put("gender", gender);
-                    }};
-                } else {
-                    logger.warn("No user found with username: %s".formatted(username));
-                    return Collections.emptyMap();
+            ResultSet rs = pStmt.executeQuery();
+            ResultSetMetaData rsMetaData = rs.getMetaData();
+            int columnCount = rsMetaData.getColumnCount();
+            if (rs.next()){
+                Map<String, Object> cell = new HashMap<>();
+                for(int i = 1; i<= columnCount; i++){
+                    String columnName = rsMetaData.getColumnName(i);
+                    Object columnValue = rs.getObject(columnName);
+                    cell.put(columnName, columnValue);
                 }
+                return cell;
             }
+            return Collections.emptyMap();
         } catch (SQLException e) {
             logger.error("Error in Database.java: |SQLException while getUsernameDetails| %s \n".formatted(getStackTraceAsString(e)));
             return Collections.emptyMap();

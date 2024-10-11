@@ -19,7 +19,7 @@ public class VolunteerManagementPanel {
 
     public JPanel createVolunteerManagementPanel() {
         Database db = Database.getInstance();
-        java.util.List<Map<String, Object>>  coAdminData = db.getData(0,"privilege");
+        java.util.List<Map<String, Object>>  coAdminData = db.getAllData(0,"privilege");
         ArrayList<String> userDataDetails = new ArrayList<>(Arrays.asList(
                 "Sno", "Username", "Gender", "Role", "Email", "Privilege", "Password",
                 "First Name", "Last Name", "Phone Number", "Date of Birth",

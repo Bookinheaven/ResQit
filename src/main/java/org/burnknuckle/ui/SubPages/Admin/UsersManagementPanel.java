@@ -214,7 +214,7 @@ public class UsersManagementPanel {
         try {
             Database db = Database.getInstance();
             db.getConnection();
-            data = db.getData(0, "");
+            data = db.getAllData(0, "");
         } catch (SQLException e) {
             logger.error("Error in AdminDashboardPanel.java: |SQLException while refreshing data| %s \n".formatted(getStackTraceAsString(e)));
         }

@@ -295,8 +295,8 @@ public class UserDashboardPanel {
 
         mainContent.add(new HomePage().createHomePage(dashSpace), "HomePage");
         mainContent.add(new RequestPage().createRequestPage(cardLayout, mainContent, dashSpace), "RequestPage");
-        mainContent.add(new AccountPage().AccountPage(frame), "Account");
-        mainContent.add(new RequestResources().createRequestResourcesSubPage(dashSpace), "Request");
+        mainContent.add(new AccountPage().createAccountPage(frame), "Account");
+        mainContent.add(new RequestResources().createRequestResourcesSubPage(), "Request");
         mainContent.add(new RequestDisaster().createDisasterSubPage(dashSpace),"Disaster");
         mainContent.add(new VolunteerRegistration().createVolunteerRegistrationSubPage(),"Volunteer Registration");
         cardLayout.show(mainContent, "HomePage");

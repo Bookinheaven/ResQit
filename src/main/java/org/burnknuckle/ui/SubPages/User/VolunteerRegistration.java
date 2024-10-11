@@ -46,7 +46,7 @@ public class VolunteerRegistration {
         data.put("Preferred Volunteering Work", txtPreferredVolunteeringWork.getSelectedItem());
         data.put("Physical Limitations", txtPhysicalLimits.getText().trim());
         data.put("Blood Group", cmbBloodGroup.getSelectedItem());
-        data.put("Allergies or Medical Conditions", txtAllergies.getText().trim());
+        data.put("Allergies", txtAllergies.getText().trim());
 
         String willingnessToTravel = rbtnYes.isSelected() ? "Yes" : rbtnNo.isSelected() ? "No" : "Not specified";
         data.put("Willingness to Travel", willingnessToTravel);
@@ -169,46 +169,46 @@ public class VolunteerRegistration {
         centerForm.add(personalInfoTitle, "span,gapbottom 10, align center");
 
         JLabel lblFirstName = new JLabel("First Name:");
-        lblFirstName.setFont(new Font("Inter", Font.BOLD, 16));
+        lblFirstName.setFont(new Font("Inter", Font.PLAIN, 16));
         txtFirstName = new JTextField(20);
-        txtFirstName.setFont(new Font("Inter", Font.BOLD, 16));
+        txtFirstName.setFont(new Font("Inter", Font.PLAIN, 16));
         centerForm.add(lblFirstName, "gapright 10");
         centerForm.add(txtFirstName);
 
         JLabel lblMiddleName = new JLabel("Middle Name:");
-        lblMiddleName.setFont(new Font("Inter", Font.BOLD, 16));
+        lblMiddleName.setFont(new Font("Inter", Font.PLAIN, 16));
         txtMiddleName = new JTextField(20);
-        txtMiddleName.setFont(new Font("Inter", Font.BOLD, 16));
+        txtMiddleName.setFont(new Font("Inter", Font.PLAIN, 16));
         centerForm.add(lblMiddleName, "gapright 10");
         centerForm.add(txtMiddleName, "span");
 
         JLabel lblLastName = new JLabel("Last Name:");
-        lblLastName.setFont(new Font("Inter", Font.BOLD, 16));
+        lblLastName.setFont(new Font("Inter", Font.PLAIN, 16));
 
         txtLastName = new JTextField(20);
-        txtLastName.setFont(new Font("Inter", Font.BOLD, 16));
+        txtLastName.setFont(new Font("Inter", Font.PLAIN, 16));
 
         centerForm.add(lblLastName, "gapright 10");
         centerForm.add(txtLastName, "span");
 
         JLabel lblDob = new JLabel("Date of Birth:");
-        lblDob.setFont(new Font("Inter", Font.BOLD, 16));
+        lblDob.setFont(new Font("Inter", Font.PLAIN, 16));
 
         txtDob = new JFormattedTextField();
         DatePicker datePicker = new DatePicker();
         datePicker.setEditor(txtDob);
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
         datePicker.setSelectedDate(LocalDate.parse("01/03/2005", formatter));
-        txtDob.setFont(new Font("Inter", Font.BOLD, 14));
+        txtDob.setFont(new Font("Inter", Font.PLAIN, 14));
 
         centerForm.add(lblDob, "gapright 10");
         centerForm.add(txtDob);
 
         JLabel lblGender = new JLabel("Gender:");
-        lblGender.setFont(new Font("Inter", Font.BOLD, 16));
+        lblGender.setFont(new Font("Inter", Font.PLAIN, 16));
 
         cmbGender = new JComboBox<>(new String[]{"Male", "Female", "Other"});
-        cmbGender.setFont(new Font("Inter", Font.BOLD, 16));
+        cmbGender.setFont(new Font("Inter", Font.PLAIN, 16));
         centerForm.add(lblGender, "gapright 10");
         centerForm.add(cmbGender);
 
@@ -221,10 +221,10 @@ public class VolunteerRegistration {
         centerForm.add(contactInfoTitle, "span, gapbottom 10, gaptop 10, align center");
 
         JLabel lblContactNo = new JLabel("Contact Number:");
-        lblContactNo.setFont(new Font("Inter", Font.BOLD, 16));
+        lblContactNo.setFont(new Font("Inter", Font.PLAIN, 16));
 
         txtContactNo = new JTextField(15);
-        txtContactNo.setFont(new Font("Inter", Font.BOLD, 16));
+        txtContactNo.setFont(new Font("Inter", Font.PLAIN, 16));
         txtContactNo.addKeyListener(new KeyAdapter() {
             @Override
             public void keyTyped(KeyEvent e) {
@@ -238,9 +238,9 @@ public class VolunteerRegistration {
         centerForm.add(txtContactNo);
 
         JLabel lblZipCode = new JLabel("Zip Code:");
-        lblZipCode.setFont(new Font("Inter", Font.BOLD, 16));
+        lblZipCode.setFont(new Font("Inter", Font.PLAIN, 16));
         txtZipCode = new JTextField(10);
-        txtZipCode.setFont(new Font("Inter", Font.BOLD, 16));
+        txtZipCode.setFont(new Font("Inter", Font.PLAIN, 16));
         txtZipCode.addKeyListener(new KeyAdapter() {
             @Override
             public void keyTyped(KeyEvent e) {
@@ -251,24 +251,24 @@ public class VolunteerRegistration {
             }
         });
         JLabel lblState = new JLabel("State:");
-        lblState.setFont(new Font("Inter", Font.BOLD, 16));
+        lblState.setFont(new Font("Inter", Font.PLAIN, 16));
         txtState = new JTextField(15);
-        txtState.setFont(new Font("Inter", Font.BOLD, 16));
+        txtState.setFont(new Font("Inter", Font.PLAIN, 16));
 
         JLabel lblRoad = new JLabel("Road:");
-        lblRoad.setFont(new Font("Inter", Font.BOLD, 16));
+        lblRoad.setFont(new Font("Inter", Font.PLAIN, 16));
         txtRoad = new JTextField(20);
-        txtRoad.setFont(new Font("Inter", Font.BOLD, 16));
+        txtRoad.setFont(new Font("Inter", Font.PLAIN, 16));
 
         JLabel lblCity = new JLabel("City:");
-        lblCity.setFont(new Font("Inter", Font.BOLD, 16));
+        lblCity.setFont(new Font("Inter", Font.PLAIN, 16));
         txtCity = new JTextField(20);
         txtCity.setFont(new Font("Inter", Font.BOLD, 16));
 
         JLabel lblCountry = new JLabel("Country:");
-        lblCountry.setFont(new Font("Inter", Font.BOLD, 16));
+        lblCountry.setFont(new Font("Inter", Font.PLAIN, 16));
         txtCountry = new JTextField(20);
-        txtCountry.setFont(new Font("Inter", Font.BOLD, 16));
+        txtCountry.setFont(new Font("Inter", Font.PLAIN, 16));
 
         centerForm.add(lblZipCode, "gapright 10");
         centerForm.add(txtZipCode, "span");
@@ -286,18 +286,18 @@ public class VolunteerRegistration {
         centerForm.add(txtCountry, "span");
 
         JLabel lblEmergencyNo = new JLabel("Emergency Contact:");
-        lblEmergencyNo.setFont(new Font("Inter", Font.BOLD, 16));
+        lblEmergencyNo.setFont(new Font("Inter", Font.PLAIN, 16));
         txtEmergencyNo = new JTextField(15);
-        txtEmergencyNo.setFont(new Font("Inter", Font.BOLD, 16));
+        txtEmergencyNo.setFont(new Font("Inter", Font.PLAIN, 16));
 
         centerForm.add(lblEmergencyNo, "gapright 10");
         centerForm.add(txtEmergencyNo);
 
         JLabel lblAvailability = new JLabel("Availability:");
-        lblAvailability.setFont(new Font("Inter", Font.BOLD, 16));
+        lblAvailability.setFont(new Font("Inter", Font.PLAIN, 16));
 
         txtAvailability = new JTextField(20);
-        txtAvailability.setFont(new Font("Inter", Font.BOLD, 16));
+        txtAvailability.setFont(new Font("Inter", Font.PLAIN, 16));
 
         centerForm.add(lblAvailability, "gapright 10");
         centerForm.add(txtAvailability);
@@ -311,7 +311,7 @@ public class VolunteerRegistration {
         centerForm.add(travelInfoTitle, "span, gapbottom 10, gaptop 10, align center");
 
         JLabel lblWillingness = new JLabel("Willingness to Travel:");
-        lblWillingness.setFont(new Font("Inter", Font.BOLD, 16));
+        lblWillingness.setFont(new Font("Inter", Font.PLAIN, 16));
 
         rbtnYes = new JRadioButton("Yes");
         rbtnNo = new JRadioButton("No");
@@ -319,8 +319,8 @@ public class VolunteerRegistration {
         travelGroup.add(rbtnYes);
         travelGroup.add(rbtnNo);
         JPanel travelPanel = new JPanel();
-        rbtnNo.setFont(new Font("Inter", Font.BOLD, 16));
-        rbtnYes.setFont(new Font("Inter", Font.BOLD, 16));
+        rbtnNo.setFont(new Font("Inter", Font.PLAIN, 16));
+        rbtnYes.setFont(new Font("Inter", Font.PLAIN, 16));
 
         travelPanel.add(rbtnYes);
         travelPanel.add(rbtnNo);
@@ -328,10 +328,10 @@ public class VolunteerRegistration {
         centerForm.add(travelPanel, "span");
 
         JLabel lblPreferredLocation = new JLabel("Preferred Volunteering Location:");
-        lblPreferredLocation.setFont(new Font("Inter", Font.BOLD, 16));
+        lblPreferredLocation.setFont(new Font("Inter", Font.PLAIN, 16));
 
         cmbPreferredLocation = new JComboBox<>(new String[]{"Local", "State", "National"});
-        cmbPreferredLocation.setFont(new Font("Inter", Font.BOLD, 16));
+        cmbPreferredLocation.setFont(new Font("Inter", Font.PLAIN, 16));
 
         centerForm.add(lblPreferredLocation, "gapright 10");
         centerForm.add(cmbPreferredLocation);
@@ -345,41 +345,41 @@ public class VolunteerRegistration {
         centerForm.add(professionalInfoTitle, "span, gapbottom 10, gaptop 10, align center");
 
         JLabel lblProfessionalBackground = new JLabel("Professional Background:");
-        lblProfessionalBackground.setFont(new Font("Inter", Font.BOLD, 16));
+        lblProfessionalBackground.setFont(new Font("Inter", Font.PLAIN, 16));
 
         cmbProfessionalBackground = new JComboBox<>(new String[]{"Medical", "Engineering", "IT", "Construction", "Other"});
-        cmbProfessionalBackground.setFont(new Font("Inter", Font.BOLD, 16));
+        cmbProfessionalBackground.setFont(new Font("Inter", Font.PLAIN, 16));
 
         centerForm.add(lblProfessionalBackground, "gapright 10");
         centerForm.add(cmbProfessionalBackground);
 
         JLabel lblSkills = new JLabel("Skills:");
-        lblSkills.setFont(new Font("Inter", Font.BOLD, 16));
+        lblSkills.setFont(new Font("Inter", Font.PLAIN, 16));
         txtSkills = new JTextArea(3, 20);
-        txtSkills.setFont(new Font("Inter", Font.BOLD, 16));
+        txtSkills.setFont(new Font("Inter", Font.PLAIN, 16));
 
         centerForm.add(lblSkills, "gapright 10");
         centerForm.add(new JScrollPane(txtSkills), "span");
 
         JLabel lblLanguagesSpoken = new JLabel("Languages Spoken:");
-        lblLanguagesSpoken.setFont(new Font("Inter", Font.BOLD, 16));
+        lblLanguagesSpoken.setFont(new Font("Inter", Font.PLAIN, 16));
 
         txtLanguagesSpoken = new JTextArea(2, 20);
-        txtLanguagesSpoken.setFont(new Font("Inter", Font.BOLD, 16));
+        txtLanguagesSpoken.setFont(new Font("Inter", Font.PLAIN, 16));
 
         centerForm.add(lblLanguagesSpoken, "gapright 10");
         centerForm.add(new JScrollPane(txtLanguagesSpoken), "span");
 
         JLabel lblPriorExperiences = new JLabel("Prior Experiences:");
-        lblPriorExperiences.setFont(new Font("Inter", Font.BOLD, 16));
+        lblPriorExperiences.setFont(new Font("Inter", Font.PLAIN, 16));
 
         txtPriorExperiences = new JTextArea(3, 20);
-        txtPriorExperiences.setFont(new Font("Inter", Font.BOLD, 16));
+        txtPriorExperiences.setFont(new Font("Inter", Font.PLAIN, 16));
         centerForm.add(lblPriorExperiences, "gapright 10");
         centerForm.add(new JScrollPane(txtPriorExperiences), "span");
 
         JLabel lblVolunteeringWork = new JLabel("Preferred Volunteering Work:");
-        lblVolunteeringWork.setFont(new Font("Inter", Font.BOLD, 16));
+        lblVolunteeringWork.setFont(new Font("Inter", Font.PLAIN, 16));
         txtPreferredVolunteeringWork = new JComboBox<>(new String[]{
                 "Rescue Operations",
                 "Medical Assistance",
@@ -398,7 +398,7 @@ public class VolunteerRegistration {
                 "Health and Hygiene Education",
                 "Cultural Preservation"
         });
-        txtPreferredVolunteeringWork.setFont(new Font("Inter", Font.BOLD, 16));
+        txtPreferredVolunteeringWork.setFont(new Font("Inter", Font.PLAIN, 16));
         centerForm.add(lblVolunteeringWork, "gapright 10");
         centerForm.add(txtPreferredVolunteeringWork);
 
@@ -411,26 +411,26 @@ public class VolunteerRegistration {
         centerForm.add(medicalInfoTitle, "span, gapbottom 10, gaptop 10, align center");
 
         JLabel lblPhysicalLimits = new JLabel("Physical Limitations:");
-        lblPhysicalLimits.setFont(new Font("Inter", Font.BOLD, 16));
+        lblPhysicalLimits.setFont(new Font("Inter", Font.PLAIN, 16));
         txtPhysicalLimits = new JTextField(20);
-        txtPhysicalLimits.setFont(new Font("Inter", Font.BOLD, 16));
+        txtPhysicalLimits.setFont(new Font("Inter", Font.PLAIN, 16));
 
         centerForm.add(lblPhysicalLimits, "gapright 10");
         centerForm.add(txtPhysicalLimits);
 
         JLabel lblBloodGroup = new JLabel("Blood Group:");
-        lblBloodGroup.setFont(new Font("Inter", Font.BOLD, 16));
+        lblBloodGroup.setFont(new Font("Inter", Font.PLAIN, 16));
 
         cmbBloodGroup = new JComboBox<>(new String[]{"A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"});
-        cmbBloodGroup.setFont(new Font("Inter", Font.BOLD, 16));
+        cmbBloodGroup.setFont(new Font("Inter", Font.PLAIN, 16));
         centerForm.add(lblBloodGroup, "gapright 10");
         centerForm.add(cmbBloodGroup);
 
         JLabel lblAllergies = new JLabel("Allergies or Medical Conditions:");
-        lblAllergies.setFont(new Font("Inter", Font.BOLD, 16));
+        lblAllergies.setFont(new Font("Inter", Font.PLAIN, 16));
 
         txtAllergies = new JTextArea(3, 20);
-        txtAllergies.setFont(new Font("Inter", Font.BOLD, 16));
+        txtAllergies.setFont(new Font("Inter", Font.PLAIN, 16));
         centerForm.add(lblAllergies, "gapright 10");
         centerForm.add(new JScrollPane(txtAllergies), "span, growx");
 
@@ -440,7 +440,7 @@ public class VolunteerRegistration {
         JButton submitButton = new JButton();
         submitButton.setText("Submit");
         submitButton.setPreferredSize(new Dimension(300,50));
-        submitButton.setFont(new Font("Inter", Font.BOLD, 16));
+        submitButton.setFont(new Font("Inter", Font.PLAIN, 16));
         submitButton.addActionListener(_ -> clickSubmit());
         centerForm.add(submitButton, "span 2, align center");
 
