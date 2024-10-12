@@ -3,15 +3,12 @@ package org.burnknuckle.ui.SubPages.User;
 import com.formdev.flatlaf.FlatDarkLaf;
 import net.miginfocom.swing.MigLayout;
 import org.burnknuckle.ui.subParts.LoginBgPanel;
-import raven.datetime.component.date.DatePicker;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.geom.RoundRectangle2D;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -163,58 +160,6 @@ public class VolunteerRegistration {
         JSeparator separator6 = new JSeparator(JSeparator.HORIZONTAL);
         centerForm.add(separator6, "span 2, grow, gapbottom 10");
 
-        JLabel personalInfoTitle = new JLabel("Personal Information");
-        personalInfoTitle.setFont(new Font("Inter", Font.BOLD, 20));
-        personalInfoTitle.setForeground(new Color(30, 144, 255)); // Blue header color
-        centerForm.add(personalInfoTitle, "span,gapbottom 10, align center");
-
-        JLabel lblFirstName = new JLabel("First Name:");
-        lblFirstName.setFont(new Font("Inter", Font.PLAIN, 16));
-        txtFirstName = new JTextField(20);
-        txtFirstName.setFont(new Font("Inter", Font.PLAIN, 16));
-        centerForm.add(lblFirstName, "gapright 10");
-        centerForm.add(txtFirstName);
-
-        JLabel lblMiddleName = new JLabel("Middle Name:");
-        lblMiddleName.setFont(new Font("Inter", Font.PLAIN, 16));
-        txtMiddleName = new JTextField(20);
-        txtMiddleName.setFont(new Font("Inter", Font.PLAIN, 16));
-        centerForm.add(lblMiddleName, "gapright 10");
-        centerForm.add(txtMiddleName, "span");
-
-        JLabel lblLastName = new JLabel("Last Name:");
-        lblLastName.setFont(new Font("Inter", Font.PLAIN, 16));
-
-        txtLastName = new JTextField(20);
-        txtLastName.setFont(new Font("Inter", Font.PLAIN, 16));
-
-        centerForm.add(lblLastName, "gapright 10");
-        centerForm.add(txtLastName, "span");
-
-        JLabel lblDob = new JLabel("Date of Birth:");
-        lblDob.setFont(new Font("Inter", Font.PLAIN, 16));
-
-        txtDob = new JFormattedTextField();
-        DatePicker datePicker = new DatePicker();
-        datePicker.setEditor(txtDob);
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-        datePicker.setSelectedDate(LocalDate.parse("01/03/2005", formatter));
-        txtDob.setFont(new Font("Inter", Font.PLAIN, 14));
-
-        centerForm.add(lblDob, "gapright 10");
-        centerForm.add(txtDob);
-
-        JLabel lblGender = new JLabel("Gender:");
-        lblGender.setFont(new Font("Inter", Font.PLAIN, 16));
-
-        cmbGender = new JComboBox<>(new String[]{"Male", "Female", "Other"});
-        cmbGender.setFont(new Font("Inter", Font.PLAIN, 16));
-        centerForm.add(lblGender, "gapright 10");
-        centerForm.add(cmbGender);
-
-        JSeparator separator5 = new JSeparator(JSeparator.HORIZONTAL);
-        centerForm.add(separator5, "gaptop 20, span 2, grow, gapbottom 10");
-
         JLabel contactInfoTitle = new JLabel("Contact Information");
         contactInfoTitle.setFont(new Font("Inter", Font.BOLD, 20));
         contactInfoTitle.setForeground(new Color(30, 144, 255)); // Blue header color
@@ -270,20 +215,20 @@ public class VolunteerRegistration {
         txtCountry = new JTextField(20);
         txtCountry.setFont(new Font("Inter", Font.PLAIN, 16));
 
-        centerForm.add(lblZipCode, "gapright 10");
-        centerForm.add(txtZipCode, "span");
+        centerForm.add(lblCountry, "gapright 10");
+        centerForm.add(txtCountry, "span");
 
         centerForm.add(lblState, "gapright 10");
         centerForm.add(txtState, "span");
 
-        centerForm.add(lblRoad, "gapright 10");
-        centerForm.add(txtRoad, "span");
+        centerForm.add(lblZipCode, "gapright 10");
+        centerForm.add(txtZipCode, "span");
 
         centerForm.add(lblCity, "gapright 10");
         centerForm.add(txtCity, "span");
 
-        centerForm.add(lblCountry, "gapright 10");
-        centerForm.add(txtCountry, "span");
+        centerForm.add(lblRoad, "gapright 10");
+        centerForm.add(txtRoad, "span");
 
         JLabel lblEmergencyNo = new JLabel("Emergency Contact:");
         lblEmergencyNo.setFont(new Font("Inter", Font.PLAIN, 16));

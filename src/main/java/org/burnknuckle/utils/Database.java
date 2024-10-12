@@ -76,11 +76,26 @@ public class Database {
                 "account_created TIMESTAMP DEFAULT CURRENT_TIMESTAMP, " +
                 "last_login TIMESTAMP, " +
                 "is_active BOOLEAN DEFAULT TRUE, " +
-                "address TEXT, " +
                 "profile_picture_url VARCHAR(255), " +
                 "bio TEXT, " +
                 "failed_login_attempts INT DEFAULT 0, " +
                 "password_last_updated TIMESTAMP, " +
+                "zip_code VARCHAR(10), " +
+                "state VARCHAR(50), " +
+                "road VARCHAR(100), " +
+                "city VARCHAR(50), " +
+                "country VARCHAR(50), " +
+                "emergency_contact TEXT, " +
+                "availability VARCHAR(100), " +
+                "preferred_volunteering_location VARCHAR(100), " +
+                "professional_background VARCHAR(100), " +
+                "skills TEXT, " +
+                "languages_spoken TEXT, " +
+                "prior_experiences TEXT, " +
+                "preferred_volunteering_work VARCHAR(100), " +
+                "physical_limitations TEXT, " +
+                "blood_group VARCHAR(10), " +
+                "allergies TEXT, " +
                 "CONSTRAINT chk_phone_number CHECK (phone_number ~ '^\\+?[0-9]*$'))";
 
         String createResData = "CREATE TABLE IF NOT EXISTS %s (".formatted(TABLE_NAME[1]) +

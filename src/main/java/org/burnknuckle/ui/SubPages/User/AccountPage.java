@@ -28,9 +28,10 @@ import java.util.Objects;
 import static org.burnknuckle.utils.ThemeManager.getColorFromHex;
 
 public class AccountPage {
-//    private String username = getUsername();
-    private String username = "admin";
+//    private final String username = getUsername();
+    private final String username = "admin";
     private Map<String, Object> userdata;
+
     private final int BioLIMIT = 400;
     private JButton saveButtonPersonalInfo;
     private JButton saveButtonAvInfo;
@@ -42,6 +43,14 @@ public class AccountPage {
     private JTextField emailField;
     private JTextArea bioField;
     private DatePicker dobPicker;
+
+    private JTextField countryField;
+    private JTextField stateField;
+    private JTextField zipCodeField;
+    private JTextField roadField;
+    private JTextField cityField;
+    private JTextField emergencyContactField;
+    private JButton saveButtonContactInfo;
 
     private void checkValueChangeTextField(String value, JTextField textField){
         value = value == null || value.isBlank() ? "Not" : value;
@@ -123,6 +132,7 @@ public class AccountPage {
 
         JTabbedPane tabs = new JTabbedPane();
         tabs.addTab("Personal Info", personalInfoPanel());
+        tabs.addTab("Contact Info", contactInfoPanel());
         tabs.addTab("Availability Info", availabilityInfoPanel());
         tabs.addTab("Skills and Experience", skillsExperienceInfoPanel);
         tabs.addTab("Health and Medical Info", healthMedicalInfoPanel);
@@ -138,20 +148,6 @@ public class AccountPage {
         gbc.gridy = 0;
         backgroundPanel.add(accountPanel, gbc);
         return backgroundPanel;
-    }
-    private void saveChangesAvInfo(){
-        saveButtonAvInfo.setVisible(false);
-    }
-    private JScrollPane availabilityInfoPanel(){
-        JScrollPane OuterScrollBar = new JScrollPane();
-        JPanel personalInfoPanel = new JPanel(new MigLayout("wrap 2", "push[][]push", ""));
-        OuterScrollBar.setViewportView(personalInfoPanel);
-        saveButtonAvInfo = new JButton("Save");
-        saveButtonAvInfo.setVisible(false);
-        saveButtonAvInfo.addActionListener(e -> saveChangesAvInfo());
-
-        personalInfoPanel.add(saveButtonAvInfo, "span, grow, align center, gaptop 20px, gapbottom 20px");
-        return OuterScrollBar;
     }
 
     private void saveChangesPersonalInfo() {
@@ -191,12 +187,149 @@ public class AccountPage {
         }
     }
 
+    private void saveChangesAvInfo(){
+        saveButtonAvInfo.setVisible(false);
+    }
+
+    private boolean checkEmptyFields(String field){
+        return field.equals("Not Filled");
+    }
+
+    private void saveChangesContactInfo(){
+        String country = countryField.getText();
+        String state = stateField.getText();
+        String zipCode = zipCodeField.getText();
+        String city = cityField.getText();
+        String road = roadField.getText();
+        String emergencyContact = emergencyContactField.getText();
+        Map<String, Object> data = new HashMap<>();
+        if (!checkEmptyFields(country)){
+            data.put("country", country);
+        }
+        if (!checkEmptyFields(state)){
+            data.put("state", state);
+        }
+        if (!checkEmptyFields(zipCode)){
+            data.put("zip_code", zipCode);
+        }
+        if (!checkEmptyFields(city)){
+            data.put("city", city);
+        }
+        if (!checkEmptyFields(road)){
+            data.put("road", road);
+        }
+        if (!checkEmptyFields(emergencyContact)){
+            data.put("emergency_contact", emergencyContact);
+        }
+        try {
+            Database db = Database.getInstance();
+            db.getConnection();
+            db.updateData12(0,username, data);
+            System.out.println("Updated Contact Info");
+            saveButtonContactInfo.setVisible(false);
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    private JScrollPane contactInfoPanel(){
+        JScrollPane OuterScrollBar = new JScrollPane();
+        JPanel contactInfoPanel = new JPanel(new MigLayout("wrap 2", "push[][]push", ""));
+        OuterScrollBar.setViewportView(contactInfoPanel);
+        saveButtonContactInfo = new JButton("Save");
+        saveButtonContactInfo.setVisible(false);
+        saveButtonContactInfo.addActionListener(_ -> saveChangesContactInfo());
+
+        JLabel countryLabel = new JLabel("Country");
+        countryLabel.setFont(new Font("Arial", Font.PLAIN, 14));
+
+        countryField = new JTextField();
+        checkValueChangeTextField((String) userdata.get("country"), countryField);
+        countryField.setPreferredSize(new Dimension(400, 30));
+        countryField.setFont(new Font("Arial", Font.PLAIN, 14));
+        addListenersToFieldsEditMode(countryField, countryLabel, "country", saveButtonContactInfo);
+        contactInfoPanel.add(countryLabel, "gaptop 30px, span, grow, align center");
+        contactInfoPanel.add(countryField, "span,grow, align center");
+
+        JLabel stateLabel = new JLabel("State");
+        stateLabel.setFont(new Font("Arial", Font.PLAIN, 14));
+
+        stateField = new JTextField();
+        checkValueChangeTextField((String) userdata.get("state"), stateField);
+        stateField.setPreferredSize(new Dimension(400, 30));
+        stateField.setFont(new Font("Arial", Font.PLAIN, 14));
+        addListenersToFieldsEditMode(stateField, stateLabel, "state", saveButtonContactInfo);
+        contactInfoPanel.add(stateLabel, "gaptop 10px, span, grow, align center");
+        contactInfoPanel.add(stateField, "span,grow, align center");
+
+        JLabel zipCodeLabel = new JLabel("Zip Code");
+        zipCodeLabel.setFont(new Font("Arial", Font.PLAIN, 14));
+
+        zipCodeField = new JTextField();
+        checkValueChangeTextField((String) userdata.get("zip_code"), zipCodeField);
+        zipCodeField.setPreferredSize(new Dimension(400, 30));
+        zipCodeField.setFont(new Font("Arial", Font.PLAIN, 14));
+        addListenersToFieldsEditMode(zipCodeField, zipCodeLabel, "zip_code", saveButtonContactInfo);
+        contactInfoPanel.add(zipCodeLabel, "gaptop 10px, span, grow, align center");
+        contactInfoPanel.add(zipCodeField, "span,grow, align center");
+
+
+        JLabel cityLabel = new JLabel("City");
+        cityLabel.setFont(new Font("Arial", Font.PLAIN, 14));
+
+        cityField = new JTextField();
+        checkValueChangeTextField((String) userdata.get("city"), cityField);
+        cityField.setPreferredSize(new Dimension(400, 30));
+        cityField.setFont(new Font("Arial", Font.PLAIN, 14));
+        addListenersToFieldsEditMode(cityField, cityLabel, "city", saveButtonContactInfo);
+        contactInfoPanel.add(cityLabel, "gaptop 10px, span, grow, align center");
+        contactInfoPanel.add(cityField, "span,grow, align center");
+
+        JLabel roadLabel = new JLabel("Road");
+        roadLabel.setFont(new Font("Arial", Font.PLAIN, 14));
+
+        roadField = new JTextField();
+        checkValueChangeTextField((String) userdata.get("road"), roadField);
+        roadField.setPreferredSize(new Dimension(400, 30));
+        roadField.setFont(new Font("Arial", Font.PLAIN, 14));
+        addListenersToFieldsEditMode(roadField, roadLabel, "road", saveButtonContactInfo);
+        contactInfoPanel.add(roadLabel, "gaptop 10px, span, grow, align center");
+        contactInfoPanel.add(roadField, "span,grow, align center");
+
+        JLabel emgLabel = new JLabel("Emergency Contact");
+        emgLabel.setFont(new Font("Arial", Font.PLAIN, 14));
+
+        emergencyContactField = new JTextField();
+        checkValueChangeTextField((String) userdata.get("emergency_contact"), emergencyContactField);
+        emergencyContactField.setPreferredSize(new Dimension(400, 30));
+        emergencyContactField.setFont(new Font("Arial", Font.PLAIN, 14));
+        addListenersToFieldsEditMode(emergencyContactField, emgLabel, "emergency_contact", saveButtonContactInfo);
+        contactInfoPanel.add(emgLabel, "gaptop 10px, span, grow, align center");
+        contactInfoPanel.add(emergencyContactField, "span,grow, align center");
+
+
+        contactInfoPanel.add(saveButtonContactInfo, "span, grow, align center, gaptop 20px, gapbottom 20px");
+        return OuterScrollBar;
+    }
+
+    private JScrollPane availabilityInfoPanel(){
+        JScrollPane OuterScrollBar = new JScrollPane();
+        JPanel availabilityInfoPanel = new JPanel(new MigLayout("wrap 2", "push[][]push", ""));
+        OuterScrollBar.setViewportView(availabilityInfoPanel);
+        saveButtonAvInfo = new JButton("Save");
+        saveButtonAvInfo.setVisible(false);
+        saveButtonAvInfo.addActionListener(_ -> saveChangesAvInfo());
+
+        availabilityInfoPanel.add(saveButtonAvInfo, "span, grow, align center, gaptop 20px, gapbottom 20px");
+        return OuterScrollBar;
+    }
+
     private JScrollPane personalInfoPanel(){
         JScrollPane OuterScrollBar = new JScrollPane();
         JPanel personalInfoPanel = new JPanel(new MigLayout("wrap 2", "push[][]push", ""));
         OuterScrollBar.setViewportView(personalInfoPanel);
         saveButtonPersonalInfo = new JButton("Save");
-        saveButtonPersonalInfo.addActionListener(e -> saveChangesPersonalInfo());
+        saveButtonPersonalInfo.addActionListener(_ -> saveChangesPersonalInfo());
 
         JLabel accountPrivilegeLabel = new JLabel("Account Privilege");
         accountPrivilegeLabel.setFont(new Font("Arial", Font.PLAIN, 14));
@@ -208,7 +341,7 @@ public class AccountPage {
             case "vol"-> "Volunteer";
             case "admin" -> "Administrator";
             case "co-admin" -> "Co Administrator";
-            default -> throw new IllegalStateException("Unexpected value: " + (String)userdata.get("privilege"));
+            default -> throw new IllegalStateException("Unexpected value: " + userdata.get("privilege"));
         };
         accountPrivilegeField.setText(privilege);
         accountPrivilegeField.setEnabled(false);
@@ -225,7 +358,7 @@ public class AccountPage {
         checkValueChangeTextField((String) userdata.get("first_name"), firstNameField);
         firstNameField.setPreferredSize(new Dimension(400, 30));
         firstNameField.setFont(new Font("Arial", Font.PLAIN, 14));
-        addListenersToFieldsEditMode(firstNameField, firstNameLabel, "first_name");
+        addListenersToFieldsEditMode(firstNameField, firstNameLabel, "first_name", saveButtonPersonalInfo);
         personalInfoPanel.add(firstNameLabel, "gaptop 10px, span, grow, align center");
         personalInfoPanel.add(firstNameField, "span,grow, align center");
 
@@ -236,7 +369,7 @@ public class AccountPage {
         checkValueChangeTextField((String) userdata.get("last_name"), lastNameField);
         lastNameField.setPreferredSize(new Dimension(400, 30));
         lastNameField.setFont(new Font("Arial", Font.PLAIN, 14));
-        addListenersToFieldsEditMode(lastNameField, lastNameLabel, "last_name");
+        addListenersToFieldsEditMode(lastNameField, lastNameLabel, "last_name", saveButtonPersonalInfo);
         personalInfoPanel.add(lastNameLabel, "gaptop 10px, span, grow, align center");
         personalInfoPanel.add(lastNameField, "span,grow, align center");
 
@@ -361,7 +494,7 @@ public class AccountPage {
         emailField = new JTextField();
         checkValueChangeTextField((String) userdata.get("email"), emailField);
         emailField.setPreferredSize(new Dimension(400, 30));
-        addListenersToFieldsEditMode(emailField, emailLabel, "email");
+        addListenersToFieldsEditMode(emailField, emailLabel, "email", saveButtonPersonalInfo);
         emailField.setFont(new Font("Arial", Font.PLAIN, 14));
         personalInfoPanel.add(emailLabel, "gaptop 10px, span, grow, align center");
         personalInfoPanel.add(emailField, "span,grow, align center");
@@ -493,8 +626,9 @@ public class AccountPage {
                 checkForChanges();
             }
             private void checkForChanges() {
-                if(!oldDobDate.equals("Not") || dobPicker.getSelectedDate() != null && !oldDobDate.equals(dobPicker.getSelectedDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")))){
-                    saveButtonPersonalInfo.setVisible(true);
+                if ((oldDobDate != null && !oldDobDate.equals("Not")) ||
+                        (dobPicker.getSelectedDate() != null &&
+                                !dobPicker.getSelectedDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")).equals(oldDobDate))) {saveButtonPersonalInfo.setVisible(true);
                 }
             }
         });
@@ -536,7 +670,7 @@ public class AccountPage {
         }
     }
 
-    private void addListenersToFieldsEditMode(JTextField field, JLabel label, String get){
+    private void addListenersToFieldsEditMode(JTextField field, JLabel label, String get, JButton button){
         field.getDocument().addDocumentListener(new DocumentListener() {
             @Override
             public void insertUpdate(DocumentEvent e) {
@@ -552,11 +686,16 @@ public class AccountPage {
             }
             private void checkForChanges() {
                 if (userdata.get(get)!= null && !userdata.get(get).toString().equals(field.getText())) {
-                    saveButtonPersonalInfo.setVisible(true);
+                    button.setVisible(true);
                     if (!label.getText().contains("*")) {
                         label.setText(label.getText().concat("*"));
                     }
-                } else {
+                } else if (userdata.get(get) == null && !field.getText().isBlank()) {
+                    button.setVisible(true);
+                    if (!label.getText().contains("*")) {
+                        label.setText(label.getText().concat("*"));
+                    }
+                }else {
                     label.setText(label.getText().replace("*", ""));
                 }
             }
