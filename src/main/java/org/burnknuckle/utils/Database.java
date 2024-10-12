@@ -101,7 +101,6 @@ public class Database {
                 "responseTeamAssigned TEXT, " +
                 "lastUpdated TIMESTAMP DEFAULT CURRENT_TIMESTAMP, " +
                 "FOREIGN KEY (username) REFERENCES %s (username) ".formatted(TABLE_NAME[0]) +
-                "FOREIGN KEY (privilege) REFERENCES %s (privilege) ".formatted(TABLE_NAME[0]) +
                 ");";
 
         String createDisasterData = "CREATE TABLE IF NOT EXISTS %s (".formatted(TABLE_NAME[2]) +
@@ -339,6 +338,7 @@ public class Database {
             return -1;
         }
     }
+
     public void updateData12(int TableNo, String username, Map<String, Object> data) {
         Set<String> columns = data.keySet();
         String setClause = String.join(", ", columns.stream().map(col -> col + " = ?").toArray(String[]::new));
@@ -353,6 +353,7 @@ public class Database {
                     case Integer i -> pStmt.setInt(index, i);
                     case Boolean b -> pStmt.setBoolean(index, b);
                     case Timestamp t -> pStmt.setTimestamp(index, t);
+                    case Date d -> pStmt.setDate(index, d);
                     case null -> pStmt.setNull(index, Types.INTEGER);
                     default -> logger.error("Error in Database.java: [updateData12]: Type not found %s".formatted(value.toString()));
                 }
@@ -364,6 +365,7 @@ public class Database {
             logger.error("Error in Database.java: |SQLException while updateUserPrivilege| %s \n".formatted(getStackTraceAsString(e)));
         }
     }
+
     public Map<String, Object> getUsernameDetails(String username) {
         String searchByUsername = "SELECT * FROM %s WHERE username = ?".formatted(TABLE_NAME[0]);
         try (PreparedStatement pStmt = con.prepareStatement(searchByUsername)) {

@@ -25,6 +25,7 @@ import static org.burnknuckle.Main.logger;
 import static org.burnknuckle.utils.LoginUtils.UserCredentialsCheck;
 import static org.burnknuckle.utils.LoginUtils.updatePanelSizes;
 import static org.burnknuckle.utils.MainUtils.getStackTraceAsString;
+import static org.burnknuckle.utils.MainUtils.setUsername;
 
 public class LoginSystem {
     private final JFrame MainFrame;
@@ -35,14 +36,7 @@ public class LoginSystem {
     private static LoginBgPanel LoginBgPanel;
     private static JPanel overlayPanel;
     public static String currentPage = "";
-    public static String GlobalUsername ;
 
-    public static String getUsername(){
-        return GlobalUsername;
-    }
-    private static void setUsername(String name){
-        GlobalUsername = name;
-    }
     public LoginSystem(JFrame frame) {
         this.MainFrame = frame;
         currentPage = "";

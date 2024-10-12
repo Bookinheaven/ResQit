@@ -16,20 +16,24 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import java.awt.*;
 import java.awt.event.*;
+import java.sql.Date;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
 import static org.burnknuckle.utils.ThemeManager.getColorFromHex;
 
 public class AccountPage {
+//    private String username = getUsername();
     private String username = "admin";
     private Map<String, Object> userdata;
     private final int BioLIMIT = 400;
-    private JButton saveButton;
+    private JButton saveButtonPersonalInfo;
+    private JButton saveButtonAvInfo;
     private JTextField firstNameField;
     private JTextField lastNameField;
     private PasswordFieldWithToggle passwordField;
@@ -38,20 +42,13 @@ public class AccountPage {
     private JTextField emailField;
     private JTextArea bioField;
     private DatePicker dobPicker;
-    
-    private String passwordCheckerShow(boolean state){
-        String password = (String) userdata.get("password");
-        if (!state) {
-            return "*".repeat(password.length());
-        }
-        return password;
-    }
+
     private void checkValueChangeTextField(String value, JTextField textField){
-        value = value==null ? "Not" : value;
+        value = value == null || value.isBlank() ? "Not" : value;
         if(value.equals("Not")){
             textField.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Not Filled");
             Border paddingBorder = new EmptyBorder(5, 5, 5, 5);
-            Border lineBorder = new LineBorder(getColorFromHex("#fc6e6e"), 2);
+            Border lineBorder = new LineBorder(getColorFromHex("#725555"), 2);
             Border defaultBorder = textField.getBorder();
             textField.setBorder(new CompoundBorder(lineBorder, paddingBorder));
 
@@ -71,8 +68,10 @@ public class AccountPage {
             textField.setText(value);
         }
     }
+
     public JPanel createAccountPage(JFrame frame) {
         try {
+            System.out.println(username);
             Database db = Database.getInstance();
             db.getConnection();
             userdata = db.getUsernameDetails(username);
@@ -113,10 +112,6 @@ public class AccountPage {
         titleLabel.setBorder(new EmptyBorder(10,20,10,20));
         accountPanel.add(titleLabel, BorderLayout.NORTH);
 
-
-        JPanel availabilityInfoPanel = new JPanel();
-        availabilityInfoPanel.add(new JLabel("Availability Information"));
-
         JPanel skillsExperienceInfoPanel = new JPanel();
         skillsExperienceInfoPanel.add(new JLabel("Skills and Experience"));
 
@@ -128,7 +123,7 @@ public class AccountPage {
 
         JTabbedPane tabs = new JTabbedPane();
         tabs.addTab("Personal Info", personalInfoPanel());
-        tabs.addTab("Availability Info", availabilityInfoPanel);
+        tabs.addTab("Availability Info", availabilityInfoPanel());
         tabs.addTab("Skills and Experience", skillsExperienceInfoPanel);
         tabs.addTab("Health and Medical Info", healthMedicalInfoPanel);
         tabs.addTab("Team Info", TeamInfoPanel);
@@ -144,10 +139,22 @@ public class AccountPage {
         backgroundPanel.add(accountPanel, gbc);
         return backgroundPanel;
     }
-    private void saveChangesPersonalInfo() {
-        saveButton.setVisible(false);
+    private void saveChangesAvInfo(){
+        saveButtonAvInfo.setVisible(false);
+    }
+    private JScrollPane availabilityInfoPanel(){
+        JScrollPane OuterScrollBar = new JScrollPane();
+        JPanel personalInfoPanel = new JPanel(new MigLayout("wrap 2", "push[][]push", ""));
+        OuterScrollBar.setViewportView(personalInfoPanel);
+        saveButtonAvInfo = new JButton("Save");
+        saveButtonAvInfo.setVisible(false);
+        saveButtonAvInfo.addActionListener(e -> saveChangesAvInfo());
 
-        // Collecting data  the fields
+        personalInfoPanel.add(saveButtonAvInfo, "span, grow, align center, gaptop 20px, gapbottom 20px");
+        return OuterScrollBar;
+    }
+
+    private void saveChangesPersonalInfo() {
         String firstName = firstNameField.getText();
         String lastName = lastNameField.getText();
         String password = passwordField.getPassword();
@@ -155,27 +162,41 @@ public class AccountPage {
         String role = (String) roleField.getSelectedItem();
         String email = emailField.getText();
         String bio = bioField.getText();
-
         LocalDate dob = dobPicker.getSelectedDate();
 
-        System.out.println("Saved Changes:");
-        System.out.println("First Name: " + firstName);
-        System.out.println("Last Name: " + lastName);
-        System.out.println("Password: " + password);
-        System.out.println("Gender: " + gender);
-        System.out.println("Role: " + role);
-        System.out.println("Email: " + email);
-        System.out.println("Bio: " + bio);
-        System.out.println("Date of Birth: " + (dob != null ? dob.toString() : "Not Provided"));
+        Map<String, Object> data = new HashMap<>();
+        if (!firstName.equals("Not Filled")){
+            data.put("first_name", firstName);
+        }
+        if (!firstName.equals("Not Filled")){
+            data.put("last_name", lastName);
+        }
+        data.put("password", password);
+        data.put("gender", gender);
+        data.put("role", role);
+        data.put("email", email);
+        data.put("bio", bio);
+        if(dob != null){
+            data.put("date_of_birth", Date.valueOf(dob));
+        }
+        try {
+            Database db = Database.getInstance();
+            db.getConnection();
+            db.updateData12(0,username, data);
+            System.out.println("Updated");
+            saveButtonPersonalInfo.setVisible(false);
+
+        } catch (Exception e){
+            e.printStackTrace();
+        }
     }
 
     private JScrollPane personalInfoPanel(){
         JScrollPane OuterScrollBar = new JScrollPane();
         JPanel personalInfoPanel = new JPanel(new MigLayout("wrap 2", "push[][]push", ""));
         OuterScrollBar.setViewportView(personalInfoPanel);
-        saveButton = new JButton("Save");
-        saveButton.setVisible(false);
-        saveButton.addActionListener(e -> saveChangesPersonalInfo());
+        saveButtonPersonalInfo = new JButton("Save");
+        saveButtonPersonalInfo.addActionListener(e -> saveChangesPersonalInfo());
 
         JLabel accountPrivilegeLabel = new JLabel("Account Privilege");
         accountPrivilegeLabel.setFont(new Font("Arial", Font.PLAIN, 14));
@@ -232,11 +253,32 @@ public class AccountPage {
 
         JLabel passwordLabel = new JLabel("Password");
         passwordLabel.setFont(new Font("Arial", Font.PLAIN, 14));
-//        passwordField = new JTextField();
         passwordField = new PasswordFieldWithToggle();
-
-//        checkValueChangeTextField(passwordCheckerShow(false), passwordField);
-//        addListenersToFieldsEditMode(passwordField, passwordLabel, "password");
+        passwordField.setPassword((String) userdata.get("password"));
+        passwordField.getPasswordField().getDocument().addDocumentListener(new DocumentListener() {
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                checkForChanges();
+            }
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                checkForChanges();
+            }
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+                checkForChanges();
+            }
+            private void checkForChanges() {
+                if (!userdata.get("password").toString().equals(passwordField.getPassword())) {
+                    saveButtonPersonalInfo.setVisible(true);
+                    if (!passwordLabel.getText().contains("*")) {
+                        passwordLabel.setText(passwordLabel.getText().concat("*"));
+                    }
+                } else {
+                    passwordLabel.setText(passwordLabel.getText().replace("*", ""));
+                }
+            }
+        });
         passwordField.setPreferredSize(new Dimension(400, 30));
         passwordField.setFont(new Font("Arial", Font.PLAIN, 14));
         personalInfoPanel.add(passwordLabel, "gaptop 10px, span, grow, align center");
@@ -255,7 +297,7 @@ public class AccountPage {
         genderField.setFont(new Font("Arial", Font.PLAIN, 14));
         genderField.addActionListener(_ -> {
             if (!userdata.get("gender").toString().equals(genderField.getSelectedItem().toString())) {
-                saveButton.setVisible(true);
+                saveButtonPersonalInfo.setVisible(true);
                 if (!genderLabel.getText().contains("*")) {
                     genderLabel.setText(genderLabel.getText().concat("*"));
                 }
@@ -265,7 +307,6 @@ public class AccountPage {
         });
         personalInfoPanel.add(genderLabel, "gaptop 10px, span, grow, align center");
         personalInfoPanel.add(genderField, "span,grow, align center");
-
         String[] roles = {
                 "Firefighter",
                 "Police Officer",
@@ -289,7 +330,7 @@ public class AccountPage {
                 "Social Workers",
                 "Others"
         };
-        JLabel roleLabel = new JLabel("Role:");
+        JLabel roleLabel = new JLabel("Role");
         roleLabel.setFont(new Font("Arial", Font.PLAIN, 14));
         roleField = new JComboBox<>();
         for(String roleName : roles){
@@ -303,7 +344,7 @@ public class AccountPage {
         roleField.setFont(new Font("Arial", Font.PLAIN, 14));
         roleField.addActionListener(_ -> {
             if (!userdata.get("role").toString().equals(Objects.requireNonNull(roleField.getSelectedItem()).toString())) {
-                saveButton.setVisible(true);
+                saveButtonPersonalInfo.setVisible(true);
                 if (!roleLabel.getText().contains("*")) {
                     roleLabel.setText(roleLabel.getText().concat("*"));
                 }
@@ -314,7 +355,7 @@ public class AccountPage {
         personalInfoPanel.add(roleLabel, "gaptop 10px, span, grow, align center");
         personalInfoPanel.add(roleField, "span,grow, align center");
 
-        JLabel emailLabel = new JLabel("Email:");
+        JLabel emailLabel = new JLabel("Email");
         emailLabel.setFont(new Font("Arial", Font.PLAIN, 14));
 
         emailField = new JTextField();
@@ -325,7 +366,7 @@ public class AccountPage {
         personalInfoPanel.add(emailLabel, "gaptop 10px, span, grow, align center");
         personalInfoPanel.add(emailField, "span,grow, align center");
 
-        JLabel bioLabel = new JLabel("Bio:");
+        JLabel bioLabel = new JLabel("Bio (Max %s)".formatted(BioLIMIT));
         bioLabel.setFont(new Font("Arial", Font.PLAIN, 14));
 
         bioField = new JTextArea();
@@ -333,7 +374,7 @@ public class AccountPage {
         String bioText = (String) userdata.get("bio");
         Border defaultBorder = bioField.getBorder();
         Border paddingBorder = new EmptyBorder(5, 5, 5, 5);
-        Border lineBorder = new LineBorder(getColorFromHex("#fc6e6e"), 2);
+        Border lineBorder = new LineBorder(getColorFromHex("#725555"), 2);
 
         if(bioText == null || bioText.isBlank()){
             bioField.setText(placeholder);
@@ -348,22 +389,33 @@ public class AccountPage {
             public void focusGained(FocusEvent e) {
                 if (bioField.getText().equals(placeholder)) {
                     bioField.setText("");
-                    bioField.setForeground(Color.WHITE);
                 }
             }
             @Override
             public void focusLost(FocusEvent e) {
                 if (bioField.getText().isBlank()) {
                     bioField.setText(placeholder);
-                    bioField.setForeground(Color.GRAY);
                 }
             }
         });
         bioField.addKeyListener(new KeyAdapter() {
             @Override
+            public void keyPressed(KeyEvent e) {
+                super.keyPressed(e);
+                if (bioField.getDocument().getLength() >= BioLIMIT) {
+                    if (e.getKeyCode() == KeyEvent.VK_BACK_SPACE || e.isControlDown() && e.getKeyCode() == KeyEvent.VK_A) {
+                        return;
+                    }
+                    e.consume();
+                }
+            }
+            @Override
             public void keyTyped(KeyEvent e) {
                 super.keyTyped(e);
-                if(bioField.getText().length() >= BioLIMIT){
+                if (bioField.getDocument().getLength() >= BioLIMIT) {
+                    if (e.getKeyCode() == KeyEvent.VK_BACK_SPACE || e.isControlDown() && e.getKeyCode() == KeyEvent.VK_A) {
+                        return;
+                    }
                     e.consume();
                 }
                 if(bioField.getText().isBlank()){
@@ -387,29 +439,40 @@ public class AccountPage {
                 changes();
             }
             private void changes(){
-                if (!userdata.get("bio").toString().equals(bioField.getText())) {
-                    saveButton.setVisible(true);
+                if (bioText != null && !bioText.equals(bioField.getText())){
+                    saveButtonPersonalInfo.setVisible(true);
+                    bioField.setForeground(Color.WHITE);
                     if (!bioLabel.getText().contains("*")) {
                         bioLabel.setText(bioLabel.getText().concat("*"));
                     }
                 } else {
-                    bioLabel.setText(bioLabel.getText().replace("*", ""));
+                    if (!bioField.getText().equals(placeholder) && !bioField.getText().isBlank()) {
+                        saveButtonPersonalInfo.setVisible(true);
+                        bioField.setForeground(Color.WHITE);
+                        if (!bioLabel.getText().contains("*")) {
+                            bioLabel.setText(bioLabel.getText().concat("*"));
+                        }
+                    } else {
+                        bioField.setForeground(Color.GRAY);
+                        bioLabel.setText(bioLabel.getText().replace("*", ""));
+                    }
                 }
             }
         });
         bioField.setPreferredSize(new Dimension(400, 100));
+        bioField.setLineWrap(true);
+        bioField.setWrapStyleWord(true);
         bioField.setFont(new Font("Arial", Font.PLAIN, 14));
-        bioField.setForeground(Color.GRAY);
         personalInfoPanel.add(bioLabel, "gaptop 10px, span, grow, align center");
-        personalInfoPanel.add(bioField, "span,grow, align center");
+        personalInfoPanel.add(bioField, "span, align center");
 
-        JLabel dobLabel = new JLabel("Date Of Birth:");
+        JLabel dobLabel = new JLabel("Date Of Birth");
         dobLabel.setFont(new Font("Arial", Font.PLAIN, 14));
         JFormattedTextField dobField = new JFormattedTextField();
         dobPicker = new DatePicker();
         dobPicker.setEditor(dobField);
-        String oldDobDate = (String) userdata.get("date_of_birth").toString();
-        if (oldDobDate != null && !oldDobDate.isEmpty()){
+        String oldDobDate = (userdata.get("date_of_birth") != null) ? userdata.get("date_of_birth").toString() : "Not";
+        if (oldDobDate != null && !oldDobDate.isEmpty() && !oldDobDate.equals("Not")){
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
             LocalDate dateTime = LocalDate.parse(oldDobDate, formatter);
             dobPicker.setSelectedDate(dateTime);
@@ -430,15 +493,15 @@ public class AccountPage {
                 checkForChanges();
             }
             private void checkForChanges() {
-                if(oldDobDate != null && !oldDobDate.equals(dobPicker.getSelectedDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")))){
-                    saveButton.setVisible(true);
+                if(!oldDobDate.equals("Not") || dobPicker.getSelectedDate() != null && !oldDobDate.equals(dobPicker.getSelectedDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")))){
+                    saveButtonPersonalInfo.setVisible(true);
                 }
             }
         });
         personalInfoPanel.add(dobLabel, "gaptop 10px, span, grow, align center");
         personalInfoPanel.add(dobField, "span,grow, align center");
 
-        JLabel accountCreatedLabel = new JLabel("Account Created:");
+        JLabel accountCreatedLabel = new JLabel("Account Created");
         accountCreatedLabel.setFont(new Font("Arial", Font.PLAIN, 14));
 
         JTextField accountCreatedField = new JTextField();
@@ -450,8 +513,8 @@ public class AccountPage {
 
         personalInfoPanel.add(accountCreatedLabel, "gaptop 10px, span, grow, align center");
         personalInfoPanel.add(accountCreatedField, "span,grow, align center");
-
-        personalInfoPanel.add(saveButton, "span, grow, align center, gaptop 20px, gapbottom 20px");
+        SwingUtilities.invokeLater(()->saveButtonPersonalInfo.setVisible(false));
+        personalInfoPanel.add(saveButtonPersonalInfo, "span, grow, align center, gaptop 20px, gapbottom 20px");
         return OuterScrollBar;
     }
 
@@ -488,8 +551,8 @@ public class AccountPage {
                 checkForChanges();
             }
             private void checkForChanges() {
-                if (!userdata.get(get).toString().equals(field.getText())) {
-                    saveButton.setVisible(true);
+                if (userdata.get(get)!= null && !userdata.get(get).toString().equals(field.getText())) {
+                    saveButtonPersonalInfo.setVisible(true);
                     if (!label.getText().contains("*")) {
                         label.setText(label.getText().concat("*"));
                     }
@@ -499,6 +562,7 @@ public class AccountPage {
             }
         });
     }
+
     public static void main(String[] args) {
         SwingUtilities.invokeLater(()->{
             JFrame f = new JFrame();

@@ -26,7 +26,16 @@ import static org.burnknuckle.utils.ThemeManager.writeTheme;
 import static org.burnknuckle.utils.LoginUtils.UserCredentialsCheck;
 
 public class MainUtils {
+    public static String GlobalUsername ;
+
     private static final long ONE_WEEK_IN_MILLIS = 7 * 24 * 60 * 60 * 1000L;
+    public static String getUsername(){
+        return GlobalUsername;
+    }
+    public static void setUsername(String name){
+        GlobalUsername = name;
+    }
+
     public static void clearProperties(Properties props) {
         rememberMeCheck = false;
         props.remove("us");
@@ -79,12 +88,12 @@ public class MainUtils {
                     rememberMeCheck = false;
                     return;
                 }
+                setUsername(username);
                 String status = UserCredentialsCheck(username, password);
                 Database db = Database.getInstance();
                 db.connectDatabase();
                 Map<String, Object> userdata = db.getUsernameDetails(username);
                 db.closeConnection();
-
                 switch (status) {
                     case "admin" -> {
                         rememberMeCheck = true;

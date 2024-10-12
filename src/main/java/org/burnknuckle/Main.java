@@ -17,7 +17,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-import static org.burnknuckle.controllers.swing.LoginSystem.getUsername;
 import static org.burnknuckle.utils.MainUtils.*;
 import static org.burnknuckle.utils.ThemeManager.currentTheme;
 
