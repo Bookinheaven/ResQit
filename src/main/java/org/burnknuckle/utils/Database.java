@@ -80,6 +80,7 @@ public class Database {
                 "bio TEXT, " +
                 "failed_login_attempts INT DEFAULT 0, " +
                 "password_last_updated TIMESTAMP, " +
+                "volunteer_reg_time TIMESTAMP, " +
                 "zip_code VARCHAR(10), " +
                 "state VARCHAR(50), " +
                 "road VARCHAR(100), " +
@@ -87,15 +88,15 @@ public class Database {
                 "country VARCHAR(50), " +
                 "emergency_contact TEXT, " +
                 "availability VARCHAR(100), " +
-                "preferred_volunteering_location VARCHAR(100), " +
-                "professional_background VARCHAR(100), " +
+                "preferred_volunteering_location VARCHAR(100) DEFAULT 'State', " +
+                "professional_background VARCHAR(100) , " +
                 "skills TEXT, " +
                 "languages_spoken TEXT, " +
                 "prior_experiences TEXT, " +
                 "preferred_volunteering_work VARCHAR(100), " +
                 "willingness VARCHAR(3) CHECK (willingness IN ('Yes','NO')),"+
                 "physical_limitations TEXT, " +
-                "blood_group VARCHAR(10), " +
+                "blood_group VARCHAR(10) DEFAULT 'A+', " +
                 "allergies TEXT, " +
                 "CONSTRAINT chk_phone_number CHECK (phone_number ~ '^\\+?[0-9]*$'))";
 

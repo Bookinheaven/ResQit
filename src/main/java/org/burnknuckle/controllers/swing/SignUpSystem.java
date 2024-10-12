@@ -11,6 +11,7 @@ import java.util.TreeMap;
 
 import static org.burnknuckle.Main.logger;
 import static org.burnknuckle.utils.LoginUtils.SignUpUser;
+import static org.burnknuckle.utils.Userdata.setUsername;
 
 public class SignUpSystem {
     public static void SignUp(JFrame frame, JTextField usernameField, JPasswordField passwordField, JPasswordField conformPasswordField, JTextField emailField, JComboBox<String> genderComboBox, JComboBox<String> roleComboBox, JLabel warningLabel) {
@@ -39,6 +40,10 @@ public class SignUpSystem {
             errorMessage.append("Email cannot be empty.\n");
             isValid = false;
         }
+        if (role.equals("Role")){
+            errorMessage.append("Select the suitable role.\n");
+            isValid = false;
+        }
         if (!isValidEmail(email)) {
             errorMessage.append("Invalid email format.\n");
             isValid = false;
@@ -48,17 +53,18 @@ public class SignUpSystem {
             Map<String, Object> userdata = new TreeMap<>() {{
                 put("username", username);
                 put("password", password);
-                put("privilege", "fxml/user");
+                put("privilege", "user");
                 put("email", email);
                 put("gender", gender);
                 put("role", role);
             }};
+            setUsername(username);
             String out = SignUpUser(userdata);
             frame.getContentPane().removeAll();
             frame.revalidate();
             frame.repaint();
             new UserDashboardPanel(frame,userdata);
-
+            logger.info(userdata);
             logger.info(out);
             logger.info("Sign Up successful!");
         } else {

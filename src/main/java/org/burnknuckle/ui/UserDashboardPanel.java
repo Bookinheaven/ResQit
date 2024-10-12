@@ -1,8 +1,11 @@
 package org.burnknuckle.ui;
 
 import com.formdev.flatlaf.extras.FlatSVGIcon;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.burnknuckle.controllers.swing.LoginSystem;
 import org.burnknuckle.ui.SubPages.User.*;
+import org.burnknuckle.utils.Database;
 
 import javax.swing.*;
 import java.awt.*;
@@ -11,11 +14,13 @@ import java.awt.event.MouseEvent;
 import java.util.*;
 
 import static org.burnknuckle.Main.logger;
-import static org.burnknuckle.utils.ThemeManager.*;
 import static org.burnknuckle.utils.MainUtils.clearProperties;
 import static org.burnknuckle.utils.MainUtils.getStackTraceAsString;
+import static org.burnknuckle.utils.ThemeManager.*;
+import static org.burnknuckle.utils.Userdata.*;
 
 public class UserDashboardPanel {
+    private static final Log log = LogFactory.getLog(UserDashboardPanel.class);
     private final JFrame frame;
     private static JPanel menuBar;
     private JPanel dashSpace;
@@ -32,11 +37,10 @@ public class UserDashboardPanel {
     private final Deque<String> pageStack = new LinkedList<>();
     private static final int MAX_PAGES = 5;
     private String subPage = "";
-    public static String currentUser;
+    public static String currentUser = getUsername();
 
     public UserDashboardPanel(JFrame frame, Map<String, Object> userdata) {
         this.frame = frame;
-        currentUser = (String) userdata.get("username");
         frame.getContentPane().removeAll();
         frame.setLayout(new BorderLayout());
         frame.add(createUserDashboard(),BorderLayout.CENTER);
@@ -50,7 +54,88 @@ public class UserDashboardPanel {
             }
         });
     }
+    public static boolean checkAccountData() {
+        String[] checkList = new String[]{
+                "username",
+                "password",
+                "privilege",
+                "email",
+                "gender",
+                "role",
+                "first_name",
+                "last_name",
+                "date_of_birth",
+                "account_created",
+                "last_login",
+                "is_active",
+                "profile_picture_url",
+                "bio",
+                "failed_login_attempts",
+                "password_last_updated",
+                "volunteer_reg_time",
+                "zip_code",
+                "state",
+                "road",
+                "city",
+                "country",
+                "emergency_contact",
+                "availability",
+                "preferred_volunteering_location",
+                "professional_background",
+                "skills",
+                "languages_spoken",
+                "prior_experiences",
+                "preferred_volunteering_work",
+                "willingness",
+                "physical_limitations",
+                "blood_group",
+                "phone_number",
+                "allergies"
+        };
 
+        java.util.List<String> optionalFields = Arrays.asList(
+                "bio",
+                "profile_picture_url",
+                "skills",
+                "physical_limitations",
+                "prior_experiences",
+                "allergies",
+                "languages_spoken",
+                "prior_experiences",
+                "phone_number",
+                "failed_login_attempts",
+                "password_last_updated",
+                "volunteer_reg_time",
+                "availability"
+
+                );
+
+        try {
+            Database db = Database.getInstance();
+            db.getConnection();
+            Map<String, Object> checkData = db.getUsernameDetails(currentUser);
+            StringBuilder warnMessage = new StringBuilder();
+            for (String column : checkList) {
+                Object value = checkData.get(column);
+
+                if (optionalFields.contains(column) && (value == null || value.toString().isEmpty())) {
+                    continue;
+                }
+                if (value == null || value.toString().isBlank()) {
+                    warnMessage.append("Field '%s' is missing or empty!".formatted(column));
+                    logger.warn("Field '%s' is missing or empty!".formatted(column));
+                    return false;
+                }
+            }
+        } catch (Exception e) {
+            logger.error("Error in [checkAccountData]: %s".formatted(getStackTraceAsString(e)));
+        }
+        return true;
+    }
+    public static boolean checkStatusOfUser(){
+        getUserDataFromDatabase();
+        return !userdata.get("privilege").toString().equals("user");
+    }
     private void updateThemeColors(String change){
         menuBar.setBackground(getColorFromHex(ADPThemeData.get("sidebar")));
         changeSelectionMenu();
@@ -111,7 +196,6 @@ public class UserDashboardPanel {
         backOptionLabel.setPreferredSize(new Dimension(55,55));
         backOptionLabel.setOpaque(true);
         backOptionLabel.setBackground(getColorFromHex(ADPThemeData.get("default-menu-button")));
-        addPages("HomePage");
 
         logOut = new JLabel();
         logOut.setIcon(logOutIcon);
@@ -181,7 +265,7 @@ public class UserDashboardPanel {
         homeLabel.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                if(!currentPage.equals("HomePage")){
+                if(!currentPage.equals("HomePage") && checkAccountData() && checkStatusOfUser()){
                     changePage("HomePage");
                     changeSelectionMenu();
                     switchTabs("HomePage", mainContent);
@@ -201,7 +285,12 @@ public class UserDashboardPanel {
         disasterReqLabel.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                if(!currentPage.equals("RequestPage")) {
+                logger.info(!currentPage.equals("RequestPage") && checkAccountData() && checkStatusOfUser());
+                logger.info(!currentPage.equals("RequestPage"));
+                logger.info(checkAccountData());
+                logger.info(checkStatusOfUser());
+
+                if(!currentPage.equals("RequestPage") && checkAccountData() && checkStatusOfUser()) {
                     changePage("RequestPage");
                     changeSelectionMenu();
                     switchTabs("RequestPage", mainContent);
@@ -221,11 +310,13 @@ public class UserDashboardPanel {
         backOptionLabel.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                String back = goBack();
+                if(checkAccountData() && checkStatusOfUser()){
+                    String back = goBack();
                     changePage(back);
                     changeSelectionMenu();
                     switchTabs(back, mainContent);
                     logger.info("Clicked backOption");
+                }
             }
             @Override
             public void mouseExited(MouseEvent e) {
@@ -240,7 +331,7 @@ public class UserDashboardPanel {
         accountLabel.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                if(!currentPage.equals("Account")) {
+                if(!currentPage.equals("Account") && checkAccountData() && checkStatusOfUser()) {
                     addPages("Account");
                     changePage("Account");
                     cardLayout.show(mainContent, "Account");
@@ -275,7 +366,6 @@ public class UserDashboardPanel {
                             frame.revalidate();
                             frame.setVisible(false);
                             new LoginSystem(frame);
-                            JOptionPane.showMessageDialog(frame, "You have logged out successfully.");
                         } catch (Exception exx) {
                             logger.error(getStackTraceAsString(exx));
                             JOptionPane.showMessageDialog(frame, "An error occurred during logout.");
@@ -295,11 +385,22 @@ public class UserDashboardPanel {
 
         mainContent.add(new HomePage().createHomePage(dashSpace), "HomePage");
         mainContent.add(new RequestPage().createRequestPage(cardLayout, mainContent, dashSpace), "RequestPage");
-        mainContent.add(new AccountPage().createAccountPage(frame), "Account");
+        mainContent.add(new AccountPage().createAccountPage(frame, cardLayout, mainContent), "Account");
         mainContent.add(new RequestResources().createRequestResourcesSubPage(), "Request");
         mainContent.add(new RequestDisaster().createDisasterSubPage(dashSpace),"Disaster");
-        mainContent.add(new VolunteerRegistration().createVolunteerRegistrationSubPage(),"Volunteer Registration");
-        cardLayout.show(mainContent, "HomePage");
+        mainContent.add(new VolunteerRegistration().createVolunteerRegistrationSubPage(cardLayout, mainContent),"Volunteer Registration");
+
+        if(checkAccountData()){
+            if (checkStatusOfUser()){
+                addPages("HomePage");
+                cardLayout.show(mainContent, "HomePage");
+            } else {
+                cardLayout.show(mainContent, "Volunteer Registration");
+            }
+        } else {
+            addPages("Account");
+            cardLayout.show(mainContent, "Account");
+        }
 
         block.add(menuBar, BorderLayout.WEST);
         block.add(mainContent, BorderLayout.CENTER);

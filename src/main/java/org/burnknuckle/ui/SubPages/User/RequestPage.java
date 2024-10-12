@@ -107,7 +107,7 @@ public class RequestPage {
         volunteerRegistrationLabel.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                cardLayout.show(mainContent, "Volunteer Registration");
+//                cardLayout.show(mainContent, "Volunteer Registration");
             }
             @Override
             public void mouseExited(MouseEvent e) {

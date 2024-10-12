@@ -1,9 +1,9 @@
 package org.burnknuckle.controllers.swing;
 
-import org.burnknuckle.ui.UserDashboardPanel;
 import org.burnknuckle.ui.AdminDashboardPanel;
 import org.burnknuckle.ui.LoginPanel;
 import org.burnknuckle.ui.SignUpPanel;
+import org.burnknuckle.ui.UserDashboardPanel;
 import org.burnknuckle.ui.subParts.LoginBgPanel;
 import org.burnknuckle.utils.Database;
 
@@ -25,7 +25,7 @@ import static org.burnknuckle.Main.logger;
 import static org.burnknuckle.utils.LoginUtils.UserCredentialsCheck;
 import static org.burnknuckle.utils.LoginUtils.updatePanelSizes;
 import static org.burnknuckle.utils.MainUtils.getStackTraceAsString;
-import static org.burnknuckle.utils.MainUtils.setUsername;
+import static org.burnknuckle.utils.Userdata.setUsername;
 
 public class LoginSystem {
     private final JFrame MainFrame;
@@ -148,7 +148,7 @@ public class LoginSystem {
         loginButton.setEnabled(username.length() > 3 && password.length() > 3);
         String status = UserCredentialsCheck(username, password);
         Map<String, Object> userdata = Map.of();
-        if (status.equals("admin") || status.equals("user")) {
+        if (status.equals("admin") || status.equals("user") || status.equals("vol")) {
             Database db = Database.getInstance();
             db.connectDatabase();
             userdata = db.getUsernameDetails(username);
@@ -173,7 +173,7 @@ public class LoginSystem {
                 logger.info("Admin Login successful!");
             }
             case "no user" -> showWarning(frame, "No User Found!", warningLabel);
-            case "user" -> {
+            case "user", "vol" -> {
                 frame.getContentPane().removeAll();
                 frame.revalidate();
                 frame.repaint();

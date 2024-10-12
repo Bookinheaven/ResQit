@@ -1,7 +1,6 @@
 package org.burnknuckle.ui.SubPages.User;
 
 import com.formdev.flatlaf.FlatClientProperties;
-import com.formdev.flatlaf.FlatDarkLaf;
 import net.miginfocom.swing.MigLayout;
 import org.burnknuckle.ui.subParts.PasswordFieldWithToggle;
 import org.burnknuckle.utils.Database;
@@ -26,11 +25,16 @@ import java.util.Map;
 import java.util.Objects;
 
 import static org.burnknuckle.ui.SignUpPanel.roles;
+import static org.burnknuckle.ui.UserDashboardPanel.checkAccountData;
+import static org.burnknuckle.ui.UserDashboardPanel.checkStatusOfUser;
 import static org.burnknuckle.utils.ThemeManager.getColorFromHex;
+import static org.burnknuckle.utils.Userdata.getUsername;
 
+// set defualt valuues and sign up role not select warning 
 public class AccountPage {
-//    private final String username = getUsername();
-    private final String username = "tanvik123";
+    private final String username = getUsername();
+    private CardLayout cardLayout;
+    private JPanel mainContent;
     private Map<String, Object> userdata;
 
     private final int BioLIMIT = 300;
@@ -96,7 +100,15 @@ public class AccountPage {
         }
     }
 
-    public JPanel createAccountPage(JFrame frame) {
+    private void runCheck(){
+        if(checkAccountData()){
+            if(checkStatusOfUser()){
+                cardLayout.show(mainContent, "Volunteer Registration");
+            }
+        }
+
+    }
+    public JPanel createAccountPage(JFrame frame, CardLayout cardLayout, JPanel mainContent) {
         try {
             System.out.println(username);
             Database db = Database.getInstance();
@@ -121,14 +133,12 @@ public class AccountPage {
                         accountPanel.setPreferredSize(new Dimension(newWidth, newHeight));
                         accountPanel.revalidate();
                         accountPanel.repaint();
-                        frame.revalidate();
-                        frame.repaint();
                     }
                 });
             }
         });
 
-        accountPanel.setPreferredSize(new Dimension(frame.getWidth() / 2, frame.getHeight() / 2));
+        accountPanel.setPreferredSize(new Dimension((int) (frame.getWidth() * 0.70), (int) (frame.getHeight() * 0.70)));
         accountPanel.setBackground(new Color(100, 100, 100, 100));
         accountPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
@@ -200,7 +210,7 @@ public class AccountPage {
             db.updateData12(0,username, data);
             System.out.println("Updated");
             saveButtonPersonalInfo.setVisible(false);
-
+            runCheck();
         } catch (Exception e){
             e.printStackTrace();
         }
@@ -229,6 +239,7 @@ public class AccountPage {
             db.updateData12(0,username, data);
             System.out.println("Updated Health Info");
             saveButtonHealthInfo.setVisible(false);
+            runCheck();
         } catch (Exception e){
             e.printStackTrace();
         }
@@ -270,13 +281,13 @@ public class AccountPage {
             db.updateData12(0,username, data);
             System.out.println("Updated Contact Info");
             saveButtonContactInfo.setVisible(false);
+            runCheck();
         } catch (Exception e){
             e.printStackTrace();
         }
     }
 
     private void saveChangesSkillsInfo(){
-
         String willingness = rbtnYes.isSelected() ? "Yes" : rbtnNo.isSelected() ? "No" : "Not specified";
         String languages_spoken = langField.getText();
         String prior_experiences = priorField.getText();
@@ -304,6 +315,7 @@ public class AccountPage {
             db.updateData12(0,username, data);
             System.out.println("Updated Health Info");
             saveButtonHealthInfo.setVisible(false);
+            runCheck();
         } catch (Exception e){
             e.printStackTrace();
         }
@@ -847,18 +859,5 @@ public class AccountPage {
                 }
             }
         });
-    }
-
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(()->{
-            JFrame f = new JFrame();
-            FlatDarkLaf.setup();
-            f.setSize(new Dimension(900, 900));
-            f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-            f.add(new AccountPage().createAccountPage(f));
-            f.setLocationRelativeTo(null);
-            f.setVisible(true);
-        });
-
     }
 }

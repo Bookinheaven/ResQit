@@ -24,18 +24,10 @@ import static org.burnknuckle.Main.*;
 import static org.burnknuckle.utils.ThemeManager.currentTheme;
 import static org.burnknuckle.utils.ThemeManager.writeTheme;
 import static org.burnknuckle.utils.LoginUtils.UserCredentialsCheck;
+import static org.burnknuckle.utils.Userdata.setUsername;
 
 public class MainUtils {
-    public static String GlobalUsername ;
-
     private static final long ONE_WEEK_IN_MILLIS = 7 * 24 * 60 * 60 * 1000L;
-    public static String getUsername(){
-        return GlobalUsername;
-    }
-    public static void setUsername(String name){
-        GlobalUsername = name;
-    }
-
     public static void clearProperties(Properties props) {
         rememberMeCheck = false;
         props.remove("us");
@@ -100,7 +92,7 @@ public class MainUtils {
                         new AdminDashboardPanel(mainFrame,userdata);
                         logger.info("Admin Login successful!");
                     }
-                    case "user" -> {
+                    case "user", "vol" -> {
                         rememberMeCheck = true;
                         new UserDashboardPanel(mainFrame,userdata);
                         logger.info("User Login successful!");

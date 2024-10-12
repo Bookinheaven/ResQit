@@ -19,6 +19,7 @@ import java.util.Objects;
 
 import static org.burnknuckle.utils.MainUtils.*;
 import static org.burnknuckle.utils.ThemeManager.currentTheme;
+import static org.burnknuckle.utils.Userdata.getUsername;
 
 public class Main {
     private static JFrame mainFrame;

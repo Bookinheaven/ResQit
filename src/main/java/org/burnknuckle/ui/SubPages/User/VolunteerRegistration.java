@@ -1,127 +1,43 @@
 package org.burnknuckle.ui.SubPages.User;
 
-import com.formdev.flatlaf.FlatDarkLaf;
 import net.miginfocom.swing.MigLayout;
 import org.burnknuckle.ui.subParts.LoginBgPanel;
+import org.burnknuckle.utils.Database;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
 import java.awt.geom.RoundRectangle2D;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
-public class VolunteerRegistration {
-    private JTextField txtFirstName, txtMiddleName, txtLastName, txtContactNo, txtEmergencyNo, txtAvailability,
-            txtPhysicalLimits, txtZipCode, txtState, txtRoad, txtCity, txtCountry;
-    private JTextArea txtSkills, txtLanguagesSpoken, txtPriorExperiences, txtAllergies;
-    private JComboBox<String> cmbGender, txtPreferredVolunteeringWork ,cmbPreferredLocation, cmbProfessionalBackground, cmbBloodGroup;
-    private JRadioButton rbtnYes, rbtnNo;
-    private JFormattedTextField txtDob;
+import static org.burnknuckle.Main.logger;
+import static org.burnknuckle.utils.MainUtils.getStackTraceAsString;
+import static org.burnknuckle.utils.Userdata.getUsername;
 
+public class VolunteerRegistration {
+    private final String username = getUsername();
+    private CardLayout cardLayout;
+    private JPanel mainContent;
     private void clickSubmit(){
         Map<String, Object> data = new HashMap<>();
-        data.put("First Name", txtFirstName.getText().trim());
-        data.put("Middle Name", txtMiddleName.getText().trim());
-        data.put("Last Name", txtLastName.getText().trim());
-        data.put("Date of Birth", txtDob.getText().trim());
-        data.put("Gender", cmbGender.getSelectedItem());
-        data.put("Contact Number", txtContactNo.getText().trim());
-        data.put("Zip Code", txtZipCode.getText().trim());
-        data.put("State", txtState.getText().trim());
-        data.put("Road", txtRoad.getText().trim());
-        data.put("City", txtCity.getText().trim());
-        data.put("Country", txtCountry.getText().trim());
-        data.put("Emergency Contact", txtEmergencyNo.getText().trim());
-        data.put("Availability", txtAvailability.getText().trim());
-        data.put("Preferred Volunteering Location", cmbPreferredLocation.getSelectedItem());
-        data.put("Professional Background", cmbProfessionalBackground.getSelectedItem());
-        data.put("Skills", txtSkills.getText().trim());
-        data.put("Languages Spoken", txtLanguagesSpoken.getText().trim());
-        data.put("Prior Experiences", txtPriorExperiences.getText().trim());
-        data.put("Preferred Volunteering Work", txtPreferredVolunteeringWork.getSelectedItem());
-        data.put("Physical Limitations", txtPhysicalLimits.getText().trim());
-        data.put("Blood Group", cmbBloodGroup.getSelectedItem());
-        data.put("Allergies", txtAllergies.getText().trim());
-
-        String willingnessToTravel = rbtnYes.isSelected() ? "Yes" : rbtnNo.isSelected() ? "No" : "Not specified";
-        data.put("Willingness to Travel", willingnessToTravel);
-
-        String errorMessage = validateData(data);
-        if (!errorMessage.isEmpty()) {
-            JOptionPane.showMessageDialog(null, "Please correct the following errors:\n" + errorMessage, "Form Error", JOptionPane.ERROR_MESSAGE);
-            return;
+        data.put("volunteer_reg_time", new Timestamp(System.currentTimeMillis()));
+        data.put("privilege", "vol");
+        try {
+            Database db = Database.getInstance();
+            db.getConnection();
+            db.updateData12(0,username ,data);
+            cardLayout.show(mainContent, "HomePage");
+        } catch (Exception e){
+            logger.info("Error [clickSubmit]: db update failed: %s".formatted(getStackTraceAsString(e)));
         }
-        data.forEach((key, value) -> System.out.println(key + ": " + value));
         JOptionPane.showMessageDialog(null, "Form submitted successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
     }
 
-    private String validateData(Map<String, Object> data) {
-        StringBuilder errorMessage = new StringBuilder();
-        if (data.get("First Name").toString().isEmpty()) {
-            errorMessage.append("- First Name is required.\n");
-        }
-        if (data.get("Last Name").toString().isEmpty()) {
-            errorMessage.append("- Last Name is required.\n");
-        }
-        if (data.get("Contact Number").toString().isEmpty()) {
-            errorMessage.append("- Contact Number is required.\n");
-        }
-        if (data.get("Middle Name").toString().isEmpty()) {
-            errorMessage.append("- Middle Name is required.\n");
-        }
-        if (data.get("Availability").toString().isEmpty()) {
-            errorMessage.append("- Availability is required.\n");
-        }
-        if (data.get("Zip Code").toString().isEmpty()) {
-            errorMessage.append("- Zip Code is required.\n");
-        }
-        if (data.get("State").toString().isEmpty()) {
-            errorMessage.append("- State is required.\n");
-        }
-        if (data.get("Road").toString().isEmpty()) {
-            errorMessage.append("- Road is required.\n");
-        }
-        if (data.get("City").toString().isEmpty()) {
-            errorMessage.append("- City is required.\n");
-        }
-        if (data.get("Country").toString().isEmpty()) {
-            errorMessage.append("- Country is required.\n");
-        }
-
-        if (data.get("Willingness to Travel").toString().isEmpty()) {
-            errorMessage.append("- Willingness to Travel is required.\n");
-        }
-
-        if (data.get("Languages Spoken").toString().isEmpty()) {
-            errorMessage.append("- Languages Spoken is required.\n");
-        }
-
-        if (data.get("Emergency Contact").toString().isEmpty()) {
-            errorMessage.append("- Emergency Contact is required.\n");
-        }
-        if (data.get("Professional Background").toString().isEmpty()) {
-            errorMessage.append("- Emergency Contact is required.\n");
-        }
-
-        data.put("Preferred Volunteering Work", data.get("Preferred Volunteering Work").toString().isEmpty() ? "None" : data.get("Preferred Volunteering Work"));
-        data.put("Physical Limitations", data.get("Physical Limitations").toString().isEmpty() ? "None" : data.get("Physical Limitations"));
-
-        data.put("Skills", data.get("Skills").toString().isEmpty() ? "None" : data.get("Skills"));
-        data.put("Prior Experiences", data.get("Prior Experiences").toString().isEmpty() ? "None" : data.get("Prior Experiences"));
-        data.put("Allergies", data.get("Allergies").toString().isEmpty() ? "None" : data.get("Allergies"));
-
-        data.put("Emergency Contact", data.get("Emergency Contact").toString().isEmpty() ? "None" : data.get("Emergency Contact"));
-        data.put("Professional Background", data.get("Professional Background").toString().isEmpty() ? "None" : data.get("Professional Background"));
-
-        if (!errorMessage.isEmpty()) {
-            return errorMessage.toString();
-        }
-        return "";
-    }
-
-    public JPanel createVolunteerRegistrationSubPage() {
+    public JPanel createVolunteerRegistrationSubPage(CardLayout cardLayout, JPanel mainContent) {
+        this.cardLayout = cardLayout;
+        this.mainContent = mainContent;
         JPanel inner = new JPanel(new BorderLayout());
         LoginBgPanel OuterBgPanel = new LoginBgPanel("Common/formPagesBg.jpg");
         OuterBgPanel.setLayout(new BorderLayout());
@@ -141,7 +57,7 @@ public class VolunteerRegistration {
             }
         };
         // Title Label
-        JLabel title = new JLabel("Volunteer Registration");
+        JLabel title = new JLabel("Volunteer Registration Form");
         title.setFont(new Font("Inter", Font.BOLD, 32));
         title.setHorizontalAlignment(SwingConstants.CENTER);
 
@@ -157,228 +73,36 @@ public class VolunteerRegistration {
         JPanel centerForm = new JPanel(new MigLayout("wrap 2", "", ""));
         centerForm.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
-        JSeparator separator6 = new JSeparator(JSeparator.HORIZONTAL);
-        centerForm.add(separator6, "span 2, grow, gapbottom 10");
-
-        JLabel contactInfoTitle = new JLabel("Contact Information");
-        contactInfoTitle.setFont(new Font("Inter", Font.BOLD, 20));
-        contactInfoTitle.setForeground(new Color(30, 144, 255)); // Blue header color
-        centerForm.add(contactInfoTitle, "span, gapbottom 10, gaptop 10, align center");
-
-        JLabel lblContactNo = new JLabel("Contact Number:");
-        lblContactNo.setFont(new Font("Inter", Font.PLAIN, 16));
-
-        txtContactNo = new JTextField(15);
-        txtContactNo.setFont(new Font("Inter", Font.PLAIN, 16));
-        txtContactNo.addKeyListener(new KeyAdapter() {
-            @Override
-            public void keyTyped(KeyEvent e) {
-                super.keyTyped(e);
-                if (!Character.isDigit(e.getKeyChar())) {
-                    e.consume();
-                }
-            }
-        });
-        centerForm.add(lblContactNo, "gapright 10");
-        centerForm.add(txtContactNo);
-
-        JLabel lblZipCode = new JLabel("Zip Code:");
-        lblZipCode.setFont(new Font("Inter", Font.PLAIN, 16));
-        txtZipCode = new JTextField(10);
-        txtZipCode.setFont(new Font("Inter", Font.PLAIN, 16));
-        txtZipCode.addKeyListener(new KeyAdapter() {
-            @Override
-            public void keyTyped(KeyEvent e) {
-                super.keyTyped(e);
-                if (!Character.isDigit(e.getKeyChar()) || txtZipCode.getText().length() > 7) {
-                    e.consume();
-                }
-            }
-        });
-        JLabel lblState = new JLabel("State:");
-        lblState.setFont(new Font("Inter", Font.PLAIN, 16));
-        txtState = new JTextField(15);
-        txtState.setFont(new Font("Inter", Font.PLAIN, 16));
-
-        JLabel lblRoad = new JLabel("Road:");
-        lblRoad.setFont(new Font("Inter", Font.PLAIN, 16));
-        txtRoad = new JTextField(20);
-        txtRoad.setFont(new Font("Inter", Font.PLAIN, 16));
-
-        JLabel lblCity = new JLabel("City:");
-        lblCity.setFont(new Font("Inter", Font.PLAIN, 16));
-        txtCity = new JTextField(20);
-        txtCity.setFont(new Font("Inter", Font.BOLD, 16));
-
-        JLabel lblCountry = new JLabel("Country:");
-        lblCountry.setFont(new Font("Inter", Font.PLAIN, 16));
-        txtCountry = new JTextField(20);
-        txtCountry.setFont(new Font("Inter", Font.PLAIN, 16));
-
-        centerForm.add(lblCountry, "gapright 10");
-        centerForm.add(txtCountry, "span");
-
-        centerForm.add(lblState, "gapright 10");
-        centerForm.add(txtState, "span");
-
-        centerForm.add(lblZipCode, "gapright 10");
-        centerForm.add(txtZipCode, "span");
-
-        centerForm.add(lblCity, "gapright 10");
-        centerForm.add(txtCity, "span");
-
-        centerForm.add(lblRoad, "gapright 10");
-        centerForm.add(txtRoad, "span");
-
-        JLabel lblEmergencyNo = new JLabel("Emergency Contact:");
-        lblEmergencyNo.setFont(new Font("Inter", Font.PLAIN, 16));
-        txtEmergencyNo = new JTextField(15);
-        txtEmergencyNo.setFont(new Font("Inter", Font.PLAIN, 16));
-
-        centerForm.add(lblEmergencyNo, "gapright 10");
-        centerForm.add(txtEmergencyNo);
-
-        JLabel lblAvailability = new JLabel("Availability:");
-        lblAvailability.setFont(new Font("Inter", Font.PLAIN, 16));
-
-        txtAvailability = new JTextField(20);
-        txtAvailability.setFont(new Font("Inter", Font.PLAIN, 16));
-
-        centerForm.add(lblAvailability, "gapright 10");
-        centerForm.add(txtAvailability);
-
-        JSeparator separator4 = new JSeparator(JSeparator.HORIZONTAL);
-        centerForm.add(separator4, "gaptop 20, span 2, grow, gapbottom 10");
-
-        JLabel travelInfoTitle = new JLabel("Travel Information");
-        travelInfoTitle.setFont(new Font("Inter", Font.BOLD, 20));
-        travelInfoTitle.setForeground(new Color(30, 144, 255)); // Blue header color
-        centerForm.add(travelInfoTitle, "span, gapbottom 10, gaptop 10, align center");
-
-        JLabel lblWillingness = new JLabel("Willingness to Travel:");
-        lblWillingness.setFont(new Font("Inter", Font.PLAIN, 16));
-
-        rbtnYes = new JRadioButton("Yes");
-        rbtnNo = new JRadioButton("No");
-        ButtonGroup travelGroup = new ButtonGroup();
-        travelGroup.add(rbtnYes);
-        travelGroup.add(rbtnNo);
-        JPanel travelPanel = new JPanel();
-        rbtnNo.setFont(new Font("Inter", Font.PLAIN, 16));
-        rbtnYes.setFont(new Font("Inter", Font.PLAIN, 16));
-
-        travelPanel.add(rbtnYes);
-        travelPanel.add(rbtnNo);
-        centerForm.add(lblWillingness, "gapright 10");
-        centerForm.add(travelPanel, "span");
-
-        JLabel lblPreferredLocation = new JLabel("Preferred Volunteering Location:");
-        lblPreferredLocation.setFont(new Font("Inter", Font.PLAIN, 16));
-
-        cmbPreferredLocation = new JComboBox<>(new String[]{"Local", "State", "National"});
-        cmbPreferredLocation.setFont(new Font("Inter", Font.PLAIN, 16));
-
-        centerForm.add(lblPreferredLocation, "gapright 10");
-        centerForm.add(cmbPreferredLocation);
-
-        JSeparator separator3 = new JSeparator(JSeparator.HORIZONTAL);
-        centerForm.add(separator3, "gaptop 20, span 2, grow, gapbottom 10");
-
-        JLabel professionalInfoTitle = new JLabel("Professional Background");
-        professionalInfoTitle.setFont(new Font("Inter", Font.BOLD, 20));
-        professionalInfoTitle.setForeground(new Color(30, 144, 255)); // Blue header color
-        centerForm.add(professionalInfoTitle, "span, gapbottom 10, gaptop 10, align center");
-
-        JLabel lblProfessionalBackground = new JLabel("Professional Background:");
-        lblProfessionalBackground.setFont(new Font("Inter", Font.PLAIN, 16));
-
-        cmbProfessionalBackground = new JComboBox<>(new String[]{"Medical", "Engineering", "IT", "Construction", "Other"});
-        cmbProfessionalBackground.setFont(new Font("Inter", Font.PLAIN, 16));
-
-        centerForm.add(lblProfessionalBackground, "gapright 10");
-        centerForm.add(cmbProfessionalBackground);
-
-        JLabel lblSkills = new JLabel("Skills:");
-        lblSkills.setFont(new Font("Inter", Font.PLAIN, 16));
-        txtSkills = new JTextArea(3, 20);
-        txtSkills.setFont(new Font("Inter", Font.PLAIN, 16));
-
-        centerForm.add(lblSkills, "gapright 10");
-        centerForm.add(new JScrollPane(txtSkills), "span");
-
-        JLabel lblLanguagesSpoken = new JLabel("Languages Spoken:");
-        lblLanguagesSpoken.setFont(new Font("Inter", Font.PLAIN, 16));
-
-        txtLanguagesSpoken = new JTextArea(2, 20);
-        txtLanguagesSpoken.setFont(new Font("Inter", Font.PLAIN, 16));
-
-        centerForm.add(lblLanguagesSpoken, "gapright 10");
-        centerForm.add(new JScrollPane(txtLanguagesSpoken), "span");
-
-        JLabel lblPriorExperiences = new JLabel("Prior Experiences:");
-        lblPriorExperiences.setFont(new Font("Inter", Font.PLAIN, 16));
-
-        txtPriorExperiences = new JTextArea(3, 20);
-        txtPriorExperiences.setFont(new Font("Inter", Font.PLAIN, 16));
-        centerForm.add(lblPriorExperiences, "gapright 10");
-        centerForm.add(new JScrollPane(txtPriorExperiences), "span");
-
-        JLabel lblVolunteeringWork = new JLabel("Preferred Volunteering Work:");
-        lblVolunteeringWork.setFont(new Font("Inter", Font.PLAIN, 16));
-        txtPreferredVolunteeringWork = new JComboBox<>(new String[]{
-                "Rescue Operations",
-                "Medical Assistance",
-                "Food Distribution",
-                "Shelter Support",
-                "Environmental Conservation",
-                "Education and Tutoring",
-                "Community Outreach",
-                "Disaster Relief and Crisis Management",
-                "Elderly Care Support",
-                "Child Welfare and Development",
-                "Sports and Recreation",
-                "Animal Welfare",
-                "Technology Support",
-                "Fundraising and Event Management",
-                "Health and Hygiene Education",
-                "Cultural Preservation"
-        });
-        txtPreferredVolunteeringWork.setFont(new Font("Inter", Font.PLAIN, 16));
-        centerForm.add(lblVolunteeringWork, "gapright 10");
-        centerForm.add(txtPreferredVolunteeringWork);
-
-        JSeparator separator2 = new JSeparator(JSeparator.HORIZONTAL);
-        centerForm.add(separator2, "gaptop 20, span 2, grow, gapbottom 10");
-
-        JLabel medicalInfoTitle = new JLabel("Medical Information");
-        medicalInfoTitle.setFont(new Font("Inter", Font.BOLD, 20));
-        medicalInfoTitle.setForeground(new Color(30, 144, 255)); // Blue header color
-        centerForm.add(medicalInfoTitle, "span, gapbottom 10, gaptop 10, align center");
-
-        JLabel lblPhysicalLimits = new JLabel("Physical Limitations:");
-        lblPhysicalLimits.setFont(new Font("Inter", Font.PLAIN, 16));
-        txtPhysicalLimits = new JTextField(20);
-        txtPhysicalLimits.setFont(new Font("Inter", Font.PLAIN, 16));
-
-        centerForm.add(lblPhysicalLimits, "gapright 10");
-        centerForm.add(txtPhysicalLimits);
-
-        JLabel lblBloodGroup = new JLabel("Blood Group:");
-        lblBloodGroup.setFont(new Font("Inter", Font.PLAIN, 16));
-
-        cmbBloodGroup = new JComboBox<>(new String[]{"A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"});
-        cmbBloodGroup.setFont(new Font("Inter", Font.PLAIN, 16));
-        centerForm.add(lblBloodGroup, "gapright 10");
-        centerForm.add(cmbBloodGroup);
-
-        JLabel lblAllergies = new JLabel("Allergies or Medical Conditions:");
-        lblAllergies.setFont(new Font("Inter", Font.PLAIN, 16));
-
-        txtAllergies = new JTextArea(3, 20);
-        txtAllergies.setFont(new Font("Inter", Font.PLAIN, 16));
-        centerForm.add(lblAllergies, "gapright 10");
-        centerForm.add(new JScrollPane(txtAllergies), "span, growx");
-
+        String pledgeText = "<html>" +
+                "<body style='font-family: Verdana, sans-serif;'>" +
+                "<h1 style='font-size: 20px;'>Disaster Volunteer Pledge</h1>" +
+                "<p style='font-size: 16px; line-height: 1.6; text-align: justify;'>As a dedicated volunteer committed to disaster response and recovery, I pledge to:</p>" +
+                "<ul style='font-size: 12px; line-height: 1.8; margin-left: 20px;'>" +
+                "<li><b>Act with integrity and compassion:</b> Serving individuals and communities affected by disasters with empathy, respect, and a deep commitment to their well-being.</li>" +
+                "<li><b>Ensure safety for all:</b> Prioritize my own safety and the safety of others by strictly adhering to guidelines, safety protocols, and proper procedures at all times.</li>" +
+                "<li><b>Stay calm and resilient:</b> Remain composed and focused in high-pressure situations, maintaining a positive attitude in the face of adversity and challenges.</li>" +
+                "<li><b>Be adaptable and solution-oriented:</b> Adjust to rapidly changing circumstances with flexibility and a problem-solving mindset, ensuring that the needs of those affected are met efficiently.</li>" +
+                "<li><b>Respect cultural diversity and inclusion:</b> Value and embrace the diverse backgrounds of individuals affected by disasters, working with cultural sensitivity and inclusivity to foster trust and cooperation.</li>" +
+                "<li><b>Communicate transparently and collaborate:</b> Share clear, concise, and honest information with my team, relief organizations, and community members, ensuring a unified and effective response effort.</li>" +
+                "<li><b>Maintain confidentiality and privacy:</b> Protect the sensitive information of disaster survivors, upholding their dignity and trust at all times by keeping personal details confidential.</li>" +
+                "<li><b>Strive for continuous learning and self-improvement:</b> Actively seek out training and development opportunities to enhance my disaster response skills and stay informed about best practices.</li>" +
+                "<li><b>Be a reliable and committed volunteer:</b> Fulfill my duties with dedication, understanding the importance of showing up on time, completing assigned tasks, and being dependable throughout the relief operation.</li>" +
+                "<li><b>Uplift and empower communities:</b> Support the empowerment and resilience of affected communities, encouraging recovery, rebuilding, and long-term sustainability in disaster response efforts.</li>" +
+                "</ul>" +
+                "<br>" +
+                "<p style='font-size: 12px; line-height: 1.6; text-align: justify;'>" +
+                "I acknowledge the importance of my role and the responsibilities it entails, and I commit to carrying out my duties to the best of my ability in support of disaster relief efforts.<br>"+
+                "</p>" +
+                "<div>" +
+                "<br><b style='font-size: 14px;'>Volunteer: %s </b><br>".formatted(username) +
+                "<b style='font-size: 14px;'>Date: %s</b>".formatted(LocalDateTime.now().toLocalDate().toString()) +
+                "</div>" +
+                "</body>" +
+                "</html>";
+        JEditorPane editorPane = new JEditorPane("text/html", pledgeText);
+        editorPane.setPreferredSize(new Dimension(700, 600));
+        editorPane.setEditable(false);
+        centerForm.add(editorPane, "gaptop 20, span 2, grow, gapbottom 30");
         JSeparator separator1 = new JSeparator(JSeparator.HORIZONTAL);
         centerForm.add(separator1, "gaptop 40, span 2, grow, gapbottom 30");
 
@@ -402,14 +126,5 @@ public class VolunteerRegistration {
 
         OuterBgPanel.add(scrollablePanel, BorderLayout.CENTER);
         return OuterBgPanel;
-    }
-    public static void main(String[] args) {
-        JFrame f = new JFrame();
-        FlatDarkLaf.setup();
-        f.setSize(new Dimension(900,900));
-        f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        f.add(new VolunteerRegistration().createVolunteerRegistrationSubPage());
-        f.setLocationRelativeTo(null);
-        f.setVisible(true);
     }
 }
