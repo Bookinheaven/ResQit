@@ -93,6 +93,7 @@ public class Database {
                 "languages_spoken TEXT, " +
                 "prior_experiences TEXT, " +
                 "preferred_volunteering_work VARCHAR(100), " +
+                "willingness VARCHAR(3) CHECK (willingness IN ('Yes','NO')),"+
                 "physical_limitations TEXT, " +
                 "blood_group VARCHAR(10), " +
                 "allergies TEXT, " +

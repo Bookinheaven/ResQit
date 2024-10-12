@@ -39,7 +39,30 @@ public class SignUpPanel {
     private JLabel warningLabel;
 
     private JButton signUpButton;
-
+    public static final String[] roles = {
+                "Role",
+                "Firefighter",
+                "Police Officer",
+                "Paramedics and EMTs",
+                "Logistics Coordinators",
+                "Communications Specialists",
+                "Medical Personnel",
+                "Volunteers",
+                "Search and Rescue Volunteers",
+                "Crisis Counselors",
+                "Disaster Manager",
+                "Emergency Planner",
+                "HAZMAT Teams",
+                "Environmental Scientists",
+                "Engineers and Construction Workers",
+                "Economic Recovery Specialists",
+                "Mental Health Professionals",
+                "Community Leaders",
+                "Red Cross/Red Crescent Workers",
+                "NGOs",
+                "Social Workers",
+                "Others"
+    };
     public SignUpPanel(JFrame frame, JLayeredPane MainPane) {
         this.frame = frame;
         this.MainPane = MainPane;
@@ -265,32 +288,6 @@ public class SignUpPanel {
         genderComboBox = new JComboBox<>(new String[]{"Male", "Female"});
         genderComboBox.setFont(new Font("Fira Code Retina", Font.PLAIN, 16));
         genderComboBox.setPreferredSize(new Dimension(300, 45));
-
-// Role Field
-        String[] roles = {
-                "Role",
-                "Firefighter",
-                "Police Officer",
-                "Paramedics and EMTs",
-                "Logistics Coordinators",
-                "Communications Specialists",
-                "Medical Personnel",
-                "Volunteers",
-                "Search and Rescue Volunteers",
-                "Crisis Counselors",
-                "Disaster Manager",
-                "Emergency Planner",
-                "HAZMAT Teams",
-                "Environmental Scientists",
-                "Engineers and Construction Workers",
-                "Economic Recovery Specialists",
-                "Mental Health Professionals",
-                "Community Leaders",
-                "Red Cross/Red Crescent Workers",
-                "NGOs",
-                "Social Workers",
-                "Others"
-        };
 
         String[] tooltips = {
                 "Select the role",

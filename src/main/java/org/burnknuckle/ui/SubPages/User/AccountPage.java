@@ -25,16 +25,19 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
+import static org.burnknuckle.ui.SignUpPanel.roles;
 import static org.burnknuckle.utils.ThemeManager.getColorFromHex;
 
 public class AccountPage {
 //    private final String username = getUsername();
-    private final String username = "admin";
+    private final String username = "tanvik123";
     private Map<String, Object> userdata;
 
-    private final int BioLIMIT = 400;
+    private final int BioLIMIT = 300;
+    private final int avaLIMIT = 100;
+    private final int phyLIMIT = 100;
+
     private JButton saveButtonPersonalInfo;
-    private JButton saveButtonAvInfo;
     private JTextField firstNameField;
     private JTextField lastNameField;
     private PasswordFieldWithToggle passwordField;
@@ -51,6 +54,21 @@ public class AccountPage {
     private JTextField cityField;
     private JTextField emergencyContactField;
     private JButton saveButtonContactInfo;
+    private JTextArea availabilityField;
+
+    private JTextArea physicalField;
+    private JTextArea allergicField;
+    private JComboBox<String> preferredLocationsField;
+    private JComboBox<String> preferredWorkField;
+    private JComboBox<String> bloodGroupField;
+    private JButton saveButtonHealthInfo;
+
+    private JButton saveButtonSkillInfo;
+    private JRadioButton rbtnYes, rbtnNo;
+    private JTextArea priorField;
+    private JTextArea skillsField;
+    private JTextArea langField;
+    private JComboBox<String> backgroundField;
 
     private void checkValueChangeTextField(String value, JTextField textField){
         value = value == null || value.isBlank() ? "Not" : value;
@@ -133,11 +151,12 @@ public class AccountPage {
         JTabbedPane tabs = new JTabbedPane();
         tabs.addTab("Personal Info", personalInfoPanel());
         tabs.addTab("Contact Info", contactInfoPanel());
-        tabs.addTab("Availability Info", availabilityInfoPanel());
-        tabs.addTab("Skills and Experience", skillsExperienceInfoPanel);
-        tabs.addTab("Health and Medical Info", healthMedicalInfoPanel);
-        tabs.addTab("Team Info", TeamInfoPanel);
-
+        tabs.addTab("Health and Medical Info", healthMedicalInfoPanel());
+        tabs.addTab("Skills and Experience", skillsExperienceInfoPanel());
+        String status = userdata.get("privilege").toString();
+        switch (status) {
+            case "admin", "co-admin", "vol"-> tabs.addTab("Team Info", TeamInfoPanel);
+        }
         accountPanel.add(tabs, BorderLayout.CENTER);
 //        statusLabel = new JLabel();
 //        statusLabel.setForeground(Color.RED); // Set color for feedback messages
@@ -187,12 +206,32 @@ public class AccountPage {
         }
     }
 
-    private void saveChangesAvInfo(){
-        saveButtonAvInfo.setVisible(false);
-    }
+    private void saveChangesHealthInfo(){
+        String preferred_volunteering_location = Objects.requireNonNull(preferredLocationsField.getSelectedItem()).toString();
+        String preferred_volunteering_work = Objects.requireNonNull(preferredWorkField.getSelectedItem()).toString();
+        String physical_limitations = physicalField.getText();
+        String blood_group = Objects.requireNonNull(bloodGroupField.getSelectedItem()).toString();
+        String allergies = allergicField.getText();
+        Map<String, Object> data = new HashMap<>();
 
-    private boolean checkEmptyFields(String field){
-        return field.equals("Not Filled");
+        if (!allergies.isBlank()){
+            data.put("allergies", allergies);
+        }
+        if (!physical_limitations.isBlank()){
+            data.put("physical_limitations", physical_limitations);
+        }
+        data.put("preferred_volunteering_work", preferred_volunteering_work);
+        data.put("preferred_volunteering_location", preferred_volunteering_location);
+        data.put("blood_group", blood_group);
+        try {
+            Database db = Database.getInstance();
+            db.getConnection();
+            db.updateData12(0,username, data);
+            System.out.println("Updated Health Info");
+            saveButtonHealthInfo.setVisible(false);
+        } catch (Exception e){
+            e.printStackTrace();
+        }
     }
 
     private void saveChangesContactInfo(){
@@ -202,6 +241,7 @@ public class AccountPage {
         String city = cityField.getText();
         String road = roadField.getText();
         String emergencyContact = emergencyContactField.getText();
+        String availability = availabilityField.getText();
         Map<String, Object> data = new HashMap<>();
         if (!checkEmptyFields(country)){
             data.put("country", country);
@@ -221,6 +261,9 @@ public class AccountPage {
         if (!checkEmptyFields(emergencyContact)){
             data.put("emergency_contact", emergencyContact);
         }
+        if (!checkEmptyFields(availability)){
+            data.put("availability", availability);
+        }
         try {
             Database db = Database.getInstance();
             db.getConnection();
@@ -232,6 +275,130 @@ public class AccountPage {
         }
     }
 
+    private void saveChangesSkillsInfo(){
+
+        String willingness = rbtnYes.isSelected() ? "Yes" : rbtnNo.isSelected() ? "No" : "Not specified";
+        String languages_spoken = langField.getText();
+        String prior_experiences = priorField.getText();
+        String skills = skillsField.getText();
+        String professional_background = Objects.requireNonNull(backgroundField.getSelectedItem()).toString();
+        Map<String, Object> data = new HashMap<>();
+        data.put("willingness", willingness);
+
+        if (!languages_spoken.isBlank()){
+            data.put("languages_spoken", languages_spoken);
+        }
+        if (!prior_experiences.isBlank()){
+            data.put("prior_experiences", prior_experiences);
+        }
+        if (!languages_spoken.isBlank()){
+            data.put("languages_spoken", languages_spoken);
+        }
+        if (!skills.isBlank()){
+            data.put("skills", skills);
+        }
+        data.put("professional_background", professional_background);
+        try {
+            Database db = Database.getInstance();
+            db.getConnection();
+            db.updateData12(0,username, data);
+            System.out.println("Updated Health Info");
+            saveButtonHealthInfo.setVisible(false);
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    private boolean checkEmptyFields(String field){
+        return field.equals("Not Filled");
+    }
+
+    private JLabel LabelCreator(String title){
+        JLabel label = new JLabel(title);
+        label.setFont(new Font("Arial", Font.PLAIN, 14));
+        return label;
+    }
+
+    private JTextField LabelTextFieldCreator(JPanel panel, String title, String get, JButton button, boolean setEnable){
+        JLabel label = new JLabel(title);
+        label.setFont(new Font("Arial", Font.PLAIN, 14));
+        JTextField field = new JTextField();
+        checkValueChangeTextField((String) userdata.get(get), field);
+        field.setPreferredSize(new Dimension(400, 30));
+        field.setEnabled(setEnable);
+        field.setFont(new Font("Arial", Font.PLAIN, 14));
+        addListenersToFieldsEditMode(field, label, get, button);
+        panel.add(label, "gaptop 10px, span, grow, align center");
+        panel.add(field, "span,grow, align center");
+    return field;
+    }
+
+    private JScrollPane skillsExperienceInfoPanel(){
+        JScrollPane OuterScrollBar = new JScrollPane();
+        JPanel skillsExperienceInfoPanel = new JPanel(new MigLayout("wrap 2", "push[][]push", ""));
+        OuterScrollBar.setViewportView(skillsExperienceInfoPanel);
+        saveButtonSkillInfo = new JButton("Save");
+        saveButtonSkillInfo.setVisible(false);
+        saveButtonSkillInfo.addActionListener(_ -> saveChangesSkillsInfo());
+
+        JLabel lblWillingness = new JLabel("Willingness to Travel:");
+        lblWillingness.setFont(new Font("Inter", Font.PLAIN, 16));
+
+        rbtnYes = new JRadioButton("Yes");
+        rbtnNo = new JRadioButton("No");
+        ButtonGroup travelGroup = new ButtonGroup();
+        travelGroup.add(rbtnYes);
+        travelGroup.add(rbtnNo);
+        JPanel travelPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        rbtnNo.setFont(new Font("Inter", Font.PLAIN, 16));
+        rbtnYes.setFont(new Font("Inter", Font.PLAIN, 16));
+
+        travelPanel.add(rbtnYes);
+        travelPanel.add(rbtnNo);
+        skillsExperienceInfoPanel.add(lblWillingness, "gaptop 10px, span, grow, align center");
+        skillsExperienceInfoPanel.add(travelPanel, "gaptop 10px, span, grow, align center");
+
+        JLabel priorExLabel = LabelCreator("Prior Experiences (Max: %s)".formatted(BioLIMIT));
+        priorExLabel.setFont(new Font("Arial", Font.PLAIN, 14));
+        skillsExperienceInfoPanel.add(priorExLabel, "gaptop 10px, span, grow, align center");
+        priorField = TextAreaCreator(skillsExperienceInfoPanel, priorExLabel, "are you a volunteer?", "prior_experiences", saveButtonSkillInfo, BioLIMIT);
+
+        JLabel skillsLabel = LabelCreator("Skills (Max: %s)".formatted(BioLIMIT));
+        skillsLabel.setFont(new Font("Arial", Font.PLAIN, 14));
+        skillsExperienceInfoPanel.add(skillsLabel, "gaptop 10px, span, grow, align center");
+        skillsField = TextAreaCreator(skillsExperienceInfoPanel, skillsLabel, "Write your skills here", "skills", saveButtonSkillInfo, BioLIMIT);
+
+        JLabel langLabel = LabelCreator("Languages Spoken (Max: %s)".formatted(BioLIMIT));
+        langLabel.setFont(new Font("Arial", Font.PLAIN, 14));
+        skillsExperienceInfoPanel.add(langLabel, "gaptop 10px, span, grow, align center");
+        langField = TextAreaCreator(skillsExperienceInfoPanel, langLabel, "Languages you can speak? ", "prior_experiences", saveButtonSkillInfo, BioLIMIT);
+
+        JLabel lblProfessionalBackground = new JLabel("Professional Background:");
+        lblProfessionalBackground.setFont(new Font("Inter", Font.PLAIN, 16));
+
+        backgroundField = new JComboBox<>(new String[]{"Medical", "Engineering", "IT", "Construction", "Other"});
+        backgroundField.setFont(new Font("Inter", Font.PLAIN, 16));
+        String background = (String) userdata.get("professional_background");
+        if (background != null) {
+            backgroundField.setSelectedItem(background);
+        }
+        backgroundField.addActionListener(_ -> {
+            if (background != null && !background.equals(Objects.requireNonNull(backgroundField.getSelectedItem()).toString())) {
+                saveButtonSkillInfo.setVisible(true);
+                if (!lblProfessionalBackground.getText().contains("*")) {
+                    lblProfessionalBackground.setText(lblProfessionalBackground.getText().concat("*"));
+                }
+            } else {
+                lblProfessionalBackground.setText(lblProfessionalBackground.getText().replace("*", ""));
+            }
+        });
+        skillsExperienceInfoPanel.add(lblProfessionalBackground,"gaptop 10px, span, grow, align center");
+        skillsExperienceInfoPanel.add(backgroundField, "gaptop 10px, span, grow, align center");
+
+        skillsExperienceInfoPanel.add(saveButtonSkillInfo, "span, grow, align center, gaptop 20px, gapbottom 20px");
+        return OuterScrollBar;
+    }
+
     private JScrollPane contactInfoPanel(){
         JScrollPane OuterScrollBar = new JScrollPane();
         JPanel contactInfoPanel = new JPanel(new MigLayout("wrap 2", "push[][]push", ""));
@@ -240,100 +407,230 @@ public class AccountPage {
         saveButtonContactInfo.setVisible(false);
         saveButtonContactInfo.addActionListener(_ -> saveChangesContactInfo());
 
-        JLabel countryLabel = new JLabel("Country");
-        countryLabel.setFont(new Font("Arial", Font.PLAIN, 14));
-
-        countryField = new JTextField();
-        checkValueChangeTextField((String) userdata.get("country"), countryField);
-        countryField.setPreferredSize(new Dimension(400, 30));
-        countryField.setFont(new Font("Arial", Font.PLAIN, 14));
-        addListenersToFieldsEditMode(countryField, countryLabel, "country", saveButtonContactInfo);
-        contactInfoPanel.add(countryLabel, "gaptop 30px, span, grow, align center");
-        contactInfoPanel.add(countryField, "span,grow, align center");
-
-        JLabel stateLabel = new JLabel("State");
-        stateLabel.setFont(new Font("Arial", Font.PLAIN, 14));
-
-        stateField = new JTextField();
-        checkValueChangeTextField((String) userdata.get("state"), stateField);
-        stateField.setPreferredSize(new Dimension(400, 30));
-        stateField.setFont(new Font("Arial", Font.PLAIN, 14));
-        addListenersToFieldsEditMode(stateField, stateLabel, "state", saveButtonContactInfo);
-        contactInfoPanel.add(stateLabel, "gaptop 10px, span, grow, align center");
-        contactInfoPanel.add(stateField, "span,grow, align center");
-
-        JLabel zipCodeLabel = new JLabel("Zip Code");
-        zipCodeLabel.setFont(new Font("Arial", Font.PLAIN, 14));
-
-        zipCodeField = new JTextField();
-        checkValueChangeTextField((String) userdata.get("zip_code"), zipCodeField);
-        zipCodeField.setPreferredSize(new Dimension(400, 30));
-        zipCodeField.setFont(new Font("Arial", Font.PLAIN, 14));
-        addListenersToFieldsEditMode(zipCodeField, zipCodeLabel, "zip_code", saveButtonContactInfo);
-        contactInfoPanel.add(zipCodeLabel, "gaptop 10px, span, grow, align center");
-        contactInfoPanel.add(zipCodeField, "span,grow, align center");
-
-
-        JLabel cityLabel = new JLabel("City");
-        cityLabel.setFont(new Font("Arial", Font.PLAIN, 14));
-
-        cityField = new JTextField();
-        checkValueChangeTextField((String) userdata.get("city"), cityField);
-        cityField.setPreferredSize(new Dimension(400, 30));
-        cityField.setFont(new Font("Arial", Font.PLAIN, 14));
-        addListenersToFieldsEditMode(cityField, cityLabel, "city", saveButtonContactInfo);
-        contactInfoPanel.add(cityLabel, "gaptop 10px, span, grow, align center");
-        contactInfoPanel.add(cityField, "span,grow, align center");
-
-        JLabel roadLabel = new JLabel("Road");
-        roadLabel.setFont(new Font("Arial", Font.PLAIN, 14));
-
-        roadField = new JTextField();
-        checkValueChangeTextField((String) userdata.get("road"), roadField);
-        roadField.setPreferredSize(new Dimension(400, 30));
-        roadField.setFont(new Font("Arial", Font.PLAIN, 14));
-        addListenersToFieldsEditMode(roadField, roadLabel, "road", saveButtonContactInfo);
-        contactInfoPanel.add(roadLabel, "gaptop 10px, span, grow, align center");
-        contactInfoPanel.add(roadField, "span,grow, align center");
-
-        JLabel emgLabel = new JLabel("Emergency Contact");
-        emgLabel.setFont(new Font("Arial", Font.PLAIN, 14));
-
-        emergencyContactField = new JTextField();
-        checkValueChangeTextField((String) userdata.get("emergency_contact"), emergencyContactField);
-        emergencyContactField.setPreferredSize(new Dimension(400, 30));
-        emergencyContactField.setFont(new Font("Arial", Font.PLAIN, 14));
-        addListenersToFieldsEditMode(emergencyContactField, emgLabel, "emergency_contact", saveButtonContactInfo);
-        contactInfoPanel.add(emgLabel, "gaptop 10px, span, grow, align center");
-        contactInfoPanel.add(emergencyContactField, "span,grow, align center");
-
-
+        countryField = LabelTextFieldCreator(contactInfoPanel,"Country", "country", saveButtonContactInfo, true);
+        stateField = LabelTextFieldCreator(contactInfoPanel,"State", "state", saveButtonContactInfo, true);
+        zipCodeField = LabelTextFieldCreator(contactInfoPanel,"Zip Code", "zip_code", saveButtonContactInfo, true);
+        cityField = LabelTextFieldCreator(contactInfoPanel,"City", "city", saveButtonContactInfo, true);
+        roadField = LabelTextFieldCreator(contactInfoPanel,"Road", "road", saveButtonContactInfo, true);
+        emergencyContactField = LabelTextFieldCreator(contactInfoPanel,"Emergency Contact", "emergency_contact", saveButtonContactInfo, true);
+        JLabel avLabel = LabelCreator("Availability (Max: %s)".formatted(avaLIMIT));
+        avLabel.setFont(new Font("Arial", Font.PLAIN, 14));
+        contactInfoPanel.add(avLabel, "gaptop 10px, span, grow, align center");
+        availabilityField = TextAreaCreator(contactInfoPanel, avLabel, "When are you free? preferred time?", "availability", saveButtonContactInfo, avaLIMIT);
         contactInfoPanel.add(saveButtonContactInfo, "span, grow, align center, gaptop 20px, gapbottom 20px");
         return OuterScrollBar;
     }
 
-    private JScrollPane availabilityInfoPanel(){
+    private JScrollPane healthMedicalInfoPanel(){
         JScrollPane OuterScrollBar = new JScrollPane();
-        JPanel availabilityInfoPanel = new JPanel(new MigLayout("wrap 2", "push[][]push", ""));
-        OuterScrollBar.setViewportView(availabilityInfoPanel);
-        saveButtonAvInfo = new JButton("Save");
-        saveButtonAvInfo.setVisible(false);
-        saveButtonAvInfo.addActionListener(_ -> saveChangesAvInfo());
+        JPanel healthInfoPanel = new JPanel(new MigLayout("wrap 2", "push[][]push", ""));
+        OuterScrollBar.setViewportView(healthInfoPanel);
+        saveButtonHealthInfo = new JButton("Save");
+        saveButtonHealthInfo.setVisible(false);
+        saveButtonHealthInfo.addActionListener(_ -> saveChangesHealthInfo());
 
-        availabilityInfoPanel.add(saveButtonAvInfo, "span, grow, align center, gaptop 20px, gapbottom 20px");
+        JLabel phyLabel = LabelCreator("Physical Limitations (Max: %s)".formatted(avaLIMIT));
+        phyLabel.setFont(new Font("Arial", Font.PLAIN, 14));
+        healthInfoPanel.add(phyLabel, "gaptop 10px, span, grow, align center");
+        physicalField = TextAreaCreator(healthInfoPanel, phyLabel, "Have Any physical problems?", "physical_limitations", saveButtonHealthInfo, phyLIMIT);
+
+        JLabel allLabel = LabelCreator("Allergies or Medical Conditions (Max: %s)".formatted(avaLIMIT));
+        allLabel.setFont(new Font("Arial", Font.PLAIN, 14));
+        healthInfoPanel.add(allLabel, "gaptop 10px, span, grow, align center");
+        allergicField = TextAreaCreator(healthInfoPanel, allLabel, "Have Any allergic  problems?", "allergies", saveButtonHealthInfo, phyLIMIT);
+
+        JLabel lblBloodGroup = new JLabel("Blood Group");
+        lblBloodGroup.setFont(new Font("Inter", Font.PLAIN, 16));
+
+        bloodGroupField = new JComboBox<>(new String[]{"A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"});
+        bloodGroupField.setFont(new Font("Inter", Font.PLAIN, 16));
+        String bloodGroup = (String) userdata.get("preferred_volunteering_location");
+        if (bloodGroup != null) {
+            bloodGroupField.setSelectedItem(bloodGroup);
+        }
+        bloodGroupField.addActionListener(_ -> {
+            if (bloodGroup != null && !bloodGroup.equals(Objects.requireNonNull(bloodGroupField.getSelectedItem()).toString())) {
+                saveButtonHealthInfo.setVisible(true);
+                if (!lblBloodGroup.getText().contains("*")) {
+                    lblBloodGroup.setText(lblBloodGroup.getText().concat("*"));
+                }
+            } else {
+                lblBloodGroup.setText(lblBloodGroup.getText().replace("*", ""));
+            }
+        });
+        healthInfoPanel.add(lblBloodGroup, "gaptop 10px, span, grow, align center");
+        healthInfoPanel.add(bloodGroupField, "gaptop 10px, span, grow, align center");
+
+        JLabel lblPreferredLocation = new JLabel("Preferred Volunteering Location:");
+        lblPreferredLocation.setFont(new Font("Inter", Font.PLAIN, 16));
+
+        preferredLocationsField = new JComboBox<>(new String[]{"Local", "State", "National"});
+        preferredLocationsField.setFont(new Font("Inter", Font.PLAIN, 16));
+        String preferredLocation = (String) userdata.get("preferred_volunteering_location");
+        if (preferredLocation != null) {
+            preferredLocationsField.setSelectedItem(preferredLocation);
+        }
+        preferredLocationsField.addActionListener(_ -> {
+            if (preferredLocation != null && !preferredLocation.equals(Objects.requireNonNull(preferredLocationsField.getSelectedItem()).toString())) {
+                saveButtonHealthInfo.setVisible(true);
+                if (!lblPreferredLocation.getText().contains("*")) {
+                    lblPreferredLocation.setText(lblPreferredLocation.getText().concat("*"));
+                }
+            } else {
+                lblPreferredLocation.setText(lblPreferredLocation.getText().replace("*", ""));
+            }
+        });
+        healthInfoPanel.add(lblPreferredLocation, "gaptop 10px, span, grow, align center");
+        healthInfoPanel.add(preferredLocationsField, "gaptop 10px, span, grow, align center");
+
+        JLabel lblVolunteeringWork = new JLabel("Preferred Volunteering Work");
+        lblVolunteeringWork.setFont(new Font("Inter", Font.PLAIN, 16));
+        preferredWorkField = new JComboBox<>(new String[]{
+                "Rescue Operations",
+                "Medical Assistance",
+                "Food Distribution",
+                "Shelter Support",
+                "Environmental Conservation",
+                "Education and Tutoring",
+                "Community Outreach",
+                "Disaster Relief and Crisis Management",
+                "Elderly Care Support",
+                "Child Welfare and Development",
+                "Sports and Recreation",
+                "Animal Welfare",
+                "Technology Support",
+                "Fundraising and Event Management",
+                "Health and Hygiene Education",
+                "Cultural Preservation"
+        });
+        preferredWorkField.setFont(new Font("Inter", Font.PLAIN, 16));
+        String preferredWork = (String) userdata.get("preferred_volunteering_work");
+        if (preferredWork != null) {
+            preferredWorkField.setSelectedItem(preferredWork);
+        }
+        preferredWorkField.addActionListener(_ -> {
+            if (preferredWork != null && !preferredWork.equals(Objects.requireNonNull(preferredWorkField.getSelectedItem()).toString())) {
+                saveButtonHealthInfo.setVisible(true);
+                if (!lblVolunteeringWork.getText().contains("*")) {
+                    lblVolunteeringWork.setText(lblVolunteeringWork.getText().concat("*"));
+                }
+            } else {
+                lblVolunteeringWork.setText(lblVolunteeringWork.getText().replace("*", ""));
+            }
+        });
+        healthInfoPanel.add(lblVolunteeringWork, "gaptop 10px, span, grow, align center");
+        healthInfoPanel.add(preferredWorkField, "gaptop 10px, span, grow, align center");
+
+        healthInfoPanel.add(saveButtonHealthInfo, "span, grow, align center, gaptop 20px, gapbottom 20px");
         return OuterScrollBar;
     }
 
+    private JTextArea TextAreaCreator(JPanel panel, JLabel label, String placeholder, String get, JButton button, int limit){
+        JTextArea fieldArea = new JTextArea();
+        String originalText = (String) userdata.get(get);
+        Border defaultBorder = fieldArea.getBorder();
+        Border paddingBorder = new EmptyBorder(5, 5, 5, 5);
+        Border lineBorder = new LineBorder(getColorFromHex("#725555"), 2);
+
+        if(originalText == null || originalText.isBlank()){
+            fieldArea.setText(placeholder);
+            fieldArea.setBorder(new CompoundBorder(lineBorder, paddingBorder));
+        } else {
+            fieldArea.setText(originalText);
+            fieldArea.setBorder(defaultBorder);
+        }
+        fieldArea.setText((originalText == null || originalText.isBlank()) ? placeholder : originalText);
+        fieldArea.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusGained(FocusEvent e) {
+                if (fieldArea.getText().equals(placeholder)) {
+                    fieldArea.setText("");
+                }
+            }
+            @Override
+            public void focusLost(FocusEvent e) {
+                if (fieldArea.getText().isBlank()) {
+                    fieldArea.setText(placeholder);
+                }
+            }
+        });
+        fieldArea.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                super.keyPressed(e);
+                if (fieldArea.getDocument().getLength() >= limit) {
+                    if (e.getKeyCode() == KeyEvent.VK_BACK_SPACE || e.isControlDown() && e.getKeyCode() == KeyEvent.VK_A) {
+                        return;
+                    }
+                    e.consume();
+                }
+            }
+            @Override
+            public void keyTyped(KeyEvent e) {
+                super.keyTyped(e);
+                if (fieldArea.getDocument().getLength() >= limit) {
+                    if (e.getKeyCode() == KeyEvent.VK_BACK_SPACE || e.isControlDown() && e.getKeyCode() == KeyEvent.VK_A) {
+                        return;
+                    }
+                    e.consume();
+                }
+                if(fieldArea.getText().isBlank()){
+                    fieldArea.setBorder(new CompoundBorder(lineBorder, paddingBorder));
+                } else {
+                    fieldArea.setBorder(defaultBorder);
+                }
+            }
+        });
+        fieldArea.getDocument().addDocumentListener(new DocumentListener() {
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                changes();
+            }
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                changes();
+            }
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+                changes();
+            }
+            private void changes(){
+                if (originalText != null && !originalText.equals(fieldArea.getText())){
+                    button.setVisible(true);
+                    fieldArea.setForeground(Color.WHITE);
+                    if (!label.getText().contains("*")) {
+                        label.setText(label.getText().concat("*"));
+                    }
+                } else {
+                    if (!fieldArea.getText().equals(placeholder) && !fieldArea.getText().isBlank()) {
+                        button.setVisible(true);
+                        fieldArea.setForeground(Color.WHITE);
+                        if (!label.getText().contains("*")) {
+                            label.setText(label.getText().concat("*"));
+                        }
+                    } else {
+                        fieldArea.setForeground(Color.GRAY);
+                        label.setText(label.getText().replace("*", ""));
+                    }
+                }
+            }
+        });
+        fieldArea.setPreferredSize(new Dimension(400, 100));
+        fieldArea.setLineWrap(true);
+        fieldArea.setWrapStyleWord(true);
+        fieldArea.setFont(new Font("Arial", Font.PLAIN, 14));
+        panel.add(fieldArea, "span, align center");
+        return fieldArea;
+
+    }
+    
     private JScrollPane personalInfoPanel(){
         JScrollPane OuterScrollBar = new JScrollPane();
         JPanel personalInfoPanel = new JPanel(new MigLayout("wrap 2", "push[][]push", ""));
-        OuterScrollBar.setViewportView(personalInfoPanel);
         saveButtonPersonalInfo = new JButton("Save");
         saveButtonPersonalInfo.addActionListener(_ -> saveChangesPersonalInfo());
 
-        JLabel accountPrivilegeLabel = new JLabel("Account Privilege");
-        accountPrivilegeLabel.setFont(new Font("Arial", Font.PLAIN, 14));
-
+        JLabel accountPrivilegeLabel = LabelCreator("Account Privilege");
         JTextField accountPrivilegeField = new JTextField();
         String privilege = switch ((String)userdata.get("privilege")) {
             case null -> "User";
@@ -351,38 +648,10 @@ public class AccountPage {
         personalInfoPanel.add(accountPrivilegeLabel, "gaptop 40px, span, grow, align center");
         personalInfoPanel.add(accountPrivilegeField, "span,grow, align center");
 
-        JLabel firstNameLabel = new JLabel("First Name");
-        firstNameLabel.setFont(new Font("Arial", Font.PLAIN, 14));
+        firstNameField = LabelTextFieldCreator(personalInfoPanel, "First Name", "first_name",saveButtonPersonalInfo, true);
+        lastNameField = LabelTextFieldCreator(personalInfoPanel, "Last Name", "last_name",saveButtonPersonalInfo, true);
 
-        firstNameField = new JTextField();
-        checkValueChangeTextField((String) userdata.get("first_name"), firstNameField);
-        firstNameField.setPreferredSize(new Dimension(400, 30));
-        firstNameField.setFont(new Font("Arial", Font.PLAIN, 14));
-        addListenersToFieldsEditMode(firstNameField, firstNameLabel, "first_name", saveButtonPersonalInfo);
-        personalInfoPanel.add(firstNameLabel, "gaptop 10px, span, grow, align center");
-        personalInfoPanel.add(firstNameField, "span,grow, align center");
-
-        JLabel lastNameLabel = new JLabel("Last Name");
-        lastNameLabel.setFont(new Font("Arial", Font.PLAIN, 14));
-
-        lastNameField = new JTextField();
-        checkValueChangeTextField((String) userdata.get("last_name"), lastNameField);
-        lastNameField.setPreferredSize(new Dimension(400, 30));
-        lastNameField.setFont(new Font("Arial", Font.PLAIN, 14));
-        addListenersToFieldsEditMode(lastNameField, lastNameLabel, "last_name", saveButtonPersonalInfo);
-        personalInfoPanel.add(lastNameLabel, "gaptop 10px, span, grow, align center");
-        personalInfoPanel.add(lastNameField, "span,grow, align center");
-
-        JLabel usernameLabel = new JLabel("Username");
-        usernameLabel.setFont(new Font("Arial", Font.PLAIN, 14));
-
-        JTextField usernameField = new JTextField();
-        checkValueChangeTextField((String) userdata.get("username"), usernameField);
-        usernameField.setEnabled(false);
-        usernameField.setPreferredSize(new Dimension(400, 30));
-        usernameField.setFont(new Font("Arial", Font.PLAIN, 14));
-        personalInfoPanel.add(usernameLabel, "gaptop 10px, span, grow, align center");
-        personalInfoPanel.add(usernameField, "span,grow, align center");
+        LabelTextFieldCreator(personalInfoPanel, "Username", "username",saveButtonPersonalInfo, false);
 
         JLabel passwordLabel = new JLabel("Password");
         passwordLabel.setFont(new Font("Arial", Font.PLAIN, 14));
@@ -429,7 +698,7 @@ public class AccountPage {
         genderField.setPreferredSize(new Dimension(400, 30));
         genderField.setFont(new Font("Arial", Font.PLAIN, 14));
         genderField.addActionListener(_ -> {
-            if (!userdata.get("gender").toString().equals(genderField.getSelectedItem().toString())) {
+            if (gender != null && !gender.equals(genderField.getSelectedItem().toString())) {
                 saveButtonPersonalInfo.setVisible(true);
                 if (!genderLabel.getText().contains("*")) {
                     genderLabel.setText(genderLabel.getText().concat("*"));
@@ -440,29 +709,7 @@ public class AccountPage {
         });
         personalInfoPanel.add(genderLabel, "gaptop 10px, span, grow, align center");
         personalInfoPanel.add(genderField, "span,grow, align center");
-        String[] roles = {
-                "Firefighter",
-                "Police Officer",
-                "Paramedics and EMTs",
-                "Logistics Coordinators",
-                "Communications Specialists",
-                "Medical Personnel",
-                "Volunteers",
-                "Search and Rescue Volunteers",
-                "Crisis Counselors",
-                "Disaster Manager",
-                "Emergency Planner",
-                "HAZMAT Teams",
-                "Environmental Scientists",
-                "Engineers and Construction Workers",
-                "Economic Recovery Specialists",
-                "Mental Health Professionals",
-                "Community Leaders",
-                "Red Cross/Red Crescent Workers",
-                "NGOs",
-                "Social Workers",
-                "Others"
-        };
+
         JLabel roleLabel = new JLabel("Role");
         roleLabel.setFont(new Font("Arial", Font.PLAIN, 14));
         roleField = new JComboBox<>();
@@ -476,7 +723,7 @@ public class AccountPage {
         roleField.setPreferredSize(new Dimension(400, 30));
         roleField.setFont(new Font("Arial", Font.PLAIN, 14));
         roleField.addActionListener(_ -> {
-            if (!userdata.get("role").toString().equals(Objects.requireNonNull(roleField.getSelectedItem()).toString())) {
+            if (role != null && !role.equals(Objects.requireNonNull(roleField.getSelectedItem()).toString())) {
                 saveButtonPersonalInfo.setVisible(true);
                 if (!roleLabel.getText().contains("*")) {
                     roleLabel.setText(roleLabel.getText().concat("*"));
@@ -487,117 +734,14 @@ public class AccountPage {
         });
         personalInfoPanel.add(roleLabel, "gaptop 10px, span, grow, align center");
         personalInfoPanel.add(roleField, "span,grow, align center");
+        emailField = LabelTextFieldCreator(personalInfoPanel, "Email", "email",saveButtonPersonalInfo, true);
 
-        JLabel emailLabel = new JLabel("Email");
-        emailLabel.setFont(new Font("Arial", Font.PLAIN, 14));
-
-        emailField = new JTextField();
-        checkValueChangeTextField((String) userdata.get("email"), emailField);
-        emailField.setPreferredSize(new Dimension(400, 30));
-        addListenersToFieldsEditMode(emailField, emailLabel, "email", saveButtonPersonalInfo);
-        emailField.setFont(new Font("Arial", Font.PLAIN, 14));
-        personalInfoPanel.add(emailLabel, "gaptop 10px, span, grow, align center");
-        personalInfoPanel.add(emailField, "span,grow, align center");
-
-        JLabel bioLabel = new JLabel("Bio (Max %s)".formatted(BioLIMIT));
+        JLabel bioLabel = LabelCreator("Bio (Max: %s)".formatted(BioLIMIT));
         bioLabel.setFont(new Font("Arial", Font.PLAIN, 14));
-
-        bioField = new JTextArea();
-        String placeholder = "Write something about you";
-        String bioText = (String) userdata.get("bio");
-        Border defaultBorder = bioField.getBorder();
-        Border paddingBorder = new EmptyBorder(5, 5, 5, 5);
-        Border lineBorder = new LineBorder(getColorFromHex("#725555"), 2);
-
-        if(bioText == null || bioText.isBlank()){
-            bioField.setText(placeholder);
-            bioField.setBorder(new CompoundBorder(lineBorder, paddingBorder));
-        } else {
-            bioField.setText(bioText);
-            bioField.setBorder(defaultBorder);
-        }
-        bioField.setText((bioText == null || bioText.isBlank()) ? placeholder : bioText);
-        bioField.addFocusListener(new FocusAdapter() {
-            @Override
-            public void focusGained(FocusEvent e) {
-                if (bioField.getText().equals(placeholder)) {
-                    bioField.setText("");
-                }
-            }
-            @Override
-            public void focusLost(FocusEvent e) {
-                if (bioField.getText().isBlank()) {
-                    bioField.setText(placeholder);
-                }
-            }
-        });
-        bioField.addKeyListener(new KeyAdapter() {
-            @Override
-            public void keyPressed(KeyEvent e) {
-                super.keyPressed(e);
-                if (bioField.getDocument().getLength() >= BioLIMIT) {
-                    if (e.getKeyCode() == KeyEvent.VK_BACK_SPACE || e.isControlDown() && e.getKeyCode() == KeyEvent.VK_A) {
-                        return;
-                    }
-                    e.consume();
-                }
-            }
-            @Override
-            public void keyTyped(KeyEvent e) {
-                super.keyTyped(e);
-                if (bioField.getDocument().getLength() >= BioLIMIT) {
-                    if (e.getKeyCode() == KeyEvent.VK_BACK_SPACE || e.isControlDown() && e.getKeyCode() == KeyEvent.VK_A) {
-                        return;
-                    }
-                    e.consume();
-                }
-                if(bioField.getText().isBlank()){
-                    bioField.setBorder(new CompoundBorder(lineBorder, paddingBorder));
-                } else {
-                    bioField.setBorder(defaultBorder);
-                }
-            }
-        });
-        bioField.getDocument().addDocumentListener(new DocumentListener() {
-            @Override
-            public void insertUpdate(DocumentEvent e) {
-                changes();
-            }
-            @Override
-            public void removeUpdate(DocumentEvent e) {
-                changes();
-            }
-            @Override
-            public void changedUpdate(DocumentEvent e) {
-                changes();
-            }
-            private void changes(){
-                if (bioText != null && !bioText.equals(bioField.getText())){
-                    saveButtonPersonalInfo.setVisible(true);
-                    bioField.setForeground(Color.WHITE);
-                    if (!bioLabel.getText().contains("*")) {
-                        bioLabel.setText(bioLabel.getText().concat("*"));
-                    }
-                } else {
-                    if (!bioField.getText().equals(placeholder) && !bioField.getText().isBlank()) {
-                        saveButtonPersonalInfo.setVisible(true);
-                        bioField.setForeground(Color.WHITE);
-                        if (!bioLabel.getText().contains("*")) {
-                            bioLabel.setText(bioLabel.getText().concat("*"));
-                        }
-                    } else {
-                        bioField.setForeground(Color.GRAY);
-                        bioLabel.setText(bioLabel.getText().replace("*", ""));
-                    }
-                }
-            }
-        });
-        bioField.setPreferredSize(new Dimension(400, 100));
-        bioField.setLineWrap(true);
-        bioField.setWrapStyleWord(true);
-        bioField.setFont(new Font("Arial", Font.PLAIN, 14));
         personalInfoPanel.add(bioLabel, "gaptop 10px, span, grow, align center");
-        personalInfoPanel.add(bioField, "span, align center");
+        bioField = TextAreaCreator(personalInfoPanel, bioLabel, "Write something about you", "bio", saveButtonPersonalInfo, BioLIMIT);
+        personalInfoPanel.add(saveButtonPersonalInfo, "span, grow, align center, gaptop 20px, gapbottom 20px");
+
 
         JLabel dobLabel = new JLabel("Date Of Birth");
         dobLabel.setFont(new Font("Arial", Font.PLAIN, 14));
@@ -647,8 +791,11 @@ public class AccountPage {
 
         personalInfoPanel.add(accountCreatedLabel, "gaptop 10px, span, grow, align center");
         personalInfoPanel.add(accountCreatedField, "span,grow, align center");
-        SwingUtilities.invokeLater(()->saveButtonPersonalInfo.setVisible(false));
         personalInfoPanel.add(saveButtonPersonalInfo, "span, grow, align center, gaptop 20px, gapbottom 20px");
+        SwingUtilities.invokeLater(()-> {
+            saveButtonPersonalInfo.setVisible(false);
+            OuterScrollBar.setViewportView(personalInfoPanel);
+        });
         return OuterScrollBar;
     }
 
