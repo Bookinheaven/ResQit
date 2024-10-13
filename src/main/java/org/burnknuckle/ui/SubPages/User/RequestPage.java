@@ -14,15 +14,19 @@ public class RequestPage {
     private JLabel resRequestLabel;
     private JLabel disasterAddReqMainLabel;
     private JLabel volunteerRegistrationLabel;
+    private JPanel disasterPanel;
 
     private void updateThemeColors(String change){
         resRequestLabel.setBackground(getColorFromHex(ADPThemeData.get("default-menu-button")));
         disasterAddReqMainLabel.setBackground(getColorFromHex(ADPThemeData.get("default-menu-button")));
         volunteerRegistrationLabel.setBackground(getColorFromHex(ADPThemeData.get("default-menu-button")));
+        disasterPanel.setBackground(getColorFromHex(ADPThemeData.get("background")));
     }
-    public JPanel createRequestPage(CardLayout cardLayout, JPanel mainContent, JPanel dashSpace) {
-        JPanel disasterPanel = new JPanel();
+    public JPanel createRequestPage(CardLayout cardLayout, JPanel mainContent) {
+        disasterPanel = new JPanel();
         disasterPanel.setLayout(new GridBagLayout());
+        disasterPanel.setBackground(getColorFromHex(ADPThemeData.get("background")));
+
         GridBagConstraints bGbc = new GridBagConstraints();
         bGbc.gridx = 0;
         bGbc.gridy = 0;
@@ -119,8 +123,6 @@ public class RequestPage {
             }
         });
 
-        dashSpace.setLayout(new BorderLayout());
-        dashSpace.add(disasterPanel, BorderLayout.CENTER);
         addThemeChangeListener(this::updateThemeColors);
         return disasterPanel;
     }

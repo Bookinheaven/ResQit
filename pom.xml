@@ -111,6 +111,12 @@
             <artifactId>swing-datetime-picker</artifactId>
             <version>1.4.0</version>
         </dependency>
+        <dependency>
+            <groupId>org.jfree</groupId>
+            <artifactId>jfreechart</artifactId>
+            <version>1.5.5</version>
+        </dependency>
+
     </dependencies>
 
     <groupId>org.burnknuckle</groupId>

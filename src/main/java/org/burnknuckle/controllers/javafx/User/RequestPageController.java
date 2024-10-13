@@ -77,7 +77,7 @@ public class RequestPageController {
         try {
             Database db = Database.getInstance();
             db.getConnection();
-            if (db.checkForDuplicateEntries(formData)) {
+            if (db.checkForDuplicateDisaster(formData)) {
                 warningLabel.setVisible(true);
                 Timer timer = new Timer(3000, _ -> {
                     warningLabel.setVisible(false);

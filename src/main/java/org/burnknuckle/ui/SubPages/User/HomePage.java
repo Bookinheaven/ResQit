@@ -4,11 +4,9 @@ import javax.swing.*;
 import java.awt.*;
 
 public class HomePage {
-    public JPanel createHomePage(JPanel dashSpace) {
+    public JPanel createHomePage() {
         JPanel homePage = new JPanel();
-        dashSpace.setLayout(new BorderLayout());
-        dashSpace.setBackground(Color.CYAN);
-        dashSpace.add(homePage, BorderLayout.CENTER);
+       homePage.setBackground(Color.cyan);
         return homePage;
     }
 }

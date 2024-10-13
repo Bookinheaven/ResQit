@@ -124,24 +124,24 @@ public class Database {
                 "team_name VARCHAR(100) NOT NULL, " +
                 "organization_affiliation VARCHAR(100), " +
                 "leader_username VARCHAR(25) NOT NULL, " +
+                "co_leader_username VARCHAR(25) NOT NULL, " +
                 "phone_number VARCHAR(15), " +
                 "email_address VARCHAR(100), " +
                 "team_address TEXT, " +
-                "number_of_members INT, " +
+                "availability_start DATE, " +
+                "availability_end DATE, " +
+                "members TEXT, " +
                 "team_type VARCHAR(50), " +
                 "primary_expertise VARCHAR(100), " +
                 "secondary_expertise VARCHAR(100), " +
                 "equipment_resources TEXT, " +
-                "travel_willingness VARCHAR(50), " +
                 "preferred_location VARCHAR(100), " +
                 "max_deployment_duration INT, " +
                 "previous_operations TEXT, " +
                 "success_stories TEXT, " +
                 "references_text TEXT, " +
                 "training_attended TEXT, " +
-                "emergency_protocols TEXT, " +
-                "health_safety_measures TEXT, " +
-                "insurance_info TEXT, " +
+                "team_registered TIMESTAMP" +
                 "background_check_consent BOOLEAN DEFAULT FALSE, " +
                 "guidelines_agreement BOOLEAN DEFAULT FALSE, " +
                 "liability_waiver BOOLEAN DEFAULT FALSE, " +
@@ -250,6 +250,7 @@ public class Database {
             logger.error("Error in Database.java: |SQLException while updateData| %s \n".formatted(getStackTraceAsString(e)));
         }
     }
+
     public void insertData(int TableNo, Map<String, Object> data) {
         Set<String> columns = data.keySet();
         String columnsString = String.join(", ", columns);
@@ -356,8 +357,8 @@ public class Database {
         }
         return data;
     }
-    // for disaster database
-    public boolean checkForDuplicateEntries(Map<String, Object> data) {
+
+    public boolean checkForDuplicateDisaster(Map<String, Object> data) {
         String disasterType = (String) data.get("disastertype");
         String disasterName = (String) data.get("disastername");
         LocalDate startDate = (LocalDate) data.get("startdate");
@@ -378,6 +379,53 @@ public class Database {
         }
         return false;
     }
+
+    public boolean checkForDuplicateTeams(Map<String, Object> data) {
+        String team_name = (String) data.get("team_name");
+        String leader_username = (String) data.get("leader_username");
+
+        String checkSQL = "SELECT COUNT(*) FROM %s WHERE team_name = ? AND leader_username = ?".formatted(TABLE_NAME[3]);
+
+        try (PreparedStatement checkStmt = con.prepareStatement(checkSQL)) {
+            checkStmt.setString(1, team_name.toLowerCase());
+            checkStmt.setString(2, leader_username.toLowerCase());
+
+            ResultSet resultSet = checkStmt.executeQuery();
+            if (resultSet.next()) {
+                return resultSet.getInt(1) > 0;
+            }
+        } catch (SQLException e) {
+            logger.error("Error in Database.java: |SQLException while checkForDuplicateTeams| %s \n".formatted(getStackTraceAsString(e)));
+        }
+        return false;
+    }
+
+    public List<Map<String, Object>> getTeamsForUser(String username) throws SQLException {
+        String query = "SELECT * FROM %s WHERE leader_username = ?".formatted(TABLE_NAME[3]);
+        List<Map<String, Object>> teams = new ArrayList<>();
+
+        try (PreparedStatement pstmt = con.prepareStatement(query)) {
+            pstmt.setString(1, username);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                ResultSetMetaData metaData = rs.getMetaData();
+                int columnCount = metaData.getColumnCount();
+
+                while (rs.next()) {
+                    Map<String, Object> teamData = new HashMap<>();
+
+                    for (int i = 1; i <= columnCount; i++) {
+                        String columnName = metaData.getColumnName(i);
+                        Object value = rs.getObject(i);
+                        teamData.put(columnName, value);
+                    }
+                    teams.add(teamData);
+                }
+            }
+        }
+
+        return teams;
+    }
+
 
     public int updateUserPrivilege(String username, String newPrivilege) {
         String updateSQL = "UPDATE %s SET privilege = ? WHERE username = ?".formatted(TABLE_NAME[0]);
@@ -440,6 +488,7 @@ public class Database {
             return Collections.emptyMap();
         }
     }
+
     public int deleteUserData(String username) {
         String deleteSQL = "DELETE FROM %s WHERE username = ?".formatted(TABLE_NAME[0]);
         try (PreparedStatement pStmt = con.prepareStatement(deleteSQL)) {
@@ -466,6 +515,7 @@ public class Database {
         }
         return false;
     }
+
     public boolean isUser(String username) {
         String query = "SELECT COUNT(*) FROM %s WHERE username = ?".formatted(TABLE_NAME[0]);
         try (PreparedStatement pStmt = con.prepareStatement(query)) {

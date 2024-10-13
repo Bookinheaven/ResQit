@@ -383,8 +383,8 @@ public class UserDashboardPanel {
             }
         });
 
-        mainContent.add(new HomePage().createHomePage(dashSpace), "HomePage");
-        mainContent.add(new RequestPage().createRequestPage(cardLayout, mainContent, dashSpace), "RequestPage");
+        mainContent.add(new HomePage().createHomePage(), "HomePage");
+        mainContent.add(new RequestPage().createRequestPage(cardLayout, mainContent), "RequestPage");
         mainContent.add(new AccountPage().createAccountPage(frame, cardLayout, mainContent), "Account");
         mainContent.add(new RequestResources().createRequestResourcesSubPage(), "Request");
         mainContent.add(new TeamCreationPage().createTeamCreationPage(), "Team Creation");
@@ -455,6 +455,12 @@ public class UserDashboardPanel {
                 homeLabel.setBackground(getColorFromHex(ADPThemeData.get("default-menu-button")));
                 disasterReqLabel.setBackground(getColorFromHex(ADPThemeData.get("hover-menu-button")));
                 accountLabel.setBackground(getColorFromHex(ADPThemeData.get("default-menu-button")));
+            }
+            case "Account"-> {
+                changeSubPage("");
+                homeLabel.setBackground(getColorFromHex(ADPThemeData.get("default-menu-button")));
+                disasterReqLabel.setBackground(getColorFromHex(ADPThemeData.get("default-menu-button")));
+                accountLabel.setBackground(getColorFromHex(ADPThemeData.get("hover-menu-button")));
             }
         }
     }

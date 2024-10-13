@@ -7,10 +7,7 @@ import org.burnknuckle.utils.Database;
 import raven.datetime.component.date.DatePicker;
 
 import javax.swing.*;
-import javax.swing.border.Border;
-import javax.swing.border.CompoundBorder;
-import javax.swing.border.EmptyBorder;
-import javax.swing.border.LineBorder;
+import javax.swing.border.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import java.awt.*;
@@ -24,18 +21,22 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
+import static org.burnknuckle.Main.logger;
 import static org.burnknuckle.ui.SignUpPanel.roles;
 import static org.burnknuckle.ui.UserDashboardPanel.checkAccountData;
 import static org.burnknuckle.ui.UserDashboardPanel.checkStatusOfUser;
-import static org.burnknuckle.utils.ThemeManager.getColorFromHex;
+import static org.burnknuckle.utils.MainUtils.getStackTraceAsString;
+import static org.burnknuckle.utils.ThemeManager.*;
 import static org.burnknuckle.utils.Userdata.getUsername;
 
-// set defualt valuues and sign up role not select warning 
+// set defualt valuues and sign up role not select warning
 public class AccountPage {
     private final String username = getUsername();
     private CardLayout cardLayout;
     private JPanel mainContent;
+    private JFrame frame;
     private Map<String, Object> userdata;
+    private JPanel accountPanel;
 
     private final int BioLIMIT = 300;
     private final int avaLIMIT = 100;
@@ -75,6 +76,8 @@ public class AccountPage {
     private JTextArea langField;
     private JComboBox<String> backgroundField;
 
+    private JButton saveButtonTeamtInfo;
+
     private void checkValueChangeTextField(String value, JTextField textField){
         value = value == null || value.isBlank() ? "Not" : value;
         if(value.equals("Not")){
@@ -110,6 +113,7 @@ public class AccountPage {
 
     }
     public JPanel createAccountPage(JFrame frame, CardLayout cardLayout, JPanel mainContent) {
+        this.frame = frame;
         try {
             System.out.println(username);
             Database db = Database.getInstance();
@@ -122,7 +126,7 @@ public class AccountPage {
 
         JPanel backgroundPanel = new JPanel(new GridBagLayout());
 
-        JPanel accountPanel = new JPanel(new BorderLayout());
+        accountPanel = new JPanel(new BorderLayout());
         frame.addComponentListener(new ComponentAdapter() {
             @Override
             public void componentResized(ComponentEvent e) {
@@ -134,13 +138,15 @@ public class AccountPage {
                         accountPanel.setPreferredSize(new Dimension(newWidth, newHeight));
                         accountPanel.revalidate();
                         accountPanel.repaint();
+                        frame.revalidate();
+                        frame.repaint();
                     }
                 });
             }
         });
 
         accountPanel.setPreferredSize(new Dimension((int) (frame.getWidth() * 0.70), (int) (frame.getHeight() * 0.70)));
-        accountPanel.setBackground(new Color(100, 100, 100, 100));
+        accountPanel.setBackground(getColorFromHex(ADPThemeData.get("accountPanelBg")));
         accountPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
         // Title Label
@@ -156,9 +162,6 @@ public class AccountPage {
         JPanel healthMedicalInfoPanel = new JPanel();
         healthMedicalInfoPanel.add(new JLabel("Health and Medical Information"));
 
-        JPanel TeamInfoPanel = new JPanel();
-        TeamInfoPanel.add(new JLabel("Team Information"));
-
         JTabbedPane tabs = new JTabbedPane();
         tabs.addTab("Personal Info", personalInfoPanel());
         tabs.addTab("Contact Info", contactInfoPanel());
@@ -166,9 +169,11 @@ public class AccountPage {
         tabs.addTab("Skills and Experience", skillsExperienceInfoPanel());
         String status = userdata.get("privilege").toString();
         switch (status) {
-            case "admin", "co-admin", "vol"-> tabs.addTab("Team Info", TeamInfoPanel);
+            case "admin", "co-admin", "vol"-> tabs.addTab("Team Info", TeamInfoPanel());
         }
         accountPanel.add(tabs, BorderLayout.CENTER);
+        frame.revalidate();
+        frame.repaint();
 //        statusLabel = new JLabel();
 //        statusLabel.setForeground(Color.RED); // Set color for feedback messages
 //        accountPanel.add(statusLabel, "span, grow");
@@ -413,6 +418,8 @@ public class AccountPage {
         skillsExperienceInfoPanel.add(backgroundField, "gaptop 10px, span, grow, align center");
 
         skillsExperienceInfoPanel.add(saveButtonSkillInfo, "span, grow, align center, gaptop 20px, gapbottom 20px");
+        accountPanel.revalidate();
+        accountPanel.repaint();
         return OuterScrollBar;
     }
 
@@ -435,7 +442,83 @@ public class AccountPage {
         contactInfoPanel.add(avLabel, "gaptop 10px, span, grow, align center");
         availabilityField = TextAreaCreator(contactInfoPanel, avLabel, "When are you free? preferred time?", "availability", saveButtonContactInfo, avaLIMIT);
         contactInfoPanel.add(saveButtonContactInfo, "span, grow, align center, gaptop 20px, gapbottom 20px");
+        accountPanel.revalidate();
+        accountPanel.repaint();
         return OuterScrollBar;
+    }
+
+    private JScrollPane TeamInfoPanel() {
+        JScrollPane outerScrollBar = new JScrollPane();
+        JPanel teamInfoPanel = new JPanel(new MigLayout("wrap 2", "push[][]push", ""));
+        outerScrollBar.setViewportView(teamInfoPanel);
+
+        saveButtonTeamtInfo = new JButton("Save");
+        saveButtonTeamtInfo.setVisible(false);
+        saveButtonTeamtInfo.addActionListener(_ -> saveChangesContactInfo());
+
+        teamInfoPanel.add(saveButtonTeamtInfo, "span, grow, align center, gaptop 20px, gapbottom 20px");
+
+        try {
+            Database db = Database.getInstance();
+            db.getConnection();
+
+            java.util.List<Map<String, Object>> teams = db.getTeamsForUser(username);
+            if (teams != null && !teams.isEmpty()) {
+                for (Map<String, Object> team : teams) {
+                    JPanel teamPanel = new JPanel(new MigLayout("wrap 2", "push[][]push", "[]10[]10[]"));
+                    teamPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.GRAY, 1),
+                            "Team: " + team.getOrDefault("team_name", "N/A"),
+                            TitledBorder.LEFT, TitledBorder.TOP,
+                            new Font("inter", Font.BOLD, 16), getColorFromHex(ADPThemeData.get("text"))));
+                    addThemeChangeListener(_->getColorFromHex(ADPThemeData.get("text")));
+                    String[] labels = {
+                            "Organization Affiliation", "Leader", "Co-Leader", "Phone Number", "Email Address",
+                            "Team Address", "Team Type", "Primary Expertise", "Secondary Expertise",
+                            "Equipment Resources", "Max Deployment Duration", "Preferred Location",
+                            "Previous Operations", "Success Stories", "References", "Training Attended"
+                    };
+                    String[] keys = {
+                            "organization_affiliation", "leader_username", "co_leader_username", "phone_number", "email_address",
+                            "team_address", "team_type", "primary_expertise", "secondary_expertise",
+                            "equipment_resources", "max_deployment_duration", "preferred_location",
+                            "previous_operations", "success_stories", "references_text", "training_attended"
+                    };
+                    Font labelFont = new Font("inter", Font.BOLD, 14);
+                    Font valueFont = new Font("inter", Font.PLAIN, 14);
+                    for (int i = 0; i < labels.length; i++) {
+                        String value = String.valueOf(team.getOrDefault(keys[i], "N/A"));
+                        JLabel TeamLabel = new JLabel(labels[i] + ": ");
+                        TeamLabel.setFont(labelFont);
+                        TeamLabel.setForeground(getColorFromHex(ADPThemeData.get("text")));
+                        JTextArea valueTextArea = new JTextArea(value);
+                        valueTextArea.setFont(valueFont);
+                        valueTextArea.setForeground(getColorFromHex(ADPThemeData.get("text")));
+                        valueTextArea.setLineWrap(true);
+                        valueTextArea.setWrapStyleWord(true);
+                        valueTextArea.setEditable(false);
+                        valueTextArea.setBackground(null);
+                        valueTextArea.setBorder(null);
+                        valueTextArea.setPreferredSize(new Dimension(300, 40));
+                        teamPanel.add(TeamLabel, "align left, gapright 10, gapleft 10");
+                        teamPanel.add(valueTextArea, "grow,gaptop 13, wrap");
+                        addThemeChangeListener((_)->{
+                            TeamLabel.setForeground(getColorFromHex(ADPThemeData.get("text")));
+                            valueTextArea.setForeground(getColorFromHex(ADPThemeData.get("text")));
+
+                        });
+                    }
+                    teamInfoPanel.add(teamPanel, "span, grow, wrap, gaptop 20, gapbottom 20");
+                }
+            } else {
+                teamInfoPanel.add(new JLabel("No teams found."), "span, grow, align center, gaptop 50");
+            }
+        } catch (Exception e) {
+            logger.error("Error [TeamInfoPanel]: %s".formatted(getStackTraceAsString(e)));
+            teamInfoPanel.add(new JLabel("Error loading team data: " + e.getMessage()), "span, grow, align center");
+        }
+        accountPanel.revalidate();
+        accountPanel.repaint();
+        return outerScrollBar;
     }
 
     private JScrollPane healthMedicalInfoPanel(){
@@ -539,6 +622,8 @@ public class AccountPage {
         healthInfoPanel.add(preferredWorkField, "gaptop 10px, span, grow, align center");
 
         healthInfoPanel.add(saveButtonHealthInfo, "span, grow, align center, gaptop 20px, gapbottom 20px");
+        accountPanel.revalidate();
+        accountPanel.repaint();
         return OuterScrollBar;
     }
 
@@ -816,6 +901,8 @@ public class AccountPage {
             saveButtonPersonalInfo.setVisible(false);
             OuterScrollBar.setViewportView(personalInfoPanel);
         });
+        accountPanel.revalidate();
+        accountPanel.repaint();
         return OuterScrollBar;
     }
 

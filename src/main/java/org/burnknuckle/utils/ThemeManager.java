@@ -51,6 +51,9 @@ public class ThemeManager {
             ADPThemeData.put("sidebar-default-menu-button", "#4f4f4f");
             ADPThemeData.put("text", "#f6f6f6");
 
+            // accountPage
+            ADPThemeData.put("accountPanelBg", "#ebeaea64");
+
         } else if (Objects.equals(newTheme, "light")) {
             ADPThemeData.put("sidebar", "#e0e0e0");
             ADPThemeData.put("background", "#656565");
@@ -66,6 +69,10 @@ public class ThemeManager {
             ADPThemeData.put("active-menu-button", "#d0d0d0");
             ADPThemeData.put("sidebar-default-menu-button", "#e0e0e0");
             ADPThemeData.put("text", "#333333");
+
+            // accountPage
+            ADPThemeData.put("accountPanelBg", "#59595964");
+
 
         } else {
             ADPThemeData.put("sidebar", "#e0e0e0");
