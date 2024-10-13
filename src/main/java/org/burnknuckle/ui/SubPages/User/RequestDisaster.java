@@ -21,16 +21,16 @@ public class RequestDisaster {
         JFXPanel disasterRequestPanel = new JFXPanel();
         dashSpace.setLayout(new BorderLayout());
         dashSpace.add(disasterRequestPanel, BorderLayout.CENTER);
-        Platform.runLater(() -> {
+        SwingUtilities.invokeLater(() -> {
             try {
                 FXMLLoader fxmlLoader = new FXMLLoader(Objects.requireNonNull(getClass().getResource("/fxml/user/requestPage.fxml")));
                 Parent root = fxmlLoader.load();
                 Scene scene = new Scene(root);
-                setCSSTheme(currentTheme,scene);
+                setCSSTheme(currentTheme, scene);
                 disasterRequestPanel.setScene(scene);
-                ThemeManager.addThemeChangeListener(theme -> {
-                    setCSSTheme(theme,scene);
-                });
+
+                ThemeManager.addThemeChangeListener(theme -> Platform.runLater(() -> setCSSTheme(theme, scene)));
+
             } catch (IOException e) {
                 logger.error("Error in UserDashboardPanel.java: [createDisasterSubPage] [IOException]: %s".formatted(getStackTraceAsString(e)));
             }
@@ -38,8 +38,8 @@ public class RequestDisaster {
         return disasterRequestPanel;
     }
 
-    private void setCSSTheme(String theme, Scene scene){
-        if (theme.equals("dark") || currentTheme.equals("dark")) {
+    private void setCSSTheme(String theme, Scene scene) {
+        if (theme.equals("dark")) {
             scene.getStylesheets().clear();
             scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/fxml/user/requestPage-dark.css")).toExternalForm());
         } else {
@@ -47,7 +47,4 @@ public class RequestDisaster {
             scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/fxml/user/requestPage-light.css")).toExternalForm());
         }
     }
-
-
-
 }

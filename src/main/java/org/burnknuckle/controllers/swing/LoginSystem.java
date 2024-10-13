@@ -169,7 +169,7 @@ public class LoginSystem {
                 frame.revalidate();
                 frame.repaint();
                 if (check) rememberMeSaver(username, password);
-                new AdminDashboardPanel(frame, userdata);
+                new AdminDashboardPanel(frame);
                 logger.info("Admin Login successful!");
             }
             case "no user" -> showWarning(frame, "No User Found!", warningLabel);
@@ -178,7 +178,7 @@ public class LoginSystem {
                 frame.revalidate();
                 frame.repaint();
                 if (check) rememberMeSaver(username, password);
-                new UserDashboardPanel(frame, finalUserdata);
+                new UserDashboardPanel(frame);
                 frame.revalidate();
                 frame.repaint();
                 logger.info("User Login successful!");

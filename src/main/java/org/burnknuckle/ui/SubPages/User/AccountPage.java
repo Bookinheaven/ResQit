@@ -50,6 +50,7 @@ public class AccountPage {
     private JTextField emailField;
     private JTextArea bioField;
     private DatePicker dobPicker;
+    private JTextField phoneNumberField;
 
     private JTextField countryField;
     private JTextField stateField;
@@ -102,7 +103,7 @@ public class AccountPage {
 
     private void runCheck(){
         if(checkAccountData()){
-            if(checkStatusOfUser()){
+            if(!checkStatusOfUser()){
                 cardLayout.show(mainContent, "Volunteer Registration");
             }
         }
@@ -188,13 +189,17 @@ public class AccountPage {
         String email = emailField.getText();
         String bio = bioField.getText();
         LocalDate dob = dobPicker.getSelectedDate();
+        String phone_number = phoneNumberField.getText();
 
         Map<String, Object> data = new HashMap<>();
         if (!firstName.equals("Not Filled")){
             data.put("first_name", firstName);
         }
-        if (!firstName.equals("Not Filled")){
+        if (!lastName.equals("Not Filled")){
             data.put("last_name", lastName);
+        }
+        if (!phone_number.equals("Not Filled")){
+            data.put("phone_number", phone_number);
         }
         data.put("password", password);
         data.put("gender", gender);
@@ -803,6 +808,9 @@ public class AccountPage {
 
         personalInfoPanel.add(accountCreatedLabel, "gaptop 10px, span, grow, align center");
         personalInfoPanel.add(accountCreatedField, "span,grow, align center");
+
+        phoneNumberField = LabelTextFieldCreator(personalInfoPanel,"Phone number", "phone_number", saveButtonPersonalInfo, true);
+
         personalInfoPanel.add(saveButtonPersonalInfo, "span, grow, align center, gaptop 20px, gapbottom 20px");
         SwingUtilities.invokeLater(()-> {
             saveButtonPersonalInfo.setVisible(false);

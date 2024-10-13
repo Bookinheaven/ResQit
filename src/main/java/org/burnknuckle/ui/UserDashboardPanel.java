@@ -39,7 +39,7 @@ public class UserDashboardPanel {
     private String subPage = "";
     public static String currentUser = getUsername();
 
-    public UserDashboardPanel(JFrame frame, Map<String, Object> userdata) {
+    public UserDashboardPanel(JFrame frame) {
         this.frame = frame;
         frame.getContentPane().removeAll();
         frame.setLayout(new BorderLayout());
@@ -387,6 +387,7 @@ public class UserDashboardPanel {
         mainContent.add(new RequestPage().createRequestPage(cardLayout, mainContent, dashSpace), "RequestPage");
         mainContent.add(new AccountPage().createAccountPage(frame, cardLayout, mainContent), "Account");
         mainContent.add(new RequestResources().createRequestResourcesSubPage(), "Request");
+        mainContent.add(new TeamCreationPage().createTeamCreationPage(), "Team Creation");
         mainContent.add(new RequestDisaster().createDisasterSubPage(dashSpace),"Disaster");
         mainContent.add(new VolunteerRegistration().createVolunteerRegistrationSubPage(cardLayout, mainContent),"Volunteer Registration");
 

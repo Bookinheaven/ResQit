@@ -59,7 +59,7 @@ public class RequestPage {
         volunteerRegistrationLabel = new JLabel(new FlatSVGIcon(Objects.requireNonNull(getClass().getClassLoader().getResource("UserDashboardPanel/tasks.svg"))));
         volunteerRegistrationLabel.setPreferredSize(new Dimension(250,250));
         volunteerRegistrationLabel.setOpaque(true);
-        volunteerRegistrationLabel.setText("Volunteer Registration");
+        volunteerRegistrationLabel.setText("Teams");
         volunteerRegistrationLabel.setFont( new Font("Fira Code Retina",Font.PLAIN,20));
         volunteerRegistrationLabel.setVerticalTextPosition(JLabel.BOTTOM);
         volunteerRegistrationLabel.setHorizontalTextPosition(JLabel.CENTER);
@@ -107,7 +107,7 @@ public class RequestPage {
         volunteerRegistrationLabel.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-//                cardLayout.show(mainContent, "Volunteer Registration");
+                cardLayout.show(mainContent, "Team Creation");
             }
             @Override
             public void mouseExited(MouseEvent e) {

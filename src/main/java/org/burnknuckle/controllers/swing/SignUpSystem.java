@@ -63,7 +63,7 @@ public class SignUpSystem {
             frame.getContentPane().removeAll();
             frame.revalidate();
             frame.repaint();
-            new UserDashboardPanel(frame,userdata);
+            new UserDashboardPanel(frame);
             logger.info(userdata);
             logger.info(out);
             logger.info("Sign Up successful!");

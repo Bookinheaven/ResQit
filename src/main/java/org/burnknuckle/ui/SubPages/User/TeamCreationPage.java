@@ -3,21 +3,30 @@ package org.burnknuckle.ui.SubPages.User;
 import com.formdev.flatlaf.FlatDarkLaf;
 import net.miginfocom.swing.MigLayout;
 import org.burnknuckle.ui.subParts.LoginBgPanel;
+import org.burnknuckle.utils.Database;
 
 import javax.swing.*;
+import javax.swing.border.*;
 import java.awt.*;
+import java.awt.event.*;
 import java.awt.geom.RoundRectangle2D;
 import java.util.ArrayList;
 
+import static org.burnknuckle.utils.Resources.*;
+import static org.burnknuckle.utils.ThemeManager.getColorFromHex;
+import static org.burnknuckle.utils.Userdata.getUsername;
 
 public class TeamCreationPage {
 
     // Team Information Fields
-    private JTextField txtTeamName, txtOrganizationAffiliation, txtLeaderName, txtPhoneNumber, txtEmailAddress, txtTeamAddress, txtNumberOfMembers;
+    private JTextField txtTeamName, txtOrganizationAffiliation,txtCoLeaderName, txtLeaderName, txtPhoneNumber, txtEmailAddress, txtTeamAddress, txtNumberOfMembers;
     private JComboBox<String> cmbTeamType;
-
+    private static JButton addMemberButton;
+    private String username = getUsername();
+//    private String username = "tanvik123";
     // Team Members Information Fields
-    private ArrayList<MemberPanel> memberPanels = new ArrayList<>();
+    private static JPanel teamMembersUsernamesPanel = null;
+    private static ArrayList<MemberPanel> memberPanels = new ArrayList<>();
 
     // Expertise Fields
     private JTextField txtPrimaryExpertise, txtSecondaryExpertise;
@@ -38,6 +47,15 @@ public class TeamCreationPage {
     // Legal and Consent Fields
     private JCheckBox chkBackgroundCheckConsent, chkGuidelinesAgreement, chkLiabilityWaiver, chkMediaReleaseConsent;
 
+    private JTextField FieldsCreator(JPanel centerForm, String title, JTextField field){
+        field = new JTextField(20);
+        JLabel teamName = new JLabel(title);
+        teamName.setFont(new Font("Inter", Font.PLAIN, 15));
+        field.setFont(new Font("Inter", Font.PLAIN, 15));
+        centerForm.add(teamName, "gapright 10");
+        centerForm.add(field);
+        return field;
+    }
     public JPanel createTeamCreationPage() {
         JPanel inner = new JPanel(new BorderLayout());
         LoginBgPanel OuterBgPanel = new LoginBgPanel("Common/formPagesBg.jpg");
@@ -62,7 +80,7 @@ public class TeamCreationPage {
 
         // Title
         JLabel title = new JLabel("Team Creation Form");
-        title.setFont(new Font("Inter", Font.BOLD, 32));
+        title.setFont(new Font("Inter", Font.BOLD, 30));
         title.setHorizontalAlignment(SwingConstants.CENTER);
 
         JPanel topBar = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
@@ -80,26 +98,20 @@ public class TeamCreationPage {
         JLabel teamInfoTitle = new JLabel("Team Information");
         teamInfoTitle.setFont(new Font("Inter", Font.BOLD, 20));
         teamInfoTitle.setForeground(new Color(30, 144, 255));
-        centerForm.add(teamInfoTitle, "span, align center");
+        centerForm.add(teamInfoTitle, "span, align center, gapbottom 20px");
 
-        txtTeamName = new JTextField(20);
-        JLabel teamName = new JLabel("Team Name:");
-        teamName.setFont(new Font("Inter", Font.PLAIN, 18));
-        txtTeamName.setFont(new Font("Inter", Font.PLAIN, 18));
-        centerForm.add(teamName, "gapright 10");
-        centerForm.add(txtTeamName);
+        txtTeamName = FieldsCreator(centerForm, "Team Name", txtTeamName);
 
-        txtOrganizationAffiliation = new JTextField(20);
-        JLabel orgAff = new JLabel("Organization Affiliation:");
-        orgAff.setFont(new Font("Inter", Font.PLAIN, 18));
-        centerForm.add(orgAff);
-        centerForm.add(txtOrganizationAffiliation);
+        FieldsCreator(centerForm, "Organization Affiliation", txtOrganizationAffiliation);
 
-        txtLeaderName = new JTextField(20);
-        JLabel teamLeaderName = new JLabel("Team Leader's Name:");
-        teamLeaderName.setFont(new Font("Inter", Font.PLAIN, 18));
-        centerForm.add(teamLeaderName, "gapright 10");
-        centerForm.add(txtLeaderName);
+        txtLeaderName = FieldsCreator(centerForm, "Team Leader's Username", txtLeaderName);
+        txtLeaderName.setText(username);
+        txtLeaderName.setEnabled(false);
+
+        txtCoLeaderName = FieldsCreator(centerForm, "Team CoLeader's Username", txtCoLeaderName);
+
+        JSeparator separator2 = new JSeparator(SwingConstants.HORIZONTAL);
+        centerForm.add(separator2, "span, grow, gaptop 10px, gapbottom 10px");
 
         JPanel contactInfoPanel = new JPanel(new MigLayout("fill", "[][]", "[]"));
         txtPhoneNumber = new JTextField(20);
@@ -108,36 +120,49 @@ public class TeamCreationPage {
         JLabel lblPhoneNumbers = new JLabel("Phone Number:");
         lblPhoneNumbers.setFont(new Font("Inter", Font.PLAIN, 16));
         contactInfoPanel.add(lblPhoneNumbers);
-        contactInfoPanel.add(txtPhoneNumber, "span");
+        contactInfoPanel.add(txtPhoneNumber, "span, grow");
 
         JLabel lblGmail = new JLabel("Gmail:");
         lblGmail.setFont(new Font("Inter", Font.PLAIN, 16));
         contactInfoPanel.add(lblGmail);
-        contactInfoPanel.add(txtEmailAddress, "span");
+        contactInfoPanel.add(txtEmailAddress, "span, grow");
 
-        JLabel lblContactInfo = new JLabel("Contact Information:");
-        lblContactInfo.setFont(new Font("Inter", Font.PLAIN, 18));
+        JLabel lblContactInfo = new JLabel("Team Contact Info");
+        lblContactInfo.setFont(new Font("Inter", Font.PLAIN, 16));
         centerForm.add(lblContactInfo);
         centerForm.add(contactInfoPanel);
 
-        txtTeamAddress = new JTextField(20);
-        centerForm.add(new JLabel("Team Address (Street, City, State, Zip):"));
-        centerForm.add(txtTeamAddress);
+        JSeparator separator3 = new JSeparator(SwingConstants.HORIZONTAL);
+        centerForm.add(separator3, "span, grow, gaptop 10px, gapbottom 10px");
 
-        txtNumberOfMembers = new JTextField(5);
-        centerForm.add(new JLabel("Number of Members:"));
-        centerForm.add(txtNumberOfMembers);
+        txtTeamAddress = FieldsCreator(centerForm, "Team Address (Street, City, State, Zip)", txtTeamAddress);
+
+//        FieldsCreator(centerForm, "Number of Members", txtNumberOfMembers);
 
         String[] teamTypes = {"Medical", "Search and Rescue", "Logistics", "Psychological Support"};
         cmbTeamType = new JComboBox<>(teamTypes);
-        centerForm.add(new JLabel("Type of Team:"));
+        JLabel teamTpLabel = new JLabel("Type of Team:");
+        teamTpLabel.setFont(new Font("Inter", Font.PLAIN, 16));
+
+        centerForm.add(teamTpLabel);
         centerForm.add(cmbTeamType);
 
-        centerForm.add(new JLabel("Team Members' Information"), "span, grow, wrap");
+        JSeparator separator4 = new JSeparator(SwingConstants.HORIZONTAL);
+        centerForm.add(separator4, "span, grow, gaptop 10px, gapbottom 10px");
 
-        JButton addMemberButton = new JButton("Add Member");
-        addMemberButton.addActionListener(e -> addMember(centerForm));
+        JLabel teamMembersInfoLabel = new JLabel("Team Members' Info");
+        teamMembersInfoLabel.setFont(new Font("Inter", Font.PLAIN, 20));
+        centerForm.add(teamMembersInfoLabel, "span, grow, wrap");
+
+        teamMembersUsernamesPanel = new JPanel();
+        teamMembersUsernamesPanel.setLayout(new BoxLayout(teamMembersUsernamesPanel, BoxLayout.Y_AXIS));
+        teamMembersUsernamesPanel.setBackground(Color.CYAN);
+
+        addMemberButton = new JButton("Add Member");
+        addMemberButton.addActionListener(e -> addMember(teamMembersUsernamesPanel));
         centerForm.add(addMemberButton, "span, grow");
+
+        centerForm.add(teamMembersUsernamesPanel, "span, grow, wrap");
 
         // Team’s Area of Expertise
         centerForm.add(new JLabel("Team's Area of Expertise"), "span, grow, wrap");
@@ -254,10 +279,56 @@ public class TeamCreationPage {
         OuterBgPanel.add(scrollablePanel, BorderLayout.CENTER);
         return OuterBgPanel;
     }
+    private static boolean checkMemberExist(JPanel currentPanel) {
+        if (!memberPanels.isEmpty()) {
+            MemberPanel target = null;
+            for (MemberPanel x : memberPanels) {
+                if (x.panel.equals(currentPanel)) {
+                    target = x;
+                    break;
+                }
+            }
+            if (target != null) {
+                boolean isDuplicate = false;
+                for (MemberPanel existingMember : memberPanels) {
+                    if (!existingMember.panel.equals(currentPanel) &&
+                            target.txtMemberUsername.getText().equals(existingMember.txtMemberUsername.getText())) {
+
+                        JDialog dialog = new JDialog((Frame) null, "Duplicate Username", true);
+                        dialog.setLayout(new BorderLayout());
+                        JLabel text = new JLabel("Username already exists!");
+                        text.setFont(new Font("Inter", Font.PLAIN, 15));
+                        dialog.add(text, BorderLayout.CENTER);
+
+                        JButton okButton = new JButton("OK");
+                        okButton.addActionListener(e -> dialog.dispose());
+                        dialog.add(okButton, BorderLayout.SOUTH);
+
+                        dialog.pack();
+                        dialog.setSize(new Dimension(200, 150));
+                        dialog.setLocationRelativeTo(null);
+                        dialog.setVisible(true);
+
+                        isDuplicate = true;
+                        break;
+                    }
+                }
+                if (!isDuplicate) {
+                    target.txtMemberUsername.setEnabled(false);
+                    return false;
+                } else {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
 
     private void addMember(JPanel formPanel) {
+        addMemberButton.setEnabled(false);
+        int memberNumber = memberPanels.size() + 1;
         MemberPanel memberPanel = new MemberPanel();
-        formPanel.add(memberPanel.createMemberPanel(), "span, grow");
+        formPanel.add(memberPanel.createMemberPanel(memberNumber), "span, grow, wrap");
         memberPanels.add(memberPanel);
         formPanel.revalidate();
         formPanel.repaint();
@@ -279,41 +350,119 @@ public class TeamCreationPage {
         frame.setVisible(true);
         frame.setLocationRelativeTo(null);
     }
-
+    private static void updateMemberNumbers() {
+        int number = 1;  // Start numbering from 1
+        for (MemberPanel panel : memberPanels) {
+            panel.updateMemberNumber(number);  // Update each panel's number
+            number++;
+        }
+    }
     private static class MemberPanel {
-        private JTextField txtMemberName, txtMemberContact, txtMemberEmail, txtMemberRole, txtMemberSkills, txtEmergencyContact, txtHealthInfo;
+        private JTextField txtMemberUsername;
+        private JPanel panel;
+        private JButton DeleteButton;
+        private JButton EditButton;
+        private JButton SaveButton;
+        public void updateMemberNumber(int newNumber) {
+            panel.setBorder(BorderFactory.createTitledBorder("Member " + newNumber));
+        }
+        public JPanel createMemberPanel(int no) {
+            JPanel memberPanel = new JPanel(new MigLayout("wrap 5", "[150][fill, grow][][][]"));
+            memberPanel.setBorder(new TitledBorder("Member %s".formatted(no)));
+            memberPanel.setFont(new Font("Inter", Font.PLAIN, 15));
 
-        public JPanel createMemberPanel() {
-            JPanel memberPanel = new JPanel(new MigLayout("wrap 2", "[150][fill, grow]"));
+            JLabel usernameLabel = new JLabel("Username:");
+            usernameLabel.setFont(new Font("Inter", Font.PLAIN, 15));
 
-            txtMemberName = new JTextField(20);
-            memberPanel.add(new JLabel("Full Name:"));
-            memberPanel.add(txtMemberName);
+            txtMemberUsername = new JTextField(20);
+            Border defaultBorder = txtMemberUsername.getBorder();
+            txtMemberUsername.setFont(new Font("Inter", Font.PLAIN, 15));
 
-            txtMemberContact = new JTextField(15);
-            memberPanel.add(new JLabel("Contact Number:"));
-            memberPanel.add(txtMemberContact);
+            Border lineBorder = new LineBorder(getColorFromHex("#9cfe98"), 2);
+            Border paddingBorder = new EmptyBorder(5, 5, 5, 5);
 
-            txtMemberEmail = new JTextField(20);
-            memberPanel.add(new JLabel("Email Address:"));
-            memberPanel.add(txtMemberEmail);
+            memberPanel.add(usernameLabel);
+            memberPanel.add(txtMemberUsername);
 
-            txtMemberRole = new JTextField(20);
-            memberPanel.add(new JLabel("Role in the Team:"));
-            memberPanel.add(txtMemberRole);
+            DeleteButton = new JButton();
+            DeleteButton.setToolTipText("Delete");
+            DeleteButton.setIcon(deleteButtonIcon);
+            DeleteButton.setEnabled(false);
+            DeleteButton.setPreferredSize(new Dimension(20,20));
+            memberPanel.add(DeleteButton);
+            DeleteButton.addActionListener(_ -> {
+                for (MemberPanel x : memberPanels) {
+                    if (x.panel.equals(memberPanel)) {
+                        memberPanels.remove(x);
+                        break;
+                    }
+                }
+                updateMemberNumbers();
+                teamMembersUsernamesPanel.remove(memberPanel);
+                teamMembersUsernamesPanel.revalidate();
+                teamMembersUsernamesPanel.repaint();
+            });
 
-            txtMemberSkills = new JTextField(20);
-            memberPanel.add(new JLabel("Skills/Certifications:"));
-            memberPanel.add(txtMemberSkills);
+            EditButton = new JButton();
+            EditButton.setToolTipText("Edit");
+            EditButton.setIcon(editButtonIcon);
+            EditButton.setEnabled(false);
+            EditButton.setPreferredSize(new Dimension(20,20));
+            EditButton.addActionListener(_ -> {
+                for (MemberPanel x : memberPanels) {
+                    if (x.panel.equals(memberPanel)) {
+                        x.SaveButton.setEnabled(true);
+                        x.txtMemberUsername.setEnabled(true);
+                        break;
+                    }
+                }
+                teamMembersUsernamesPanel.revalidate();
+                teamMembersUsernamesPanel.repaint();
+            });
+            memberPanel.add(EditButton);
 
-            txtEmergencyContact = new JTextField(20);
-            memberPanel.add(new JLabel("Emergency Contact:"));
-            memberPanel.add(txtEmergencyContact);
+            SaveButton = new JButton();
+            SaveButton.setToolTipText("Save");
+            SaveButton.setIcon(saveButtonIcon);
+            SaveButton.addActionListener(_->{
+                System.out.println(!txtMemberUsername.getText().equals(getUsername()));
+                if(!checkMemberExist(memberPanel) && !txtMemberUsername.getText().equals(getUsername())){
+                    SaveButton.setEnabled(false);
+                    txtMemberUsername.setEnabled(false);
+                    addMemberButton.setEnabled(true);
+                    EditButton.setEnabled(true);
+                    DeleteButton.setEnabled(true);
+                }
+            });
+            SaveButton.setPreferredSize(new Dimension(20,20));
+            memberPanel.add(SaveButton);
 
-            txtHealthInfo = new JTextField(20);
-            memberPanel.add(new JLabel("Health Information:"));
-            memberPanel.add(txtHealthInfo);
+            txtMemberUsername.addKeyListener(new KeyAdapter() {
+                @Override
+                public void keyReleased(KeyEvent e) {
+                    super.keyReleased(e);
+                    try{
+                        Database db = Database.getInstance();
+                        db.getConnection();
+                        if(db.isUser(txtMemberUsername.getText())){
+                            txtMemberUsername.setBorder(new CompoundBorder(lineBorder, paddingBorder));
+                            addMemberButton.setEnabled(true);
+                            SaveButton.setEnabled(true);
 
+                        } else {
+                            if(!txtMemberUsername.getBorder().equals(defaultBorder)){
+                                txtMemberUsername.setBorder(defaultBorder);
+                                addMemberButton.setEnabled(false);
+                                SaveButton.setEnabled(false);
+
+                            }
+                        }
+                    } catch (Exception el){
+                        el.printStackTrace();
+                    }
+                }
+            });
+            this.panel = memberPanel;
             return memberPanel;
         }
 

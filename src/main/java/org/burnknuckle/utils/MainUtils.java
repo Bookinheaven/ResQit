@@ -87,14 +87,14 @@ public class MainUtils {
                 Map<String, Object> userdata = db.getUsernameDetails(username);
                 db.closeConnection();
                 switch (status) {
-                    case "admin" -> {
+                    case "admin", "co-admin" -> {
                         rememberMeCheck = true;
-                        new AdminDashboardPanel(mainFrame,userdata);
+                        new AdminDashboardPanel(mainFrame);
                         logger.info("Admin Login successful!");
                     }
                     case "user", "vol" -> {
                         rememberMeCheck = true;
-                        new UserDashboardPanel(mainFrame,userdata);
+                        new UserDashboardPanel(mainFrame);
                         logger.info("User Login successful!");
                     }
                 }

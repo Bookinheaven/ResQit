@@ -42,13 +42,11 @@ public class AdminDashboardPanel {
     private JPanel overlayPanel;
     private JButton MenuButton;
     private JPanel mainContent;
-    private Map<String, Object> userdata;
     private final Deque<String> pageStack = new LinkedList<>();
 
 
-    public AdminDashboardPanel(JFrame frame, Map<String, Object> userdata ) {
+    public AdminDashboardPanel(JFrame frame) {
         this.frame = frame;
-        this.userdata = userdata;
         frame.setLayout(new BorderLayout());
         frame.setContentPane(createAdminBoard()) ;
         frame.setVisible(true);

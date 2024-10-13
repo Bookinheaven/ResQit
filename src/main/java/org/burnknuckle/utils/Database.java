@@ -11,7 +11,7 @@ import static org.burnknuckle.Main.logger;
 import static org.burnknuckle.utils.MainUtils.getStackTraceAsString;
 
 public class Database {
-    private static final String[] TABLE_NAME = {"userdata", "resdata", "disasterdata"};
+    private static final String[] TABLE_NAME = {"userdata", "resdata", "disasterdata", "teamsdata"};
     private static Database instance;
     private Connection con;
     private Database() {
@@ -26,7 +26,7 @@ public class Database {
     public void connectDatabase() {
         try {
             con = getConnection();
-            if (checkTableExists(TABLE_NAME[0]) || checkTableExists(TABLE_NAME[1]) || checkTableExists(TABLE_NAME[2])) {
+            if (checkTableExists(TABLE_NAME[0]) || checkTableExists(TABLE_NAME[1]) || checkTableExists(TABLE_NAME[2])|| checkTableExists(TABLE_NAME[3])) {
                 createTable();
             }
         } catch (SQLException e) {
@@ -119,6 +119,35 @@ public class Database {
                 "lastUpdated TIMESTAMP DEFAULT CURRENT_TIMESTAMP, " +
                 "FOREIGN KEY (username) REFERENCES %s (username) ".formatted(TABLE_NAME[0]) +
                 ");";
+        String createTeamsTable = "CREATE TABLE IF NOT EXISTS %s (".formatted(TABLE_NAME[3]) +
+                "team_id SERIAL PRIMARY KEY, " +
+                "team_name VARCHAR(100) NOT NULL, " +
+                "organization_affiliation VARCHAR(100), " +
+                "leader_username VARCHAR(25) NOT NULL, " +
+                "phone_number VARCHAR(15), " +
+                "email_address VARCHAR(100), " +
+                "team_address TEXT, " +
+                "number_of_members INT, " +
+                "team_type VARCHAR(50), " +
+                "primary_expertise VARCHAR(100), " +
+                "secondary_expertise VARCHAR(100), " +
+                "equipment_resources TEXT, " +
+                "travel_willingness VARCHAR(50), " +
+                "preferred_location VARCHAR(100), " +
+                "max_deployment_duration INT, " +
+                "previous_operations TEXT, " +
+                "success_stories TEXT, " +
+                "references_text TEXT, " +
+                "training_attended TEXT, " +
+                "emergency_protocols TEXT, " +
+                "health_safety_measures TEXT, " +
+                "insurance_info TEXT, " +
+                "background_check_consent BOOLEAN DEFAULT FALSE, " +
+                "guidelines_agreement BOOLEAN DEFAULT FALSE, " +
+                "liability_waiver BOOLEAN DEFAULT FALSE, " +
+                "media_release_consent BOOLEAN DEFAULT FALSE, " +
+                "FOREIGN KEY (leader_username) REFERENCES %s (username) ON DELETE CASCADE".formatted(TABLE_NAME[0]) +
+                ");";
 
         String createDisasterData = "CREATE TABLE IF NOT EXISTS %s (".formatted(TABLE_NAME[2]) +
                 "id SERIAL PRIMARY KEY, " +
@@ -155,6 +184,12 @@ public class Database {
             logger.info("Table '%s' created successfully or already exists".formatted(TABLE_NAME[2]));
         } catch (SQLException e) {
             logger.error("Error in Database.java: |SQLException while DisasterData| %s \n".formatted(getStackTraceAsString(e)));
+        }
+        try (Statement st = con.createStatement()) {
+            st.executeUpdate(createTeamsTable);
+            logger.info("Table '%s' created successfully or already exists".formatted(TABLE_NAME[3]));
+        } catch (SQLException e) {
+            logger.error("Error in Database.java: |SQLException while TeamsTable| %s \n".formatted(getStackTraceAsString(e)));
         }
     }
     private Timestamp convertStringToTimestamp(String dateString) {
@@ -424,6 +459,21 @@ public class Database {
                 if (rs.next()) {
                     String privilege = rs.getString("privilege");
                     return "admin".equalsIgnoreCase(privilege);
+                }
+            }
+        } catch (SQLException e) {
+            logger.error("Error in Database.java: |SQLException while isAdmin| %s \n".formatted(getStackTraceAsString(e)));
+        }
+        return false;
+    }
+    public boolean isUser(String username) {
+        String query = "SELECT COUNT(*) FROM %s WHERE username = ?".formatted(TABLE_NAME[0]);
+        try (PreparedStatement pStmt = con.prepareStatement(query)) {
+            pStmt.setString(1, username);
+            try (ResultSet rs = pStmt.executeQuery()) {
+                if (rs.next()) {
+                    int count = rs.getInt(1);
+                    return count > 0;
                 }
             }
         } catch (SQLException e) {

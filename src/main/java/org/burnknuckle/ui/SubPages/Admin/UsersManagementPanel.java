@@ -21,6 +21,7 @@ import java.util.Objects;
 import static org.burnknuckle.Main.logger;
 import static org.burnknuckle.ui.AdminDashboardPanel.showDateTimePicker;
 import static org.burnknuckle.utils.MainUtils.getStackTraceAsString;
+import static org.burnknuckle.utils.Resources.*;
 
 public class UsersManagementPanel {
     private String[] defaultColumnNamesAU;
@@ -101,9 +102,6 @@ public class UsersManagementPanel {
         JLabel userLabel = new JLabel("Users", SwingConstants.LEFT);
         userLabel.setFont(new Font("Inter", Font.BOLD, 25));
 
-        ImageIcon editButtonIcon = new FlatSVGIcon(Objects.requireNonNull(getClass().getClassLoader().getResource("AdminDashboardPanel/edit.svg")));
-        ImageIcon saveButtonIcon = new FlatSVGIcon(Objects.requireNonNull(getClass().getClassLoader().getResource("AdminDashboardPanel/save.svg")));
-        ImageIcon deleteButtonIcon = new FlatSVGIcon(Objects.requireNonNull(getClass().getClassLoader().getResource("AdminDashboardPanel/delete.svg")));
 
         JPanel adminsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         JButton adminEditButton = new JButton();

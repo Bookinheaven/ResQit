@@ -18,6 +18,7 @@ label {
 .text-field:focused, .text-area:focused, .combo-box:focused {
     -fx-border-color: #007BFF;
 }
+
 #Submit-button {
     -fx-background-color: #007BFF;
     -fx-text-fill: black;
