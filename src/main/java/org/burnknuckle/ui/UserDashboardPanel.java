@@ -11,6 +11,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.sql.Timestamp;
 import java.util.*;
 
 import static org.burnknuckle.Main.logger;
@@ -37,7 +38,6 @@ public class UserDashboardPanel {
     private final Deque<String> pageStack = new LinkedList<>();
     private static final int MAX_PAGES = 5;
     private String subPage = "";
-    public static String currentUser = getUsername();
 
     public UserDashboardPanel(JFrame frame) {
         this.frame = frame;
@@ -107,7 +107,7 @@ public class UserDashboardPanel {
         try {
             Database db = Database.getInstance();
             db.getConnection();
-            Map<String, Object> checkData = db.getUsernameDetails(currentUser);
+            Map<String, Object> checkData = db.getUsernameDetails(getUsername());
             StringBuilder warnMessage = new StringBuilder();
             for (String column : checkList) {
                 Object value = checkData.get(column);
@@ -117,8 +117,15 @@ public class UserDashboardPanel {
                 if (value == null || value.toString().isBlank()) {
                     warnMessage.append("Field '%s' is missing or empty!".formatted(column));
                     logger.warn("Field '%s' is missing or empty!".formatted(column));
-                    return false;
                 }
+            }
+            logger.info(warnMessage);
+            if(!warnMessage.isEmpty()){
+                SwingUtilities.invokeLater(()->{
+                    JOptionPane.showMessageDialog(null, warnMessage, "Needed Fields", JOptionPane.ERROR_MESSAGE);
+
+                });
+                return false;
             }
         } catch (Exception e) {
             logger.error("Error in: %s".formatted(getStackTraceAsString(e)));
@@ -353,6 +360,19 @@ public class UserDashboardPanel {
                     clearProperties(new Properties());
                     SwingUtilities.invokeLater(() -> {
                         try {
+                            String username = getUsername();
+                            if (username != null){
+                                Map<String, Object> lastLogin = new HashMap<>();
+                                lastLogin.put("last_login",new Timestamp(System.currentTimeMillis()));
+                                lastLogin.put("is_active",false);
+                                try {
+                                    Database db = Database.getInstance();
+                                    db.connectDatabase();
+                                    db.updateData12(0, username,lastLogin);
+                                } catch (Exception x){
+                                    logger.error("Error in: %s".formatted(getStackTraceAsString(x)));
+                                }
+                            }
                             currentPage = "";
                             frame.getContentPane().removeAll();
                             frame.repaint();

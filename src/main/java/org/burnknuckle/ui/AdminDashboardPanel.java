@@ -16,6 +16,7 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.geom.RoundRectangle2D;
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -25,6 +26,7 @@ import static org.burnknuckle.Main.logger;
 import static org.burnknuckle.utils.MainUtils.clearProperties;
 import static org.burnknuckle.utils.MainUtils.getStackTraceAsString;
 import static org.burnknuckle.utils.ThemeManager.*;
+import static org.burnknuckle.utils.Userdata.getUsername;
 
 public class AdminDashboardPanel {
     private final JFrame frame;
@@ -200,6 +202,19 @@ public class AdminDashboardPanel {
                     clearProperties(new Properties());
                     SwingUtilities.invokeLater(() -> {
                         try {
+                            String username = getUsername();
+                            if (username != null) {
+                                Map<String, Object> lastLogin = new HashMap<>();
+                                lastLogin.put("last_login", new Timestamp(System.currentTimeMillis()));
+                                lastLogin.put("is_active", false);
+                                try {
+                                    Database db = Database.getInstance();
+                                    db.connectDatabase();
+                                    db.updateData12(0, username, lastLogin);
+                                } catch (Exception x) {
+                                    logger.error("Error in: %s".formatted(getStackTraceAsString(x)));
+                                }
+                            }
                             frame.getContentPane().removeAll();
                             frame.repaint();
                             frame.revalidate();

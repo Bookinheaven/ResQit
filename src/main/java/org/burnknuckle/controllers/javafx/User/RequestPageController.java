@@ -12,8 +12,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.burnknuckle.Main.logger;
-import static org.burnknuckle.ui.UserDashboardPanel.currentUser;
 import static org.burnknuckle.utils.MainUtils.getStackTraceAsString;
+import static org.burnknuckle.utils.Userdata.getUsername;
 
 public class RequestPageController {
     @FXML
@@ -71,7 +71,7 @@ public class RequestPageController {
         formData.put("impactassessment", ImpactTextArea.getText());
         formData.put("startdate", startDatePicker.getValue());
         formData.put("enddate", endDatePicker.getValue());
-        formData.put("useruploaded", currentUser);
+        formData.put("useruploaded", getUsername());
 
 
         try {

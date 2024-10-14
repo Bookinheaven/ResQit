@@ -1,26 +1,23 @@
 package org.burnknuckle.ui.subParts;
 
 import com.formdev.flatlaf.FlatClientProperties;
-import com.formdev.flatlaf.extras.FlatSVGIcon;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.util.Objects;
+
+import static org.burnknuckle.utils.Resources.eyeClosedIcon;
+import static org.burnknuckle.utils.Resources.eyeOpenIcon;
 
 public class PasswordFieldWithToggle extends JPanel {
     private JPasswordField passwordField;
     private JButton toggleButton;
     private boolean isPasswordVisible;
-    private String password;
-    private ImageIcon eyeOpenIcon = new FlatSVGIcon(Objects.requireNonNull(getClass().getClassLoader().getResource("Common/eyeOpen.svg")));
-    private ImageIcon eyeClosedIcon = new FlatSVGIcon(Objects.requireNonNull(getClass().getClassLoader().getResource("Common/eyeClosed.svg")));
-
 
     public PasswordFieldWithToggle() {
         setLayout(new BorderLayout());
-
+        UIManager.put("PasswordField.showRevealButton", false);
         passwordField = new JPasswordField(20);
         passwordField.setFont(new Font("Arial", Font.PLAIN, 14));
         passwordField.setPreferredSize(new Dimension(400, 30));
@@ -61,7 +58,6 @@ public class PasswordFieldWithToggle extends JPanel {
         return new String(passwordField.getPassword());
     }
     public void setPassword(String password){
-        this.password = password;
         passwordField.setText(password);
     }
     public JPasswordField getPasswordField(){
