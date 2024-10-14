@@ -208,7 +208,7 @@ public class AdminDashboardPanel {
 //                            frame.setVisible(true);
                             JOptionPane.showMessageDialog(frame, "You have logged out successfully.");
                         } catch (Exception exx) {
-                            logger.error(getStackTraceAsString(exx));
+                            logger.error("Error in: %s".formatted(getStackTraceAsString(exx)));
                             JOptionPane.showMessageDialog(frame, "An error occurred during logout.");
                         }
                     });

@@ -19,6 +19,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.burnknuckle.Main.logger;
+import static org.burnknuckle.utils.MainUtils.getStackTraceAsString;
 import static org.burnknuckle.utils.Resources.*;
 import static org.burnknuckle.utils.ThemeManager.getColorFromHex;
 import static org.burnknuckle.utils.Userdata.getUsername;
@@ -68,6 +70,7 @@ public class TeamCreationPage {
         try {
             maxDeploymentDuration = Integer.parseInt(txtMaxDeploymentDuration.getText().trim());
         } catch (NumberFormatException e) {
+            logger.error("Error in: %s".formatted(getStackTraceAsString(e)));
             JOptionPane.showMessageDialog(null, "Max Deployment Duration must be a valid number!", "Validation Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
@@ -152,7 +155,7 @@ public class TeamCreationPage {
             System.out.println("Team Information submitted successfully");
         } catch (Exception e) {
             JOptionPane.showMessageDialog(null, "Error submitting team information: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-            e.printStackTrace();
+            logger.error("Error in: %s".formatted(getStackTraceAsString(e)));
         }
     }
     private void showError(String fieldName) {
@@ -592,7 +595,7 @@ public class TeamCreationPage {
                             }
                         }
                     } catch (Exception el){
-                        el.printStackTrace();
+                        logger.error("Error in: %s".formatted(getStackTraceAsString(el)));
                     }
                 }
             });

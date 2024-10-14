@@ -81,7 +81,7 @@ public class Main {
                 ge.registerFont(interFont);
             }
         } catch (Exception e) {
-            logger.error("Error in Main.java: [setFont]: %s".formatted(getStackTraceAsString(e)));
+            logger.error("Error in: %s".formatted(getStackTraceAsString(e)));
         }
     }
     public static void setUp() {
@@ -93,7 +93,7 @@ public class Main {
                 resQit.showSplashScreen();
                 logger.info("App Loaded Successfully!");
             } catch (Exception e) {
-                logger.error("Error in Main.java: [Exception while invoking the worker] %s \n".formatted(getStackTraceAsString(e)));
+                logger.error("Error in: %s".formatted(getStackTraceAsString(e)));
             }
         });
     }
@@ -110,7 +110,7 @@ public class Main {
                 UIManager.setLookAndFeel(new FlatLightLaf());
             }
         } catch (UnsupportedLookAndFeelException ex) {
-            logger.error("Error in Main.java: [UnsupportedLookAndFeelException]: %s ".formatted(ex));
+            logger.error("Error in: %s".formatted(getStackTraceAsString(ex)));
         }
         mainFrame = new JFrame();
         setIcon(mainFrame);
@@ -130,7 +130,7 @@ public class Main {
                         db.connectDatabase();
                         db.updateData12(0, username,lastLogin);
                     } catch (Exception x){
-                        logger.error("Error %s".formatted(getStackTraceAsString(x)));
+                        logger.error("Error in: %s".formatted(getStackTraceAsString(x)));
                     }
                 }
             }

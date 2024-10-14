@@ -32,7 +32,7 @@ public class RequestDisaster {
                 ThemeManager.addThemeChangeListener(theme -> Platform.runLater(() -> setCSSTheme(theme, scene)));
 
             } catch (IOException e) {
-                logger.error("Error in UserDashboardPanel.java: [createDisasterSubPage] [IOException]: %s".formatted(getStackTraceAsString(e)));
+                logger.error("Error in: %s".formatted(getStackTraceAsString(e)));
             }
         });
         return disasterRequestPanel;

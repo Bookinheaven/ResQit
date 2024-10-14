@@ -38,7 +38,7 @@ public class MainUtils {
             logger.info("Properties Cleared!");
 
         } catch (IOException e) {
-            logger.error("Error in MainUtils.java: [IOException while saving properties] %s \n".formatted(getStackTraceAsString(e)));
+            logger.error("Error in: %s".formatted(getStackTraceAsString(e)));
         }
     }
     public static void setLoggerContext(){
@@ -104,7 +104,7 @@ public class MainUtils {
         } catch (FileNotFoundException e) {
             logger.warn("Warning in MainUtils.java: [FileNotFoundException] while reading in RememberMeReader");
         } catch (IOException e) {
-            logger.error("Error in MainUtils.java: [IOException] %s \n".formatted(getStackTraceAsString(e)));
+            logger.error("Error in: %s".formatted(getStackTraceAsString(e)));
         }
     }
     public static String getStackTraceAsString(Exception e) {

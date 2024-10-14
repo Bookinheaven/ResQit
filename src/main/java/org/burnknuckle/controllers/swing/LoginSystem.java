@@ -159,7 +159,7 @@ public class LoginSystem {
             try {
                 db.updateData12(0, username,lastLogin);
             } catch (Exception e){
-                logger.error("Error %s".formatted(getStackTraceAsString(e)));
+                logger.error("Error in: %s".formatted(getStackTraceAsString(e)));
             }
         }
         Map<String, Object> finalUserdata = userdata;

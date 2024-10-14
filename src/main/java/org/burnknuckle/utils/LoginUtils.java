@@ -43,16 +43,12 @@ public class LoginUtils {
         String password = userdata.get("password").toString();
         String privilege = userdata.get("privilege").toString();
         String email = userdata.get("email").toString();
-        String gender = userdata.get("gender").toString();
-        String role = userdata.get("role").toString();
         Timestamp currentTime = new Timestamp(System.currentTimeMillis());
         Map<String, Object> outData= new HashMap<>();
         outData.put("username", username);
         outData.put("password", password);
         outData.put("privilege", privilege);
         outData.put("email", email);
-        outData.put("gender", gender);
-        outData.put("role", role);
         outData.put("account_created", currentTime);
         outData.put("last_login", currentTime);
 

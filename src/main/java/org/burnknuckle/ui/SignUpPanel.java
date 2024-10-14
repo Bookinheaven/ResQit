@@ -11,12 +11,12 @@ import java.awt.event.MouseEvent;
 import java.awt.geom.RoundRectangle2D;
 import java.util.Objects;
 
-import static org.burnknuckle.controllers.swing.LoginSystem.BtwLS;
 import static org.burnknuckle.Main.logger;
+import static org.burnknuckle.controllers.swing.LoginSystem.BtwLS;
 import static org.burnknuckle.controllers.swing.SignUpSystem.SignUp;
 import static org.burnknuckle.controllers.swing.SignUpSystem.validateFields;
-import static org.burnknuckle.utils.ThemeManager.currentTheme;
 import static org.burnknuckle.utils.MainUtils.getStackTraceAsString;
+import static org.burnknuckle.utils.ThemeManager.currentTheme;
 
 public class SignUpPanel {
     private final JFrame frame;
@@ -32,9 +32,6 @@ public class SignUpPanel {
 
     private JPasswordField passwordField;
     private JPasswordField conformPasswordField;
-
-    private JComboBox<String> genderComboBox;
-    private JComboBox<String> roleComboBox;
 
     private JLabel warningLabel;
 
@@ -100,7 +97,7 @@ public class SignUpPanel {
             leftGbc.fill = GridBagConstraints.BOTH;
             leftPanel.add(GLogoLabel, leftGbc);
         } catch (NullPointerException e) {
-            logger.error("Error in SignUpPanel.java: [NullPointerException]: %s".formatted(getStackTraceAsString(e)));
+            logger.error("Error in: %s".formatted(getStackTraceAsString(e)));
         }
     }
 
@@ -248,12 +245,11 @@ public class SignUpPanel {
             @Override
             public void keyPressed(KeyEvent e) {
                 if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-                    SignUp(frame, usernameField, passwordField, conformPasswordField, emailField, genderComboBox, roleComboBox, warningLabel);
+                    SignUp(frame, usernameField, passwordField, conformPasswordField, emailField, warningLabel);
                 }
             }
         });
-
-        signUpButton.addActionListener(_ ->SignUp(frame, usernameField, passwordField, conformPasswordField, emailField, genderComboBox, roleComboBox, warningLabel));
+        signUpButton.addActionListener(_ ->SignUp(frame, usernameField, passwordField, conformPasswordField, emailField, warningLabel));
 
         // Sign Up Label
         JLabel signUpLabel = new JLabel("Have an account?");
@@ -282,52 +278,6 @@ public class SignUpPanel {
             }
         });
         emailField.setMargin(new Insets(10,10,10,10));
-
-
-// Gender Field
-        genderComboBox = new JComboBox<>(new String[]{"Male", "Female"});
-        genderComboBox.setFont(new Font("Fira Code Retina", Font.PLAIN, 16));
-        genderComboBox.setPreferredSize(new Dimension(300, 45));
-
-        String[] tooltips = {
-                "Select the role",
-                "Individuals who fight fires and respond to fire emergencies.",
-                "Officers who ensure safety and law enforcement during disasters.",
-                "Medical professionals providing emergency medical services.",
-                "Coordinate logistics for resource distribution and management.",
-                "Manage communication and information dissemination during crises.",
-                "Provide medical care and support during emergencies.",
-                "People who volunteer to help during disasters.",
-                "Volunteers who conduct search and rescue operations.",
-                "Provide psychological support and counseling during crises.",
-                "Manage overall disaster response and recovery efforts.",
-                "Plan and prepare for emergency situations and disaster responses.",
-                "Teams trained to handle hazardous materials and situations.",
-                "Experts who assess and manage environmental impacts of disasters.",
-                "Professionals involved in rebuilding infrastructure after disasters.",
-                "Specialists focusing on economic recovery and rebuilding efforts.",
-                "Provide mental health support and counseling during emergencies.",
-                "Leaders within the community who aid in coordination and support.",
-                "Workers from Red Cross/Red Crescent providing humanitarian aid.",
-                "Non-Governmental Organizations involved in disaster response.",
-                "Provide social support and services to affected individuals.",
-                "Others"
-        };
-            roleComboBox = new JComboBox<>(roles);
-        roleComboBox.setRenderer(new DefaultListCellRenderer() {
-            @Override
-            public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
-                Component component = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-                if (index >= 0 && index < tooltips.length) {
-                    setToolTipText(tooltips[index]);
-                } else {
-                    setToolTipText(null);
-                }
-                return component;
-            }
-        });
-        roleComboBox.setFont(new Font("Fira Code Retina", Font.PLAIN, 16));
-        roleComboBox.setPreferredSize(new Dimension(300, 45));
 
         // Username Field
         rightGbc.gridx = 0;
@@ -370,32 +320,21 @@ public class SignUpPanel {
         rightGbc.insets = new Insets(10,10,5,10);
         rightPanel.add(emailField, rightGbc);
 
-        rightGbc.gridx = 0;
-        rightGbc.gridy = 5;
-        rightGbc.insets = new Insets(10,10,5,10);
-        rightPanel.add(genderComboBox, rightGbc);
-
-        rightGbc.gridx = 0;
-        rightGbc.gridy = 6;
-        rightGbc.insets = new Insets(10,10,5,10);
-        rightPanel.add(roleComboBox, rightGbc);
-
-
         // Sign Up Button
         rightGbc.gridx = 0;
-        rightGbc.gridy = 7;
+        rightGbc.gridy = 5;
         rightGbc.insets = new Insets(10,10,10,10);
         rightPanel.add(signUpButton, rightGbc);
 
         // Sign Up Label
         rightGbc.gridx = 0;
-        rightGbc.gridy = 8;
+        rightGbc.gridy = 6;
         rightGbc.insets = new Insets(10,10,10,10);
         rightPanel.add(signUpLabel, rightGbc);
 
         // Warning Label
         rightGbc.gridx = 0;
-        rightGbc.gridy = 9;
+        rightGbc.gridy = 7;
         rightGbc.insets = new Insets(10,10,5,10);
         rightPanel.add(warningLabel, rightGbc);
 

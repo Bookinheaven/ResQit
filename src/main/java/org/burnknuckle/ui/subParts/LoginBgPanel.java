@@ -39,7 +39,7 @@ public class LoginBgPanel extends JPanel {
                 repaint();
             }
         } catch (IOException e) {
-            logger.error("Cannot find the background image: %s".formatted(getStackTraceAsString(e)));
+            logger.error("Error in: %s".formatted(getStackTraceAsString(e)));
         }
     }
 

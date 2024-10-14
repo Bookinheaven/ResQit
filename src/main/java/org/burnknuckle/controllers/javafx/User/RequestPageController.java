@@ -89,7 +89,7 @@ public class RequestPageController {
                 warningLabel.setVisible(false);
             }
         } catch (Exception e){
-            logger.error("Error in disasterPageController.java: |Exception in submitData| %s \n".formatted(getStackTraceAsString(e)));
+            logger.error("Error in: %s".formatted(getStackTraceAsString(e)));
         }
     }
     private ObservableList<String> relatedScales;

@@ -6,7 +6,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.Arrays;
 import java.util.Map;
-import java.util.Objects;
 import java.util.TreeMap;
 
 import static org.burnknuckle.Main.logger;
@@ -14,14 +13,12 @@ import static org.burnknuckle.utils.LoginUtils.SignUpUser;
 import static org.burnknuckle.utils.Userdata.setUsername;
 
 public class SignUpSystem {
-    public static void SignUp(JFrame frame, JTextField usernameField, JPasswordField passwordField, JPasswordField conformPasswordField, JTextField emailField, JComboBox<String> genderComboBox, JComboBox<String> roleComboBox, JLabel warningLabel) {
+    public static void SignUp(JFrame frame, JTextField usernameField, JPasswordField passwordField, JPasswordField conformPasswordField, JTextField emailField, JLabel warningLabel) {
         String username = usernameField.getText();
         String password = new String(passwordField.getPassword());
         String confirmPassword = new String(conformPasswordField.getPassword());
         String email = emailField.getText();
-        String role = Objects.requireNonNull(roleComboBox.getSelectedItem()).toString();
-        String gender = Objects.requireNonNull(genderComboBox.getSelectedItem()).toString();
-        logger.info("%s %s %s %s %s %s".formatted(username, password, confirmPassword, email, role, gender));
+        logger.info("%s %s %s %s".formatted(username, password, confirmPassword, email));
         boolean isValid = true;
         StringBuilder errorMessage = new StringBuilder();
         if (username.trim().isEmpty()) {
@@ -40,10 +37,6 @@ public class SignUpSystem {
             errorMessage.append("Email cannot be empty.\n");
             isValid = false;
         }
-        if (role.equals("Role")){
-            errorMessage.append("Select the suitable role.\n");
-            isValid = false;
-        }
         if (!isValidEmail(email)) {
             errorMessage.append("Invalid email format.\n");
             isValid = false;
@@ -55,8 +48,6 @@ public class SignUpSystem {
                 put("password", password);
                 put("privilege", "user");
                 put("email", email);
-                put("gender", gender);
-                put("role", role);
             }};
             setUsername(username);
             String out = SignUpUser(userdata);

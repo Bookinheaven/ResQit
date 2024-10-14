@@ -47,12 +47,6 @@ public class UserDashboardPanel {
         frame.revalidate();
         frame.repaint();
         frame.setVisible(true);
-        frame.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                logger.info(pageStack.toString());
-            }
-        });
     }
     public static boolean checkAccountData() {
         String[] checkList = new String[]{
@@ -117,7 +111,6 @@ public class UserDashboardPanel {
             StringBuilder warnMessage = new StringBuilder();
             for (String column : checkList) {
                 Object value = checkData.get(column);
-
                 if (optionalFields.contains(column) && (value == null || value.toString().isEmpty())) {
                     continue;
                 }
@@ -128,7 +121,7 @@ public class UserDashboardPanel {
                 }
             }
         } catch (Exception e) {
-            logger.error("Error in [checkAccountData]: %s".formatted(getStackTraceAsString(e)));
+            logger.error("Error in: %s".formatted(getStackTraceAsString(e)));
         }
         return true;
     }
@@ -367,7 +360,7 @@ public class UserDashboardPanel {
                             frame.setVisible(false);
                             new LoginSystem(frame);
                         } catch (Exception exx) {
-                            logger.error(getStackTraceAsString(exx));
+                            logger.error("Error in: %s".formatted(getStackTraceAsString(exx)));
                             JOptionPane.showMessageDialog(frame, "An error occurred during logout.");
                         }
                     });

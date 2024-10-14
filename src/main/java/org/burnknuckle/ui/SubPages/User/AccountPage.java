@@ -114,6 +114,8 @@ public class AccountPage {
     }
     public JPanel createAccountPage(JFrame frame, CardLayout cardLayout, JPanel mainContent) {
         this.frame = frame;
+        this.cardLayout = cardLayout;
+        this.mainContent = mainContent;
         try {
             System.out.println(username);
             Database db = Database.getInstance();
@@ -121,7 +123,7 @@ public class AccountPage {
             userdata = db.getUsernameDetails(username);
             System.out.println(userdata.toString());
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Error in: %s".formatted(getStackTraceAsString(e)));
         }
 
         JPanel backgroundPanel = new JPanel(new GridBagLayout());
@@ -222,7 +224,7 @@ public class AccountPage {
             saveButtonPersonalInfo.setVisible(false);
             runCheck();
         } catch (Exception e){
-            e.printStackTrace();
+            logger.error("Error in: %s".formatted(getStackTraceAsString(e)));
         }
     }
 
@@ -251,7 +253,7 @@ public class AccountPage {
             saveButtonHealthInfo.setVisible(false);
             runCheck();
         } catch (Exception e){
-            e.printStackTrace();
+            logger.error("Error in: %s".formatted(getStackTraceAsString(e)));
         }
     }
 
@@ -293,7 +295,7 @@ public class AccountPage {
             saveButtonContactInfo.setVisible(false);
             runCheck();
         } catch (Exception e){
-            e.printStackTrace();
+            logger.error("Error in: %s".formatted(getStackTraceAsString(e)));
         }
     }
 
@@ -327,7 +329,7 @@ public class AccountPage {
             saveButtonHealthInfo.setVisible(false);
             runCheck();
         } catch (Exception e){
-            e.printStackTrace();
+            logger.error("Error in: %s".formatted(getStackTraceAsString(e)));
         }
     }
 
@@ -513,7 +515,7 @@ public class AccountPage {
                 teamInfoPanel.add(new JLabel("No teams found."), "span, grow, align center, gaptop 50");
             }
         } catch (Exception e) {
-            logger.error("Error [TeamInfoPanel]: %s".formatted(getStackTraceAsString(e)));
+            logger.error("Error in: %s".formatted(getStackTraceAsString(e)));
             teamInfoPanel.add(new JLabel("Error loading team data: " + e.getMessage()), "span, grow, align center");
         }
         accountPanel.revalidate();
@@ -823,6 +825,42 @@ public class AccountPage {
             roleField.setSelectedItem(role);
         }
         roleField.setPreferredSize(new Dimension(400, 30));
+        String[] tooltips = {
+                "Select the role",
+                "Individuals who fight fires and respond to fire emergencies.",
+                "Officers who ensure safety and law enforcement during disasters.",
+                "Medical professionals providing emergency medical services.",
+                "Coordinate logistics for resource distribution and management.",
+                "Manage communication and information dissemination during crises.",
+                "Provide medical care and support during emergencies.",
+                "People who volunteer to help during disasters.",
+                "Volunteers who conduct search and rescue operations.",
+                "Provide psychological support and counseling during crises.",
+                "Manage overall disaster response and recovery efforts.",
+                "Plan and prepare for emergency situations and disaster responses.",
+                "Teams trained to handle hazardous materials and situations.",
+                "Experts who assess and manage environmental impacts of disasters.",
+                "Professionals involved in rebuilding infrastructure after disasters.",
+                "Specialists focusing on economic recovery and rebuilding efforts.",
+                "Provide mental health support and counseling during emergencies.",
+                "Leaders within the community who aid in coordination and support.",
+                "Workers from Red Cross/Red Crescent providing humanitarian aid.",
+                "Non-Governmental Organizations involved in disaster response.",
+                "Provide social support and services to affected individuals.",
+                "Others"
+        };
+        roleField.setRenderer(new DefaultListCellRenderer() {
+            @Override
+            public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+                Component component = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                if (index >= 0 && index < tooltips.length) {
+                    setToolTipText(tooltips[index]);
+                } else {
+                    setToolTipText(null);
+                }
+                return component;
+            }
+        });
         roleField.setFont(new Font("Arial", Font.PLAIN, 14));
         roleField.addActionListener(_ -> {
             if (role != null && !role.equals(Objects.requireNonNull(roleField.getSelectedItem()).toString())) {
@@ -885,7 +923,7 @@ public class AccountPage {
         accountCreatedLabel.setFont(new Font("Arial", Font.PLAIN, 14));
 
         JTextField accountCreatedField = new JTextField();
-        String accountCreatedDate = ((userdata.get("account_created")) == null )? "Not Filled": formatDateTime((userdata.get("account_created")).toString(), "yyyy-MM-dd HH:mm:ss.SSSSSS", "MMMM dd, yyyy hh:mm a");
+        String accountCreatedDate = ((userdata.get("account_created")) == null )? "Not Filled": formatDateTime((userdata.get("account_created")).toString(), "yyyy-MM-dd HH:mm:ss.SSS", "MMMM dd, yyyy hh:mm a");
         accountCreatedField.setText(accountCreatedDate);
         accountCreatedField.setEnabled(false);
         accountCreatedField.setPreferredSize(new Dimension(400, 30));

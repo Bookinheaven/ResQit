@@ -30,7 +30,7 @@ public class VolunteerRegistration {
             db.updateData12(0,username ,data);
             cardLayout.show(mainContent, "HomePage");
         } catch (Exception e){
-            logger.info("Error [clickSubmit]: db update failed: %s".formatted(getStackTraceAsString(e)));
+            logger.error("Error in: %s".formatted(getStackTraceAsString(e)));
         }
         JOptionPane.showMessageDialog(null, "Form submitted successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
     }
