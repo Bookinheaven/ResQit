@@ -34,50 +34,48 @@ public class ThemeManager {
     }
     public static Map<String, String> UpdateADPThemeData(String newTheme){
         ADPThemeData = new TreeMap<>();
-        if (Objects.equals(newTheme, "dark")) {
-            ADPThemeData.put("sidebar", "#4f4f4f");
-            ADPThemeData.put("background", "#5d5d5d");
-            ADPThemeData.put("TabBackground", "#262626");
-            ADPThemeData.put("splitter", "#f6f6f6");
-            ADPThemeData.put("overlay", "#363636cc");
-            ADPThemeData.put("TabTitleBg", "#474747");
-            ADPThemeData.put("TabTitleSelected", "#4f4f4f");
-            ADPThemeData.put("TabTitleTextColorSelected", "#6D8FFF");
-            ADPThemeData.put("TabTitleTextColorNormal", "#FFFFFF");
+        switch (newTheme) {
+            case "dark":
+                ADPThemeData.put("sidebar", "#4f4f4f");
+                ADPThemeData.put("background", "#5d5d5d");
+                ADPThemeData.put("TabBackground", "#262626");
+                ADPThemeData.put("splitter", "#f6f6f6");
+                ADPThemeData.put("overlay", "#363636cc");
+                ADPThemeData.put("TabTitleBg", "#474747");
+                ADPThemeData.put("TabTitleSelected", "#4f4f4f");
+                ADPThemeData.put("TabTitleTextColorSelected", "#6D8FFF");
+                ADPThemeData.put("TabTitleTextColorNormal", "#FFFFFF");
+                ADPThemeData.put("default-menu-button", "#4f4f4f");
+                ADPThemeData.put("hover-menu-button", "#6d6d6d");
+                ADPThemeData.put("active-menu-button", "#4f4f4f");
+                ADPThemeData.put("sidebar-default-menu-button", "#4f4f4f");
+                ADPThemeData.put("text", "#f6f6f6");
+                ADPThemeData.put("accountPanelBg", "#ebeaea64");
+                break;
 
-            ADPThemeData.put("default-menu-button", "#4f4f4f");
-            ADPThemeData.put("hover-menu-button", "#6d6d6d");
-            ADPThemeData.put("active-menu-button", "#4f4f4f");
-            ADPThemeData.put("sidebar-default-menu-button", "#4f4f4f");
-            ADPThemeData.put("text", "#f6f6f6");
+            case "light":
+                ADPThemeData.put("sidebar", "#e0e0e0");
+                ADPThemeData.put("background", "#656565");
+                ADPThemeData.put("TabBackground", "#eeeeee");
+                ADPThemeData.put("TabTitleBg", "#4f4f4f");
+                ADPThemeData.put("TabTitleSelected", "#4f4f4f");
+                ADPThemeData.put("TabTitleTextColorSelected", "#0661ff");
+                ADPThemeData.put("TabTitleTextColorNormal", "#edf7ff");
+                ADPThemeData.put("splitter", "#000000");
+                ADPThemeData.put("overlay", "#989898cc");
+                ADPThemeData.put("default-menu-button", "#f0f0f0");
+                ADPThemeData.put("hover-menu-button", "#e0e0e0");
+                ADPThemeData.put("active-menu-button", "#d0d0d0");
+                ADPThemeData.put("sidebar-default-menu-button", "#e0e0e0");
+                ADPThemeData.put("text", "#333333");
+                ADPThemeData.put("accountPanelBg", "#59595964");
+                break;
 
-            // accountPage
-            ADPThemeData.put("accountPanelBg", "#ebeaea64");
-
-        } else if (Objects.equals(newTheme, "light")) {
-            ADPThemeData.put("sidebar", "#e0e0e0");
-            ADPThemeData.put("background", "#656565");
-            ADPThemeData.put("TabBackground", "#eeeeee");
-            ADPThemeData.put("TabTitleBg", "#4f4f4f");
-            ADPThemeData.put("TabTitleSelected", "#4f4f4f");
-            ADPThemeData.put("TabTitleTextColorSelected", "#0661ff");
-            ADPThemeData.put("TabTitleTextColorNormal", "#edf7ff");
-            ADPThemeData.put("splitter", "#e0e0e0");
-            ADPThemeData.put("overlay", "#989898cc");
-            ADPThemeData.put("default-menu-button", "#f0f0f0");
-            ADPThemeData.put("hover-menu-button", "#e0e0e0");
-            ADPThemeData.put("active-menu-button", "#d0d0d0");
-            ADPThemeData.put("sidebar-default-menu-button", "#e0e0e0");
-            ADPThemeData.put("text", "#333333");
-
-            // accountPage
-            ADPThemeData.put("accountPanelBg", "#59595964");
-
-
-        } else {
-            ADPThemeData.put("sidebar", "#e0e0e0");
-            ADPThemeData.put("background", "#ffffff");
-            ADPThemeData.put("text", "#000000");
+            default:
+                ADPThemeData.put("sidebar", "#e0e0e0");
+                ADPThemeData.put("background", "#ffffff");
+                ADPThemeData.put("text", "#000000");
+                break;
         }
         return ADPThemeData;
     }
@@ -122,7 +120,7 @@ public class ThemeManager {
         Color hoverColor = getColorFromHex(themeColors.get("hover-menu-button"));
         Color activeColor = getColorFromHex(themeColors.get("active-menu-button"));
         button.setBackground(defaultColor);
-
+        button.setForeground(getColorFromHex(themeColors.get("text")));
         button.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseEntered(MouseEvent e) {

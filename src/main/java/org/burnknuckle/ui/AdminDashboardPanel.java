@@ -71,8 +71,14 @@ public class AdminDashboardPanel {
         MenuButton.setForeground(getColorFromHex(ADPThemeData.get("text")));
         overlayPanel.setBackground(getColorFromHex(ADPThemeData.get("overlay")));
         avatarPanel.setBackground(getColorFromHex(ADPThemeData.get("sidebar")));
+        menuBar.setBackground(getColorFromHex(ADPThemeData.get("sidebar")));
         buttonPanel.setBackground(getColorFromHex(ADPThemeData.get("sidebar")));
         splitter.setForeground(Color.decode(ADPThemeData.get("splitter")));
+        for (Component button: buttonPanel.getComponents() ) {
+            if(button instanceof JButton){
+                setButtonHoverAndActiveColors((JButton) button, ADPThemeData, "sidebar");
+            }
+        }
         splitter1.setForeground(Color.decode(ADPThemeData.get("splitter")));
         setButtonHoverAndActiveColors(logoutButton, ADPThemeData, "none");
         setButtonHoverAndActiveColors(MenuButton, ADPThemeData, "none");
@@ -147,7 +153,12 @@ public class AdminDashboardPanel {
         avatarPanel.setSize(150, 100);
         avatarPanel.setBackground(getColorFromHex(ADPThemeData.get("sidebar")));
 
-        ImageIcon ResQitLogo = new ImageIcon(Objects.requireNonNull(getClass().getClassLoader().getResource("DarkThemes/Resqit-dark.png")));
+        ImageIcon ResQitLogo;
+        if(currentTheme.equals("dark")){
+            ResQitLogo = new ImageIcon(Objects.requireNonNull(getClass().getClassLoader().getResource("DarkThemes/Resqit-dark.png")));
+        } else {
+            ResQitLogo = new ImageIcon(Objects.requireNonNull(getClass().getClassLoader().getResource("LightThemes/Resqit-light.png")));
+        }
         Image scaledResQitLogo = ResQitLogo.getImage().getScaledInstance(250, 250, Image.SCALE_SMOOTH);
         avatarLabel = new JLabel(new ImageIcon(scaledResQitLogo));
         avatarLabel.setOpaque(false);
@@ -164,6 +175,7 @@ public class AdminDashboardPanel {
         String[] buttonLabels = {"Dashboard", "Disaster Management", "User Management", "Resources Status", "Volunteer Management"};
         for (String label : buttonLabels) {
             JButton button = createSidebarButton(label);
+            button.setBackground(getColorFromHex(ADPThemeData.get("sidebar")));
             buttonPanel.add(button);
         }
         splitter = new JSeparator();
@@ -389,264 +401,6 @@ public class AdminDashboardPanel {
             sortButton.setIcon(new FlatSVGIcon(Objects.requireNonNull(getClass().getClassLoader().getResource("Common/north.svg"))));
         }
         return sortDirection;
-    }
-
-    private JPanel createCoAdminsPanel() {
-        Database db = Database.getInstance();
-        JPanel panel = new JPanel(new BorderLayout());
-        JPanel inner = new JPanel(new GridBagLayout());
-        GridBagConstraints innerGBC = new GridBagConstraints();
-
-        inner.setBackground(getColorFromHex(ADPThemeData.get("background")));
-        JPanel AdminMenu = new JPanel();
-        AdminMenu.setLayout(new GridLayout());
-
-        JLabel label = new JLabel("Co-Admins Management");
-        label.setFont(new Font("Inter", Font.PLAIN, 35));
-        label.setHorizontalAlignment(JLabel.CENTER);
-        innerGBC.insets = new Insets(10, 10, 10, 10);
-        innerGBC.gridx = 0;
-        innerGBC.gridy = 0;
-        innerGBC.anchor = GridBagConstraints.NORTH;
-        inner.add(label, innerGBC);
-
-        JPanel topBar = new JPanel(new GridBagLayout());
-        topBar.setSize(new Dimension(mainContent.getWidth()-70, (mainContent.getHeight() - 10) /5));
-        topBar.setOpaque(false);
-
-        GridBagConstraints topBarCont = new GridBagConstraints();
-
-        JButton saveButton = new JButton();
-        saveButton.setIcon(new FlatSVGIcon(Objects.requireNonNull(getClass().getClassLoader().getResource("AdminDashboardPanel/save.svg"))));
-        saveButton.setToolTipText("Save");
-        saveButton.setBorder(new EmptyBorder(5,5,5,5));
-        saveButton.setOpaque(false);
-        setButtonHoverAndActiveColors(saveButton, ADPThemeData, "onBackGround");
-        saveButton.setSize(new Dimension(30,30));
-
-        JPanel fakePanel = new JPanel();
-        fakePanel.setOpaque(false);
-        JLabel sortLabel = new JLabel();
-        sortLabel.setText("Sort");
-        sortLabel.setFont(new Font("Fira Code Retina", Font.PLAIN, 18));
-        JButton sortButton = new JButton();
-        final String[] sortDirection = {"inc"};
-        sortDirection[0] = loadIconSort(sortDirection[0], sortButton);
-        sortButton.setSize(new Dimension(30,30));
-        sortButton.setBorder(new EmptyBorder(5,5,5,5));
-        sortButton.setOpaque(false);
-        setButtonHoverAndActiveColors(sortButton, ADPThemeData, "onBackGround");
-
-        sortButton.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                sortDirection[0] = loadIconSort(sortDirection[0], sortButton);
-            }
-        });
-        sortButton.setToolTipText("Sort");
-
-        topBarCont.insets = new Insets(10,10,10,10);
-        topBarCont.gridx = 0;
-        topBarCont.gridy = 0;
-        topBarCont.weightx = 1.0;
-        topBarCont.fill = GridBagConstraints.HORIZONTAL;
-        topBarCont.anchor = GridBagConstraints.WEST;
-        topBar.add(fakePanel, topBarCont);
-
-        topBarCont.insets = new Insets(10,10,10,10);
-        topBarCont.gridx = 1;
-        topBarCont.gridy = 0;
-        topBarCont.weightx = 0;
-        topBarCont.fill = GridBagConstraints.NONE;
-        topBarCont.anchor = GridBagConstraints.CENTER;
-        topBar.add(saveButton, topBarCont);
-
-        topBarCont.insets = new Insets(10,10,10,10);
-        topBarCont.gridx = 2;
-        topBarCont.gridy = 0;
-        topBarCont.weightx = 0;
-        topBarCont.fill = GridBagConstraints.HORIZONTAL;
-        topBarCont.anchor = GridBagConstraints.CENTER;
-        topBar.add(sortLabel, topBarCont);
-
-        topBarCont.insets = new Insets(10,10,10,10);
-        topBarCont.gridx = 3;
-        topBarCont.gridy = 0;
-        topBarCont.weightx = 0;
-        topBarCont.fill = GridBagConstraints.NONE;
-        topBarCont.anchor = GridBagConstraints.CENTER;
-        topBar.add(sortButton, topBarCont);
-
-
-        innerGBC.insets = new Insets(30, 30, 0, 30);
-        innerGBC.gridx = 0;
-        innerGBC.gridy = 1;
-        innerGBC.fill = GridBagConstraints.HORIZONTAL;
-        inner.add(topBar, innerGBC);
-
-        List<Map<String, Object>> coAdminData = db.getAllData(0,"privilege");
-        String[] columnNames = {
-                "ID",
-                "Username",
-                "Gender",
-                "Role",
-                "Email",
-                "Privilege",
-                "Password",
-                "First Name",
-                "Last Name",
-                "Phone Number",
-                "Date of Birth",
-                "Account Creation",
-                "Last Login",
-                "Active Status",
-                "Address",
-                "Profile Picture URL",
-                "Bio",
-                "Failed Login Attempts",
-                "Password Last Updated"
-        };
-        DefaultTableModel tableModel = new DefaultTableModel(columnNames, 0) {
-            public boolean isCellEditable(int row, int column) {
-//                if (column == 6) {
-//                    return false;
-//                }
-//                return super.isCellEditable(row, column);
-                return false;
-            }
-        };
-
-        int id = 1;
-        for (Map<String, Object> userData : coAdminData) {
-            Object[] rowData = {
-                    id++,
-                    userData.get("username"),
-                    userData.get("gender"),
-                    userData.get("role"),
-                    userData.get("email"),
-                    userData.get("privilege"),
-                    userData.get("password"),
-                    userData.get("first_name"),
-                    userData.get("last_name"),
-                    userData.get("phone_number"),
-                    userData.get("date_of_birth"),
-                    userData.get("account_created"),
-                    userData.get("last_login"),
-                    userData.get("is_active"),
-                    userData.get("address"),
-                    userData.get("profile_picture_url"),
-                    userData.get("bio"),
-                    userData.get("failed_login_attempts"),
-                    userData.get("password_last_updated"),
-                    "show"
-            };
-            tableModel.addRow(rowData);
-        }
-
-        int size = coAdminData.size();
-        int noD = (String.valueOf(size).length() * 20);
-
-        JTable coAdminTable = new JTable(tableModel);
-        coAdminTable.getTableHeader().setFont(new Font("Arial", Font.BOLD, 17));
-        coAdminTable.setFont(new Font("Arial", Font.PLAIN, 14));
-
-        coAdminTable.getColumnModel().getColumn(0).setPreferredWidth(noD);
-        coAdminTable.getColumnModel().getColumn(0).setMinWidth(noD);
-        coAdminTable.getColumnModel().getColumn(0).setMaxWidth(noD);
-        coAdminTable.setFillsViewportHeight(true);
-        ListSelectionModel selected = coAdminTable.getSelectionModel();
-        coAdminTable.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseEntered(MouseEvent e) {
-                int row = coAdminTable.getSelectedRow();
-                int col = coAdminTable.getSelectedColumn();
-
-                if (col == 6 && row != -1) {
-                    coAdminTable.setToolTipText("Double-click to show or hide");
-                } else {
-                    coAdminTable.setToolTipText(null);
-                }
-            }
-
-//        JButton editButton = new JButton();
-//        editButton.setIcon(new FlatSVGIcon(Objects.requireNonNull(getClass().getClassLoader().getResource("icons/log-out.svg"))));
-//        editButton.setToolTipText("Edit");
-//        editButton.setSize(new Dimension(30,30));
-//        JButton deleteButton = new JButton();
-//        deleteButton.setIcon(new FlatSVGIcon(Objects.requireNonNull(getClass().getClassLoader().getResource("icons/log-out.svg"))));
-//        deleteButton.setToolTipText("Delete");
-//        deleteButton.setSize(new Dimension(30,30));
-
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                if (e.getClickCount() >= 2) {
-                    int row = coAdminTable.getSelectedRow();
-                    int col = coAdminTable.getSelectedColumn();
-
-                    if (col == 6) {
-                        String password = (String) coAdminData.get(row).get("password");
-
-                        coAdminTable.setValueAt(password, row, col);
-                        Timer timer = new Timer(3000, _ -> {
-                            coAdminTable.setValueAt("show", row, col);
-                            frame.revalidate();
-                            frame.repaint();
-                        });
-                        timer.setRepeats(false);
-                        timer.start();
-
-
-                    }
-                }
-            }
-        });
-//        selected.addListSelectionListener(new ListSelectionListener() {
-//            @Override
-//            public void valueChanged(ListSelectionEvent e) {
-//                int row = coAdminTable.getSelectedRow();
-//                int col = coAdminTable.getSelectedColumn();
-//                if(col == 5){
-//                    System.out.println(coAdminTable.getValueAt(row, col));
-//                    System.out.println(col);
-//                    String password = (String) coAdminData.get(row).get("password");
-//                    coAdminTable.setValueAt(password, row, col);
-//
-//                }
-//            }
-//        });
-        JScrollPane tableScrollPane = new JScrollPane(coAdminTable);
-        innerGBC.insets = new Insets(0,30,30,10);
-        innerGBC.gridx = 0;
-        innerGBC.gridy = 2;
-        innerGBC.fill = GridBagConstraints.BOTH;
-        innerGBC.weightx = 1.0;
-        innerGBC.weighty = 1.0;
-        inner.add(tableScrollPane, innerGBC);
-
-        panel.add(inner, BorderLayout.CENTER);
-        return panel;
-    }
-
-    private JPanel createAddMarkersPanel() {
-        JPanel panel = new JPanel();
-        panel.setBackground(getColorFromHex(ADPThemeData.get("background")));
-        panel.add(new JLabel("Add Markers Content Here"));
-        return panel;
-    }
-
-    private static int targetCol(String Key, java.util.List<Map<String, Object>>  coAdminData){
-        String targetKey = "username";
-        int maxLength = 0;
-        for (Map<String, Object> userData : coAdminData) {
-            Object value = userData.get(targetKey);
-            if (value instanceof String) {
-                int length = ((String) value).length();
-                if (length > maxLength) {
-                    maxLength = length;
-                }
-            }
-        }
-        return maxLength;
     }
 
 

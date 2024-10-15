@@ -422,21 +422,7 @@ public class Database {
                 }
             }
         }
-
         return teams;
-    }
-
-
-    public int updateUserPrivilege(String username, String newPrivilege) {
-        String updateSQL = "UPDATE %s SET privilege = ? WHERE username = ?".formatted(TABLE_NAME[0]);
-        try (PreparedStatement pStmt = con.prepareStatement(updateSQL)) {
-            pStmt.setString(1, newPrivilege);
-            pStmt.setString(2, username);
-            return pStmt.executeUpdate();
-        } catch (SQLException e) {
-            logger.error("Error in Database.java: |SQLException while updateUserPrivilege| %s \n".formatted(getStackTraceAsString(e)));
-            return -1;
-        }
     }
 
     public void updateData12(int TableNo, String username, Map<String, Object> data) {
@@ -532,8 +518,5 @@ public class Database {
         return false;
     }
 
-    public boolean canCreateCoAdmin(String username) {
-        return isAdmin(username);
-    }
 
 }
