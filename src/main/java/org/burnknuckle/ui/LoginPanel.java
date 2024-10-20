@@ -12,8 +12,10 @@ import java.awt.geom.RoundRectangle2D;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import static org.burnknuckle.Main.logger;
 import static org.burnknuckle.controllers.swing.LoginSystem.BtwLS;
 import static org.burnknuckle.controllers.swing.LoginSystem.Login;
+import static org.burnknuckle.utils.ThemeManager.*;
 
 public class LoginPanel {
     private final JFrame frame;
@@ -24,6 +26,8 @@ public class LoginPanel {
     private JCheckBox rememberMeCheckbox;
     private JButton loginButton;
     private JLabel warningLabel;
+    private Graphics2D graphic;
+
 
     public LoginPanel(JFrame frame, JLayeredPane MainPane) {
         this.frame = frame;
@@ -37,15 +41,22 @@ public class LoginPanel {
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
                 Graphics2D g2d = (Graphics2D) g;
+                graphic = g2d;
                 g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                 Shape roundedRectangle = new RoundRectangle2D.Double(0, 0, getWidth(), getHeight(), 5, 5);
-                g2d.setColor(new Color(54, 54, 54, 184));
+                g2d.setColor(getColorFromHex(ADPThemeData.get("loginPageRecBg")));
+
                 g2d.fill(roundedRectangle);
-                g2d.setColor(Color.WHITE);
                 g2d.setStroke(new BasicStroke(0, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
                 g2d.draw(roundedRectangle);
             }
         };
+        addThemeChangeListener(_ -> {
+            if(graphic != null){
+                graphic.setColor(getColorFromHex(ADPThemeData.get("loginPageRecBg")));
+                loginOverlayPanel.setBorder(BorderFactory.createLineBorder(getColorFromHex(ADPThemeData.get("loginPageRecBorder"))));
+            }
+        });
         loginOverlayPanel.setOpaque(false);
         loginOverlayPanel.setBounds(0, 0, 457, 521);
         loginOverlayPanel.setBorder(BorderFactory.createLineBorder(Color.WHITE));

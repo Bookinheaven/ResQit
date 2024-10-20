@@ -149,6 +149,14 @@ public class AccountPage {
 
         accountPanel.setPreferredSize(new Dimension((int) (frame.getWidth() * 0.70), (int) (frame.getHeight() * 0.70)));
         accountPanel.setBackground(getColorFromHex(ADPThemeData.get("accountPanelBg")));
+        addThemeChangeListener(_->{
+            accountPanel.setBackground(getColorFromHex(ADPThemeData.get("accountPanelBg")));
+            accountPanel.revalidate();
+            accountPanel.repaint();
+            frame.revalidate();
+            frame.repaint();
+
+        });
         accountPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
         // Title Label
@@ -169,17 +177,18 @@ public class AccountPage {
         tabs.addTab("Contact Info", contactInfoPanel());
         tabs.addTab("Health and Medical Info", healthMedicalInfoPanel());
         tabs.addTab("Skills and Experience", skillsExperienceInfoPanel());
+        tabs.addChangeListener(_->{
+            accountPanel.revalidate();
+            accountPanel.repaint();
+            frame.revalidate();
+            frame.repaint();
+        });
         String status = userdata.get("privilege").toString();
         switch (status) {
             case "admin", "co-admin", "vol"-> tabs.addTab("Team Info", TeamInfoPanel());
         }
         accountPanel.add(tabs, BorderLayout.CENTER);
-        frame.revalidate();
-        frame.repaint();
-//        statusLabel = new JLabel();
-//        statusLabel.setForeground(Color.RED); // Set color for feedback messages
-//        accountPanel.add(statusLabel, "span, grow");
-
+        
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridx = 0;
         gbc.gridy = 0;
@@ -472,7 +481,7 @@ public class AccountPage {
                             "Team: " + team.getOrDefault("team_name", "N/A"),
                             TitledBorder.LEFT, TitledBorder.TOP,
                             new Font("inter", Font.BOLD, 16), getColorFromHex(ADPThemeData.get("text"))));
-                    addThemeChangeListener(_->getColorFromHex(ADPThemeData.get("text")));
+//                    addThemeChangeListener(_->getColorFromHex(ADPThemeData.get("text")));
                     String[] labels = {
                             "Organization Affiliation", "Leader", "Co-Leader", "Phone Number", "Email Address",
                             "Team Address", "Team Type", "Primary Expertise", "Secondary Expertise",
@@ -939,8 +948,6 @@ public class AccountPage {
             saveButtonPersonalInfo.setVisible(false);
             OuterScrollBar.setViewportView(personalInfoPanel);
         });
-        accountPanel.revalidate();
-        accountPanel.repaint();
         return OuterScrollBar;
     }
 

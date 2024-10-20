@@ -501,7 +501,6 @@ public class Database {
         }
         return false;
     }
-
     public boolean isUser(String username) {
         String query = "SELECT COUNT(*) FROM %s WHERE username = ?".formatted(TABLE_NAME[0]);
         try (PreparedStatement pStmt = con.prepareStatement(query)) {
@@ -517,6 +516,4 @@ public class Database {
         }
         return false;
     }
-
-
 }

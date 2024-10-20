@@ -16,6 +16,7 @@ import static org.burnknuckle.controllers.swing.LoginSystem.BtwLS;
 import static org.burnknuckle.controllers.swing.SignUpSystem.SignUp;
 import static org.burnknuckle.controllers.swing.SignUpSystem.validateFields;
 import static org.burnknuckle.utils.MainUtils.getStackTraceAsString;
+import static org.burnknuckle.utils.ThemeManager.addThemeChangeListener;
 import static org.burnknuckle.utils.ThemeManager.currentTheme;
 
 public class SignUpPanel {
@@ -34,8 +35,9 @@ public class SignUpPanel {
     private JPasswordField conformPasswordField;
 
     private JLabel warningLabel;
-
+    private JLabel VLogoLabel;
     private JButton signUpButton;
+    private JLabel GLogoLabel;
     public static final String[] roles = {
                 "Role",
                 "Firefighter",
@@ -78,24 +80,35 @@ public class SignUpPanel {
             globalImpact = new ImageIcon(Objects.requireNonNull(getClass().getClassLoader().getResource("LightThemes/global-light.png")));
         }
         try {
+            if (VLogoLabel!=null){
+                leftPanel.remove(VLogoLabel);
+            }
+            if (GLogoLabel!=null){
+                leftPanel.remove(GLogoLabel);
+            }
+
             Image scaledVolunteersLogo = volunteersLogo.getImage().getScaledInstance(300, 300, Image.SCALE_SMOOTH);
-            JLabel VLogoLabel = new JLabel(new ImageIcon(scaledVolunteersLogo));
+            VLogoLabel = new JLabel(new ImageIcon(scaledVolunteersLogo));
             VLogoLabel.setHorizontalAlignment(SwingConstants.CENTER);
             leftGbc.gridx = 0;
             leftGbc.gridy = 2;
             leftGbc.gridwidth = 2;
-            leftGbc.insets = new Insets(0,0,10,10);
+            leftGbc.insets = new Insets(0, 0, 10, 10);
             leftGbc.fill = GridBagConstraints.BOTH;
             leftPanel.add(VLogoLabel, leftGbc);
 
             Image GlobalsScaledLogo = globalImpact.getImage().getScaledInstance(100, 100, Image.SCALE_SMOOTH);
-            JLabel GLogoLabel = new JLabel(new ImageIcon(GlobalsScaledLogo));
+            GLogoLabel = new JLabel(new ImageIcon(GlobalsScaledLogo));
             GLogoLabel.setHorizontalAlignment(SwingConstants.CENTER);
             leftGbc.gridx = 0;
             leftGbc.gridy = 3;
             leftGbc.gridwidth = 2;
             leftGbc.fill = GridBagConstraints.BOTH;
             leftPanel.add(GLogoLabel, leftGbc);
+            leftPanel.repaint();
+            leftPanel.revalidate();
+            frame.repaint();
+            frame.revalidate();
         } catch (NullPointerException e) {
             logger.error("Error in: %s".formatted(getStackTraceAsString(e)));
         }
@@ -153,6 +166,9 @@ public class SignUpPanel {
 
         // Volunteer logo
         SignReloadImage(leftGbc, leftPanel);
+        addThemeChangeListener(_-> {
+            SignReloadImage(leftGbc, leftPanel);
+        });
 
         usernameField = new JTextField(25);
         usernameField.setFont(new Font("Fira Code Retina", Font.PLAIN, 18));

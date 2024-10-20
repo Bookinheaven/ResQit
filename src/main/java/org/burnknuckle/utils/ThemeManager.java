@@ -51,6 +51,8 @@ public class ThemeManager {
                 ADPThemeData.put("sidebar-default-menu-button", "#4f4f4f");
                 ADPThemeData.put("text", "#f6f6f6");
                 ADPThemeData.put("accountPanelBg", "#ebeaea64");
+                ADPThemeData.put("loginPageRecBorder", "#ffffff");
+                ADPThemeData.put("loginPageRecBg", "#363636b8");
                 break;
 
             case "light":
@@ -69,12 +71,13 @@ public class ThemeManager {
                 ADPThemeData.put("sidebar-default-menu-button", "#e0e0e0");
                 ADPThemeData.put("text", "#333333");
                 ADPThemeData.put("accountPanelBg", "#59595964");
-                break;
+                ADPThemeData.put("loginPageRecBg", "#585858b8");
 
+                ADPThemeData.put("loginPageRecBorder", "#000000");
+
+
+                break;
             default:
-                ADPThemeData.put("sidebar", "#e0e0e0");
-                ADPThemeData.put("background", "#ffffff");
-                ADPThemeData.put("text", "#000000");
                 break;
         }
         return ADPThemeData;

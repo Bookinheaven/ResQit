@@ -604,5 +604,4 @@ public class TeamCreationPage {
         }
 
     }
-
 }

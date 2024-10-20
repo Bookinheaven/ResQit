@@ -62,6 +62,7 @@ public class AdminDashboardPanel {
         });
         addThemeChangeListener(this::updateThemeColors);
     }
+
     private void updateThemeColors(String Change) {
         MenuPanel.setBackground(getColorFromHex(ADPThemeData.get("text")));
         menuBar.setBackground(getColorFromHex(ADPThemeData.get("sidebar")));
@@ -116,7 +117,6 @@ public class AdminDashboardPanel {
             frame.repaint();
         });
     }
-
 
     private JLayeredPane createAdminBoard() {
         JLayeredPane adminBoard = new JLayeredPane();

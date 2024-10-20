@@ -18,13 +18,12 @@ public class LoginBgPanel extends JPanel {
     public LoginBgPanel(String imagePath) {
         loadImage(imagePath);
 
-        // Add a ComponentListener to listen for size changes
         this.addComponentListener(new ComponentAdapter() {
             @Override
             public void componentResized(ComponentEvent e) {
                 if (backgroundImage != null && getWidth() > 0 && getHeight() > 0) {
                     backgroundImage = scaleImage(backgroundImage, getWidth(), getHeight());
-                    repaint(); // Repaint with the newly scaled image
+                    repaint();
                 }
             }
         });
@@ -33,7 +32,6 @@ public class LoginBgPanel extends JPanel {
     private void loadImage(String imagePath) {
         try {
             backgroundImage = ImageIO.read(Objects.requireNonNull(getClass().getClassLoader().getResource(imagePath)));
-            // Initial scaling if size is already non-zero
             if (getWidth() > 0 && getHeight() > 0) {
                 backgroundImage = scaleImage(backgroundImage, getWidth(), getHeight());
                 repaint();
@@ -45,7 +43,6 @@ public class LoginBgPanel extends JPanel {
 
     private BufferedImage scaleImage(BufferedImage originalImage, int width, int height) {
         if (width <= 0 || height <= 0) {
-            // Avoid scaling with zero or negative dimensions
             return originalImage;
         }
         Image scaledImage = originalImage.getScaledInstance(width, height, Image.SCALE_SMOOTH);
@@ -71,7 +68,7 @@ public class LoginBgPanel extends JPanel {
         super.setSize(d);
         if (backgroundImage != null && d.width > 0 && d.height > 0) {
             backgroundImage = scaleImage(backgroundImage, d.width, d.height);
-            repaint(); // Repaint the component with the new scaled image
+            repaint();
         }
     }
 }
