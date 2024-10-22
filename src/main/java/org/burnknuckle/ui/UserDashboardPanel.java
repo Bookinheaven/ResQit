@@ -1,8 +1,6 @@
 package org.burnknuckle.ui;
 
 import com.formdev.flatlaf.extras.FlatSVGIcon;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.burnknuckle.controllers.swing.LoginSystem;
 import org.burnknuckle.ui.SubPages.User.*;
 import org.burnknuckle.utils.Database;
@@ -21,7 +19,6 @@ import static org.burnknuckle.utils.ThemeManager.*;
 import static org.burnknuckle.utils.Userdata.*;
 
 public class UserDashboardPanel {
-    private static final Log log = LogFactory.getLog(UserDashboardPanel.class);
     private final JFrame frame;
     private static JPanel menuBar;
     private JPanel dashSpace;
@@ -119,7 +116,6 @@ public class UserDashboardPanel {
                     logger.warn("Field '%s' is missing or empty!".formatted(column));
                 }
             }
-            logger.info(warnMessage);
             if(!warnMessage.isEmpty()){
                 SwingUtilities.invokeLater(()->{
                     JOptionPane.showMessageDialog(null, warnMessage, "Needed Fields", JOptionPane.ERROR_MESSAGE);
@@ -149,12 +145,13 @@ public class UserDashboardPanel {
     private JPanel createUserDashboard() {
         JPanel block = new JPanel();
         block.setLayout(new BorderLayout());
-        block.setBackground(Color.BLUE);
         menuBar = new JPanel();
-        dashSpace = new JPanel();
+        dashSpace = new JPanel(new BorderLayout());
+//        SwingUtilities.invokeLater(()->{
+////            dashSpace.setPreferredSize(new Dimension(frame.getWidth(), frame,ge));
+//        });
         cardLayout = new CardLayout();
         mainContent = new JPanel(cardLayout);
-
         menuBar.setPreferredSize(new Dimension(55, this.frame.getHeight()));
         menuBar.setBackground(getColorFromHex(ADPThemeData.get("sidebar")));
 
@@ -269,7 +266,6 @@ public class UserDashboardPanel {
                     changePage("HomePage");
                     changeSelectionMenu();
                     switchTabs("HomePage", mainContent);
-                    logger.info("Clicked HomePage");
                 }
             }
             @Override
@@ -285,16 +281,10 @@ public class UserDashboardPanel {
         disasterReqLabel.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                logger.info(!currentPage.equals("RequestPage") && checkAccountData() && checkStatusOfUser());
-                logger.info(!currentPage.equals("RequestPage"));
-                logger.info(checkAccountData());
-                logger.info(checkStatusOfUser());
-
                 if(!currentPage.equals("RequestPage") && checkAccountData() && checkStatusOfUser()) {
                     changePage("RequestPage");
                     changeSelectionMenu();
                     switchTabs("RequestPage", mainContent);
-                    logger.info("Clicked RequestPage");
                 }
             }
             @Override
@@ -315,7 +305,6 @@ public class UserDashboardPanel {
                     changePage(back);
                     changeSelectionMenu();
                     switchTabs(back, mainContent);
-                    logger.info("Clicked backOption");
                 }
             }
             @Override
@@ -335,7 +324,6 @@ public class UserDashboardPanel {
                     addPages("Account");
                     changePage("Account");
                     cardLayout.show(mainContent, "Account");
-                    logger.info("Clicked Account");
                 }
             }
             @Override
@@ -396,7 +384,7 @@ public class UserDashboardPanel {
             }
         });
 
-        mainContent.add(new HomePage().createHomePage(), "HomePage");
+        mainContent.add(new HomePage().createHomePage(mainContent), "HomePage");
         mainContent.add(new RequestPage().createRequestPage(cardLayout, mainContent), "RequestPage");
         mainContent.add(new AccountPage().createAccountPage(frame, cardLayout, mainContent), "Account");
         mainContent.add(new RequestResources().createRequestResourcesSubPage(), "Request");
