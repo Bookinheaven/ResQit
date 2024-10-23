@@ -151,20 +151,20 @@ public class Database {
 
         String createDisasterData = "CREATE TABLE IF NOT EXISTS %s (".formatted(TABLE_NAME[2]) +
                 "id SERIAL PRIMARY KEY, " +
-                "disasterName VARCHAR(100) UNIQUE NOT NULL, " +
-                "disasterType TEXT NOT NULL, " +
-                "scaleMeter TEXT," +
+                "disastername VARCHAR(100) UNIQUE NOT NULL, " +
+                "disastertype TEXT NOT NULL, " +
+                "scalemeter TEXT," +
                 "scale TEXT CHECK(scale IN ('local', 'regional', 'national')) NOT NULL, " +
                 "severity TEXT CHECK(severity IN ('low', 'moderate', 'high', 'critical')) NOT NULL, " +
                 "description TEXT, " +
                 "location TEXT NOT NULL, " +
-                "startDate TIMESTAMP NOT NULL, " +
-                "endDate TIMESTAMP, " +
-                "responseStatus TEXT CHECK(responseStatus IN ('requested', 'ongoing', 'resolved')) NOT NULL, " +
-                "impactAssessment TEXT, " +
-                "dateOfEntry TIMESTAMP DEFAULT CURRENT_TIMESTAMP, " +
-                "lastUpdated TIMESTAMP DEFAULT CURRENT_TIMESTAMP, " +
-                "userUploaded VARCHAR(25) NOT NULL, "+
+                "startdate TIMESTAMP NOT NULL, " +
+                "enddate TIMESTAMP, " +
+                "responsestatus TEXT CHECK(responseStatus IN ('requested', 'ongoing', 'resolved')) NOT NULL, " +
+                "impactassessment TEXT, " +
+                "dateofentry TIMESTAMP DEFAULT CURRENT_TIMESTAMP, " +
+                "lastupdated TIMESTAMP DEFAULT CURRENT_TIMESTAMP, " +
+                "useruploaded VARCHAR(25) NOT NULL, "+
                 "FOREIGN KEY (userUploaded) REFERENCES %s (username) ".formatted(TABLE_NAME[0]) +
                 ");";
         try (Statement st = con.createStatement()) {

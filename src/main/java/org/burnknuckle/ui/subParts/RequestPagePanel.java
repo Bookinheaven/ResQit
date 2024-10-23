@@ -5,14 +5,20 @@ import org.burnknuckle.utils.Database;
 import raven.datetime.component.date.DatePicker;
 
 import javax.swing.*;
+import javax.swing.border.Border;
+import javax.swing.border.CompoundBorder;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.LineBorder;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import java.awt.*;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
+import java.awt.event.*;
 import java.util.HashMap;
 import java.util.Map;
 
 import static org.burnknuckle.Main.logger;
 import static org.burnknuckle.utils.MainUtils.getStackTraceAsString;
+import static org.burnknuckle.utils.ThemeManager.getColorFromHex;
 import static org.burnknuckle.utils.Userdata.getUsername;
 
 public class RequestPagePanel extends JPanel {
@@ -23,6 +29,84 @@ public class RequestPagePanel extends JPanel {
     private DatePicker startDatePicker, endDatePicker;
     private JTextField disasterName;
     private JButton submitButton;
+    private JFormattedTextField endDateField, startDateField;
+
+    private JTextArea TextAreaCreator(String placeholder, int limit){
+        JTextArea fieldArea = new JTextArea();
+        Border defaultBorder = fieldArea.getBorder();
+        Border paddingBorder = new EmptyBorder(5, 5, 5, 5);
+        Border lineBorder = new LineBorder(getColorFromHex("#725555"), 2);
+        fieldArea.setText(placeholder);
+        fieldArea.setBorder(new CompoundBorder(lineBorder, paddingBorder));
+        fieldArea.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusGained(FocusEvent e) {
+                if (fieldArea.getText().equals(placeholder)) {
+                    fieldArea.setText("");
+                }
+            }
+            @Override
+            public void focusLost(FocusEvent e) {
+                if (fieldArea.getText().isBlank()) {
+                    fieldArea.setText(placeholder);
+                }
+            }
+        });
+        fieldArea.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                super.keyPressed(e);
+                if (fieldArea.getDocument().getLength() >= limit) {
+                    if (e.getKeyCode() == KeyEvent.VK_BACK_SPACE || e.isControlDown() && e.getKeyCode() == KeyEvent.VK_A) {
+                        return;
+                    }
+                    e.consume();
+                }
+            }
+            @Override
+            public void keyTyped(KeyEvent e) {
+                super.keyTyped(e);
+                if (fieldArea.getDocument().getLength() >= limit) {
+                    if (e.getKeyCode() == KeyEvent.VK_BACK_SPACE || e.isControlDown() && e.getKeyCode() == KeyEvent.VK_A) {
+                        return;
+                    }
+                    e.consume();
+                }
+                if(fieldArea.getText().isBlank()){
+                    fieldArea.setBorder(new CompoundBorder(lineBorder, paddingBorder));
+                } else {
+                    fieldArea.setBorder(defaultBorder);
+                }
+            }
+        });
+        fieldArea.getDocument().addDocumentListener(new DocumentListener() {
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                changes();
+            }
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                changes();
+            }
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+                changes();
+            }
+            private void changes(){
+                if (!fieldArea.getText().equals(placeholder) && !fieldArea.getText().isBlank()) {
+                        fieldArea.setForeground(Color.WHITE);
+                    } else {
+                        fieldArea.setForeground(Color.GRAY);
+                    }
+            }
+        });
+        fieldArea.setPreferredSize(new Dimension(400, 100));
+        fieldArea.setLineWrap(true);
+        fieldArea.setWrapStyleWord(true);
+        fieldArea.setFont(new Font("Arial", Font.PLAIN, 14));
+        return fieldArea;
+
+    }
 
     public RequestPagePanel(JPanel mainContent) {
         setLayout(new MigLayout("", "push[center,grow]push", ""));
@@ -67,11 +151,15 @@ public class RequestPagePanel extends JPanel {
         warningLabel = new JLabel();
         warningLabel.setForeground(Color.RED);
         scaleSlider = new JSlider(0, 10);
-        descriptionTextArea = new JTextArea(5, 20);
-        locationTextArea = new JTextArea(5, 20);
-        impactTextArea = new JTextArea(5, 20);
+        descriptionTextArea = TextAreaCreator("Enter the Description.", 400);
+        locationTextArea = TextAreaCreator("Enter the location.", 400);
+        impactTextArea = TextAreaCreator("Enter the impact.", 400);
+        startDateField = new JFormattedTextField();
         startDatePicker = new DatePicker();
+        startDatePicker.setEditor(startDateField);
+        endDateField = new JFormattedTextField();
         endDatePicker = new DatePicker();
+        endDatePicker.setEditor(endDateField);
         disasterName = new JTextField(20);
         submitButton = new JButton("Submit");
         submitButton.setBackground(new Color(0x4CAF50));
@@ -82,33 +170,33 @@ public class RequestPagePanel extends JPanel {
     }
 
     private void layoutComponents(JPanel mainPanel, GridBagConstraints gbc) {
-        Font titleFont = new Font("Arial", Font.BOLD, 14);
+        Font titleFont = new Font("Arial", Font.BOLD, 20);
 
         gbc.gridx = 0; gbc.gridy = 0; gbc.weightx = 0.2;
-        mainPanel.add(new JLabel("Disaster Name:") {{ setFont(titleFont); }}, gbc);
+        mainPanel.add(new JLabel("Disaster Name") {{ setFont(titleFont); }}, gbc);
         gbc.gridx = 1; gbc.weightx = 0.8;
         mainPanel.add(disasterName, gbc);
 
         gbc.gridx = 0; gbc.gridy = 1; gbc.weightx = 0.2;
-        mainPanel.add(new JLabel("Disaster Type:") {{ setFont(titleFont); }}, gbc);
+        mainPanel.add(new JLabel("Disaster Type") {{ setFont(titleFont); }}, gbc);
         gbc.gridx = 1; gbc.weightx = 0.8;
         mainPanel.add(disasterTypeCombo, gbc);
 
         gbc.gridx = 0; gbc.gridy = 2; gbc.weightx = 0.2;
-        mainPanel.add(new JLabel("Scale:") {{ setFont(titleFont); }}, gbc);
+        mainPanel.add(new JLabel("Scale") {{ setFont(titleFont); }}, gbc);
         gbc.gridx = 1; gbc.weightx = 0.8;
         mainPanel.add(scaleCombo, gbc);
 
         gbc.gridx = 0; gbc.gridy = 3; gbc.weightx = 0.2;
-        mainPanel.add(new JLabel("Severity Level:") {{ setFont(titleFont); }}, gbc);
+        mainPanel.add(new JLabel("Severity Level") {{ setFont(titleFont); }}, gbc);
         gbc.gridx = 1; gbc.weightx = 0.8;
         mainPanel.add(severityLevelCombo, gbc);
 
         gbc.gridx = 0; gbc.gridy = 4; gbc.weightx = 0.2;
-        mainPanel.add(new JLabel("Scale Value:") {{ setFont(titleFont); }}, gbc);
+        mainPanel.add(new JLabel("Scale Value") {{ setFont(titleFont); }}, gbc);
         gbc.gridx = 1; gbc.weightx = 0.8;
         mainPanel.add(scaleValueNo, gbc);
-        gbc.gridy++; // Next row for slider
+        gbc.gridy++;
         gbc.gridx = 1; gbc.weightx = 0.8;
         mainPanel.add(scaleSlider, gbc);
 
@@ -118,29 +206,29 @@ public class RequestPagePanel extends JPanel {
         gbc.ipady = 0;
 
         gbc.gridx = 0; gbc.gridy++; gbc.weightx = 0.2;
-        mainPanel.add(new JLabel("Description:") {{ setFont(titleFont); }}, gbc);
+        mainPanel.add(new JLabel("Description") {{ setFont(titleFont); }}, gbc);
         gbc.gridx = 1; gbc.weightx = 0.8;
         mainPanel.add(new JScrollPane(descriptionTextArea), gbc);
 
         gbc.gridx = 0; gbc.gridy++; gbc.weightx = 0.2;
-        mainPanel.add(new JLabel("Location:") {{ setFont(titleFont); }}, gbc);
+        mainPanel.add(new JLabel("Location") {{ setFont(titleFont); }}, gbc);
         gbc.gridx = 1; gbc.weightx = 0.8;
         mainPanel.add(new JScrollPane(locationTextArea), gbc);
 
         gbc.gridx = 0; gbc.gridy++; gbc.weightx = 0.2;
-        mainPanel.add(new JLabel("Impact Assessment:") {{ setFont(titleFont); }}, gbc);
+        mainPanel.add(new JLabel("Impact Assessment") {{ setFont(titleFont); }}, gbc);
         gbc.gridx = 1; gbc.weightx = 0.8;
         mainPanel.add(new JScrollPane(impactTextArea), gbc);
 
         gbc.gridx = 0; gbc.gridy++; gbc.weightx = 0.2;
-        mainPanel.add(new JLabel("Start Date:") {{ setFont(titleFont); }}, gbc);
+        mainPanel.add(new JLabel("Start Date") {{ setFont(titleFont); }}, gbc);
         gbc.gridx = 1; gbc.weightx = 0.8;
-        mainPanel.add(startDatePicker, gbc);
+        mainPanel.add(startDateField, gbc);
 
         gbc.gridx = 0; gbc.gridy++; gbc.weightx = 0.2;
-        mainPanel.add(new JLabel("End Date:") {{ setFont(titleFont); }}, gbc);
+        mainPanel.add(new JLabel("End Date") {{ setFont(titleFont); }}, gbc);
         gbc.gridx = 1; gbc.weightx = 0.8;
-        mainPanel.add(endDatePicker, gbc);
+        mainPanel.add(endDateField, gbc);
 
         gbc.gridx = 1; gbc.gridy++; gbc.weightx = 0.2;
         gbc.fill = GridBagConstraints.NONE;
@@ -164,7 +252,6 @@ public class RequestPagePanel extends JPanel {
     public void submitData() {
         if (validateFields()) {
             Map<String, Object> formData = collectFormData();
-
             try {
                 Database db = Database.getInstance();
                 db.getConnection();
@@ -172,6 +259,7 @@ public class RequestPagePanel extends JPanel {
                     showWarning("Duplicate disaster request detected!");
                 } else {
                     db.insertData(2, formData);
+                    JOptionPane.showMessageDialog(null, "Upload Request %s".formatted(disasterName.getText()), "Success", JOptionPane.INFORMATION_MESSAGE);
                     warningLabel.setVisible(false);
                     clearFields();
                 }
@@ -221,13 +309,14 @@ public class RequestPagePanel extends JPanel {
         formData.put("disastertype", disasterTypeCombo.getSelectedItem());
         formData.put("scalemeter", scaleCombo.getSelectedItem() + " | " + scaleSlider.getValue());
         formData.put("scale", disasterScaleLevel.getSelectedItem());
-        formData.put("severitylevel", severityLevelCombo.getSelectedItem());
+        formData.put("severity", severityLevelCombo.getSelectedItem());
         formData.put("description", descriptionTextArea.getText());
+        formData.put("responsestatus", "requested");
         formData.put("location", locationTextArea.getText());
         formData.put("impactassessment", impactTextArea.getText());
         formData.put("startdate", startDatePicker.getSelectedDate());
         formData.put("enddate", endDatePicker.getSelectedDate());
-        formData.put("createdby", getUsername());
+        formData.put("useruploaded", getUsername());
         return formData;
     }
 

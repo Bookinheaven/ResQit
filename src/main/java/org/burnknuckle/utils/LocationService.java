@@ -17,8 +17,8 @@ public class LocationService {
     private static final String API_URL = "https://api.opencagedata.com/geocode/v1/json";
 
     public static GeoPosition getCoordinates(String location) {
+        location = location.trim().replaceAll(" ", "+");
         String url = API_URL + "?q=" + location + "&key=" + API_KEY + "&no_annotations=1";
-
         try (CloseableHttpClient client = HttpClients.createDefault()) {
             HttpGet request = new HttpGet(url);
             try (CloseableHttpResponse response = client.execute(request)) {
@@ -40,7 +40,7 @@ public class LocationService {
             double lng = results.getJSONObject(0).getJSONObject("geometry").getDouble("lng");
             return new GeoPosition(lat, lng);
         } else {
-            System.out.println("Location not found.");
+            logger.warn("Location not found.");
             return null;
         }
     }
