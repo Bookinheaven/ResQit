@@ -1,14 +1,12 @@
 package org.burnknuckle.ui;
 
 import com.formdev.flatlaf.extras.FlatSVGIcon;
-import org.burnknuckle.controllers.swing.LoginSystem;
+import org.burnknuckle.controllers.LoginSystem;
 import org.burnknuckle.ui.SubPages.Admin.*;
 import org.burnknuckle.utils.Database;
 import raven.datetime.component.date.DatePicker;
 
-import javax.swing.Timer;
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ComponentAdapter;
@@ -19,7 +17,6 @@ import java.awt.geom.RoundRectangle2D;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
 import java.util.*;
 
 import static org.burnknuckle.Main.logger;
@@ -45,7 +42,6 @@ public class AdminDashboardPanel {
     private JButton MenuButton;
     private JPanel mainContent;
     private final Deque<String> pageStack = new LinkedList<>();
-
 
     public AdminDashboardPanel(JFrame frame) {
         this.frame = frame;

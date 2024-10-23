@@ -1,7 +1,7 @@
 package org.burnknuckle.ui;
 
 import com.formdev.flatlaf.extras.FlatSVGIcon;
-import org.burnknuckle.controllers.swing.LoginSystem;
+import org.burnknuckle.controllers.LoginSystem;
 import org.burnknuckle.ui.SubPages.User.*;
 import org.burnknuckle.utils.Database;
 
@@ -13,6 +13,7 @@ import java.sql.Timestamp;
 import java.util.*;
 
 import static org.burnknuckle.Main.logger;
+import static org.burnknuckle.ui.SubPages.User.AccountPage.accountTabs;
 import static org.burnknuckle.utils.MainUtils.clearProperties;
 import static org.burnknuckle.utils.MainUtils.getStackTraceAsString;
 import static org.burnknuckle.utils.ThemeManager.*;
@@ -45,89 +46,108 @@ public class UserDashboardPanel {
         frame.repaint();
         frame.setVisible(true);
     }
-    public static boolean checkAccountData() {
+    public static boolean checkAccountData(JTabbedPane tabbedPane) {
         String[] checkList = new String[]{
-                "username",
-                "password",
-                "privilege",
-                "email",
-                "gender",
-                "role",
-                "first_name",
-                "last_name",
-                "date_of_birth",
-                "account_created",
-                "last_login",
-                "is_active",
-                "profile_picture_url",
-                "bio",
-                "failed_login_attempts",
-                "password_last_updated",
-                "volunteer_reg_time",
-                "zip_code",
-                "state",
-                "road",
-                "city",
-                "country",
-                "emergency_contact",
-                "availability",
-                "preferred_volunteering_location",
-                "professional_background",
-                "skills",
-                "languages_spoken",
-                "prior_experiences",
-                "preferred_volunteering_work",
-                "willingness",
-                "physical_limitations",
-                "blood_group",
-                "phone_number",
-                "allergies"
+                "username", "password", "privilege", "email", "gender", "role",
+                "first_name", "last_name", "date_of_birth", "account_created", "last_login", "is_active",
+                "profile_picture_url", "bio", "failed_login_attempts", "password_last_updated",
+                "volunteer_reg_time", "zip_code", "state", "road", "city", "country", "emergency_contact",
+                "availability", "preferred_volunteering_location", "professional_background", "skills",
+                "languages_spoken", "prior_experiences", "preferred_volunteering_work", "willingness",
+                "physical_limitations", "blood_group", "phone_number", "allergies"
         };
 
-        java.util.List<String> optionalFields = Arrays.asList(
-                "bio",
-                "profile_picture_url",
-                "skills",
-                "physical_limitations",
-                "prior_experiences",
-                "allergies",
-                "languages_spoken",
-                "prior_experiences",
-                "phone_number",
-                "failed_login_attempts",
-                "password_last_updated",
-                "volunteer_reg_time",
-                "availability"
+        Set<String> optionalFields = Set.of(
+                "bio", "profile_picture_url", "skills", "physical_limitations",
+                "prior_experiences", "allergies", "languages_spoken",
+                "phone_number", "failed_login_attempts", "password_last_updated",
+                "volunteer_reg_time", "availability", "username", "privilege", "account_created", "last_login", "is_active"
+        );
 
-                );
+        Map<String, String> fieldNames = Map.ofEntries(
+                Map.entry("password", "Password"),
+                Map.entry("email", "Email"),
+                Map.entry("gender", "Gender"),
+                Map.entry("role", "Role"),
+                Map.entry("first_name", "First Name"),
+                Map.entry("last_name", "Last Name"),
+                Map.entry("date_of_birth", "Date of Birth"),
+                Map.entry("zip_code", "Zip Code"),
+                Map.entry("state", "State"),
+                Map.entry("road", "Road"),
+                Map.entry("city", "City"),
+                Map.entry("country", "Country"),
+                Map.entry("emergency_contact", "Emergency Contact"),
+                Map.entry("preferred_volunteering_location", "Preferred Volunteering Location"),
+                Map.entry("professional_background", "Professional Background"),
+                Map.entry("preferred_volunteering_work", "Preferred Volunteering Work"),
+                Map.entry("willingness", "Willingness"),
+                Map.entry("blood_group", "Blood Group")
+        );
+
+        Map<String, Integer> fieldTabMapping = Map.ofEntries(
+                Map.entry("password", 0),
+                Map.entry("email", 0),
+                Map.entry("gender", 0),
+                Map.entry("role", 0),
+                Map.entry("first_name", 0),
+                Map.entry("last_name", 0),
+                Map.entry("date_of_birth", 0),
+                Map.entry("zip_code", 1),
+                Map.entry("state", 1),
+                Map.entry("road", 1),
+                Map.entry("city", 1),
+                Map.entry("country", 1),
+                Map.entry("emergency_contact", 1),
+                Map.entry("preferred_volunteering_location", 2),
+                Map.entry("professional_background", 3),
+                Map.entry("preferred_volunteering_work", 2),
+                Map.entry("willingness", 3),
+                Map.entry("blood_group", 2)
+        );
 
         try {
             Database db = Database.getInstance();
             db.getConnection();
             Map<String, Object> checkData = db.getUsernameDetails(getUsername());
+
             StringBuilder warnMessage = new StringBuilder();
+            Integer firstMissingFieldTab = null;
             for (String column : checkList) {
                 Object value = checkData.get(column);
-                if (optionalFields.contains(column) && (value == null || value.toString().isEmpty())) {
+                if (optionalFields.contains(column)) {
                     continue;
                 }
                 if (value == null || value.toString().isBlank()) {
-                    warnMessage.append("Field '%s' is missing or empty!".formatted(column));
-                    logger.warn("Field '%s' is missing or empty!".formatted(column));
+                    String displayName = fieldNames.getOrDefault(column, column);
+                    warnMessage.append(String.format("%s\n", displayName));
+
+                    Integer tabIndex = fieldTabMapping.getOrDefault(column, -1);
+                    if (tabIndex != -1 && firstMissingFieldTab == null) {
+                        firstMissingFieldTab = tabIndex;
+                    }
                 }
             }
-            if(!warnMessage.isEmpty()){
-                SwingUtilities.invokeLater(()->{
-                    JOptionPane.showMessageDialog(null, warnMessage, "Needed Fields", JOptionPane.ERROR_MESSAGE);
 
+            if (!warnMessage.isEmpty()) {
+                final Integer navigateToTab = firstMissingFieldTab;
+                SwingUtilities.invokeLater(() -> {
+                    int result = JOptionPane.showOptionDialog(null, warnMessage.toString(), "Please Fill These Fields",
+                            JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE, null, new String[]{"Go to Tab", "Cancel"}, "Go to Tab");
+
+                    if (result == JOptionPane.YES_OPTION && navigateToTab != null) {
+                        tabbedPane.setSelectedIndex(navigateToTab);
+                    }
                 });
                 return false;
             }
+
         } catch (Exception e) {
-            logger.error("Error in: %s".formatted(getStackTraceAsString(e)));
+            logger.error(String.format("Error in checkAccountData: %s", getStackTraceAsString(e)));
         }
         return true;
     }
+
     public static boolean checkStatusOfUser(){
         getUserDataFromDatabase();
         return !userdata.get("privilege").toString().equals("user");
@@ -262,7 +282,7 @@ public class UserDashboardPanel {
         homeLabel.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                if(!currentPage.equals("HomePage") && checkAccountData() && checkStatusOfUser()){
+                if(!currentPage.equals("HomePage") && checkAccountData(accountTabs) && checkStatusOfUser()){
                     changePage("HomePage");
                     changeSelectionMenu();
                     switchTabs("HomePage", mainContent);
@@ -281,7 +301,7 @@ public class UserDashboardPanel {
         disasterReqLabel.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                if(!currentPage.equals("RequestPage") && checkAccountData() && checkStatusOfUser()) {
+                if(!currentPage.equals("RequestPage") && checkAccountData(accountTabs) && checkStatusOfUser()) {
                     changePage("RequestPage");
                     changeSelectionMenu();
                     switchTabs("RequestPage", mainContent);
@@ -300,7 +320,7 @@ public class UserDashboardPanel {
         backOptionLabel.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                if(checkAccountData() && checkStatusOfUser()){
+                if(checkAccountData(accountTabs) && checkStatusOfUser()){
                     String back = goBack();
                     changePage(back);
                     changeSelectionMenu();
@@ -320,7 +340,7 @@ public class UserDashboardPanel {
         accountLabel.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                if(!currentPage.equals("Account") && checkAccountData() && checkStatusOfUser()) {
+                if(!currentPage.equals("Account") && checkAccountData(accountTabs) && checkStatusOfUser()) {
                     addPages("Account");
                     changePage("Account");
                     cardLayout.show(mainContent, "Account");
@@ -392,7 +412,7 @@ public class UserDashboardPanel {
         mainContent.add(new RequestDisaster().createDisasterSubPage(dashSpace),"Disaster");
         mainContent.add(new VolunteerRegistration().createVolunteerRegistrationSubPage(cardLayout, mainContent),"Volunteer Registration");
 
-        if(checkAccountData()){
+        if(checkAccountData(accountTabs)){
             if (checkStatusOfUser()){
                 addPages("HomePage");
                 cardLayout.show(mainContent, "HomePage");

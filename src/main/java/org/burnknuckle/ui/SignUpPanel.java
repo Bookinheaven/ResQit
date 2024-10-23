@@ -12,9 +12,9 @@ import java.awt.geom.RoundRectangle2D;
 import java.util.Objects;
 
 import static org.burnknuckle.Main.logger;
-import static org.burnknuckle.controllers.swing.LoginSystem.BtwLS;
-import static org.burnknuckle.controllers.swing.SignUpSystem.SignUp;
-import static org.burnknuckle.controllers.swing.SignUpSystem.validateFields;
+import static org.burnknuckle.controllers.LoginSystem.BtwLS;
+import static org.burnknuckle.controllers.SignUpSystem.SignUp;
+import static org.burnknuckle.controllers.SignUpSystem.validateFields;
 import static org.burnknuckle.utils.MainUtils.getStackTraceAsString;
 import static org.burnknuckle.utils.ThemeManager.addThemeChangeListener;
 import static org.burnknuckle.utils.ThemeManager.currentTheme;

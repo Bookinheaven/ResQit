@@ -14,5 +14,6 @@ public class Resources {
     public static ImageIcon zoomInIcon = new FlatSVGIcon(Objects.requireNonNull(Resources.class.getClassLoader().getResource("Common/zoom-in.svg")));
     public static ImageIcon zoomOutIcon = new FlatSVGIcon(Objects.requireNonNull(Resources.class.getClassLoader().getResource("Common/zoom-out.svg")));
     public static ImageIcon searchIcon = new FlatSVGIcon(Objects.requireNonNull(Resources.class.getClassLoader().getResource("Common/search.svg")));
-
+    public static ImageIcon refreshIcon = new FlatSVGIcon(Objects.requireNonNull(Resources.class.getClassLoader().getResource("Common/refresh-cw.svg")));
+    public static ImageIcon filterIcon = new FlatSVGIcon(Objects.requireNonNull(Resources.class.getClassLoader().getResource("Common/filter.svg")));
 }

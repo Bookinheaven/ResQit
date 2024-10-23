@@ -3,7 +3,6 @@ package org.burnknuckle;
 import com.formdev.flatlaf.FlatDarkLaf;
 import com.formdev.flatlaf.FlatLightLaf;
 import com.formdev.flatlaf.extras.FlatSVGIcon;
-import javafx.application.Platform;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.burnknuckle.utils.Database;
@@ -101,9 +100,6 @@ public class Main {
 
     public static void main(String[] args) {
         setUp();
-        if (!Platform.isFxApplicationThread()) {
-            Platform.startup(() -> {});
-        }
     }
 
     public Main(String name) {

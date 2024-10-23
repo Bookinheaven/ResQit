@@ -34,6 +34,7 @@ public class AccountPage {
     private final String username = getUsername();
     private CardLayout cardLayout;
     private JPanel mainContent;
+    public static JTabbedPane accountTabs = null;
     private JFrame frame;
     private Map<String, Object> userdata;
     private JPanel accountPanel;
@@ -105,7 +106,7 @@ public class AccountPage {
     }
 
     private void runCheck(){
-        if(checkAccountData()){
+        if(checkAccountData(accountTabs)){
             if(!checkStatusOfUser()){
                 cardLayout.show(mainContent, "Volunteer Registration");
             }
@@ -117,11 +118,9 @@ public class AccountPage {
         this.cardLayout = cardLayout;
         this.mainContent = mainContent;
         try {
-            System.out.println(username);
             Database db = Database.getInstance();
             db.getConnection();
             userdata = db.getUsernameDetails(username);
-            System.out.println(userdata.toString());
         } catch (Exception e) {
             logger.error("Error in: %s".formatted(getStackTraceAsString(e)));
         }
@@ -172,12 +171,12 @@ public class AccountPage {
         JPanel healthMedicalInfoPanel = new JPanel();
         healthMedicalInfoPanel.add(new JLabel("Health and Medical Information"));
 
-        JTabbedPane tabs = new JTabbedPane();
-        tabs.addTab("Personal Info", personalInfoPanel());
-        tabs.addTab("Contact Info", contactInfoPanel());
-        tabs.addTab("Health and Medical Info", healthMedicalInfoPanel());
-        tabs.addTab("Skills and Experience", skillsExperienceInfoPanel());
-        tabs.addChangeListener(_->{
+        accountTabs = new JTabbedPane();
+        accountTabs.addTab("Personal Info", personalInfoPanel());
+        accountTabs.addTab("Contact Info", contactInfoPanel());
+        accountTabs.addTab("Health and Medical Info", healthMedicalInfoPanel());
+        accountTabs.addTab("Skills and Experience", skillsExperienceInfoPanel());
+        accountTabs.addChangeListener(_->{
             accountPanel.revalidate();
             accountPanel.repaint();
             frame.revalidate();
@@ -185,9 +184,9 @@ public class AccountPage {
         });
         String status = userdata.get("privilege").toString();
         switch (status) {
-            case "admin", "co-admin", "vol"-> tabs.addTab("Team Info", TeamInfoPanel());
+            case "admin", "co-admin", "vol"-> accountTabs.addTab("Team Info", TeamInfoPanel());
         }
-        accountPanel.add(tabs, BorderLayout.CENTER);
+        accountPanel.add(accountTabs, BorderLayout.CENTER);
         
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridx = 0;
@@ -254,6 +253,7 @@ public class AccountPage {
         data.put("preferred_volunteering_work", preferred_volunteering_work);
         data.put("preferred_volunteering_location", preferred_volunteering_location);
         data.put("blood_group", blood_group);
+
         try {
             Database db = Database.getInstance();
             db.getConnection();
@@ -553,14 +553,14 @@ public class AccountPage {
         JLabel lblBloodGroup = new JLabel("Blood Group");
         lblBloodGroup.setFont(new Font("Inter", Font.PLAIN, 16));
 
-        bloodGroupField = new JComboBox<>(new String[]{"A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"});
+        bloodGroupField = new JComboBox<>(new String[]{"Select","A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"});
         bloodGroupField.setFont(new Font("Inter", Font.PLAIN, 16));
-        String bloodGroup = (String) userdata.get("preferred_volunteering_location");
+        String bloodGroup = (String) userdata.get("blood_group");
         if (bloodGroup != null) {
             bloodGroupField.setSelectedItem(bloodGroup);
         }
         bloodGroupField.addActionListener(_ -> {
-            if (bloodGroup != null && !bloodGroup.equals(Objects.requireNonNull(bloodGroupField.getSelectedItem()).toString())) {
+            if (bloodGroup != null && Objects.equals(bloodGroupField.getSelectedItem(), "Select") || !Objects.equals(bloodGroup, Objects.requireNonNull(bloodGroupField.getSelectedItem()).toString())) {
                 saveButtonHealthInfo.setVisible(true);
                 if (!lblBloodGroup.getText().contains("*")) {
                     lblBloodGroup.setText(lblBloodGroup.getText().concat("*"));
@@ -575,14 +575,14 @@ public class AccountPage {
         JLabel lblPreferredLocation = new JLabel("Preferred Volunteering Location:");
         lblPreferredLocation.setFont(new Font("Inter", Font.PLAIN, 16));
 
-        preferredLocationsField = new JComboBox<>(new String[]{"Local", "State", "National"});
+        preferredLocationsField = new JComboBox<>(new String[]{"Select", "Local", "State", "National"});
         preferredLocationsField.setFont(new Font("Inter", Font.PLAIN, 16));
         String preferredLocation = (String) userdata.get("preferred_volunteering_location");
         if (preferredLocation != null) {
             preferredLocationsField.setSelectedItem(preferredLocation);
         }
         preferredLocationsField.addActionListener(_ -> {
-            if (preferredLocation != null && !preferredLocation.equals(Objects.requireNonNull(preferredLocationsField.getSelectedItem()).toString())) {
+            if (preferredLocation != null && Objects.equals(preferredLocationsField.getSelectedItem(), "Select") || !Objects.equals(preferredLocation, Objects.requireNonNull(preferredLocationsField.getSelectedItem()).toString())) {
                 saveButtonHealthInfo.setVisible(true);
                 if (!lblPreferredLocation.getText().contains("*")) {
                     lblPreferredLocation.setText(lblPreferredLocation.getText().concat("*"));
@@ -597,6 +597,7 @@ public class AccountPage {
         JLabel lblVolunteeringWork = new JLabel("Preferred Volunteering Work");
         lblVolunteeringWork.setFont(new Font("Inter", Font.PLAIN, 16));
         preferredWorkField = new JComboBox<>(new String[]{
+                "Select",
                 "Rescue Operations",
                 "Medical Assistance",
                 "Food Distribution",
@@ -620,7 +621,7 @@ public class AccountPage {
             preferredWorkField.setSelectedItem(preferredWork);
         }
         preferredWorkField.addActionListener(_ -> {
-            if (preferredWork != null && !preferredWork.equals(Objects.requireNonNull(preferredWorkField.getSelectedItem()).toString())) {
+            if (preferredWork != null && Objects.equals(preferredWorkField.getSelectedItem(), "Select") || !Objects.equals(preferredWork, Objects.requireNonNull(preferredWorkField.getSelectedItem()).toString())) {
                 saveButtonHealthInfo.setVisible(true);
                 if (!lblVolunteeringWork.getText().contains("*")) {
                     lblVolunteeringWork.setText(lblVolunteeringWork.getText().concat("*"));

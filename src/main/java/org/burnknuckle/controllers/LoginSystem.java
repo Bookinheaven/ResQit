@@ -1,4 +1,4 @@
-package org.burnknuckle.controllers.swing;
+package org.burnknuckle.controllers;
 
 import org.burnknuckle.ui.AdminDashboardPanel;
 import org.burnknuckle.ui.LoginPanel;

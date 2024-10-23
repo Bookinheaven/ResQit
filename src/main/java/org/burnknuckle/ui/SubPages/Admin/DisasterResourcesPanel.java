@@ -333,18 +333,18 @@ public class DisasterResourcesPanel {
                         rowData.put(dbColumnName, (value != null) ? value.toString() : null);
                     }
                 }
-                Database.getInstance().updateData(2,rowData);
+                SwingUtilities.invokeLater(()-> Database.getInstance().updateData(2,rowData));
                 JOptionPane.showMessageDialog(
                         null,
                         "Data updated successfully for row: " + selectedRow,
                         "Update Successful",
                         JOptionPane.INFORMATION_MESSAGE
                 );
-                logger.info("[AdminDashboardPanel.java] [addTableButtonListeners]:Data updated successfully for row: {}", selectedRow);
+                logger.info("Data updated successfully for row: {}", selectedRow);
                 dataD = refreshData(resolvedTableModel, requestedTableModel, ongoingTableModel, columnMapping, selectedColumnsD);
 
             } else {
-                logger.error("Error in [AdminDashboardPanel.java] [addTableButtonListeners]: Invalid selected row: {}", selectedRow);
+                logger.error("Invalid selected row: {}", selectedRow);
             }
             table.setEnabled(false);
             deleteButton.setEnabled(false);
@@ -352,8 +352,6 @@ public class DisasterResourcesPanel {
         });
 
         deleteButton.addActionListener(_ -> {
-            logger.info("Row ");
-
             int selectedRow = table.getSelectedRow();
             if (selectedRow != -1) {
                 Object idValue = table.getValueAt(selectedRow, 0);

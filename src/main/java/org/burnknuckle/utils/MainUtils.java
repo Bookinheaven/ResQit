@@ -3,7 +3,7 @@ package org.burnknuckle.utils;
 import com.formdev.flatlaf.FlatDarkLaf;
 import com.formdev.flatlaf.FlatLightLaf;
 import com.formdev.flatlaf.extras.FlatSVGIcon;
-import org.burnknuckle.controllers.swing.LoginSystem;
+import org.burnknuckle.controllers.LoginSystem;
 import org.burnknuckle.Main;
 import org.burnknuckle.ui.UserDashboardPanel;
 import org.apache.logging.log4j.LogManager;

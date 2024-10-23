@@ -12,9 +12,8 @@ import java.awt.geom.RoundRectangle2D;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import static org.burnknuckle.Main.logger;
-import static org.burnknuckle.controllers.swing.LoginSystem.BtwLS;
-import static org.burnknuckle.controllers.swing.LoginSystem.Login;
+import static org.burnknuckle.controllers.LoginSystem.BtwLS;
+import static org.burnknuckle.controllers.LoginSystem.Login;
 import static org.burnknuckle.utils.ThemeManager.*;
 
 public class LoginPanel {

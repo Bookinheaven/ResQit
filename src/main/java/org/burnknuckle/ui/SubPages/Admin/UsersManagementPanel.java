@@ -152,11 +152,9 @@ public class UsersManagementPanel {
         JButton refreshButton = new JButton();
         refreshButton.setToolTipText("Refresh");
         refreshButton.setPreferredSize(new Dimension(40,40));
-        ImageIcon refreshIcon = new FlatSVGIcon(Objects.requireNonNull(getClass().getClassLoader().getResource("Common/refresh-cw.svg")));
         refreshButton.setIcon(refreshIcon);
         refreshButton.addActionListener(_ -> dataAU = refreshDataAU(adminsTableModel, usersTableModel, columnMappingAU, selectedColumnsAU));
         JButton columnSelectionButton = new JButton();
-        ImageIcon filterIcon = new FlatSVGIcon(Objects.requireNonNull(getClass().getClassLoader().getResource("Common/filter.svg")));
         columnSelectionButton.setToolTipText("Column Filter");
         columnSelectionButton.setPreferredSize(new Dimension(40,40));
         columnSelectionButton.setIcon(filterIcon);
