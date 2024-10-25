@@ -29,7 +29,6 @@ import static org.burnknuckle.utils.MainUtils.getStackTraceAsString;
 import static org.burnknuckle.utils.ThemeManager.*;
 import static org.burnknuckle.utils.Userdata.getUsername;
 
-// set defualt valuues and sign up role not select warning
 public class AccountPage {
     private final String username = getUsername();
     private CardLayout cardLayout;

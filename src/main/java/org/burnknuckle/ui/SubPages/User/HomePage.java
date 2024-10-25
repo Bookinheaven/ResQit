@@ -29,7 +29,6 @@ public class HomePage {
     private HashMap<Integer, String> disasterPoints;
     private boolean isLoading = false;
     private JPanel homePage;
-    private JPanel rightPanel;
     private JButton refreshButton;
     private JLabel disasterNameValue;
     private JLabel disasterTypeValue;
@@ -41,8 +40,7 @@ public class HomePage {
         homePage = new JPanel(new BorderLayout());
         JLayeredPane wrapper = new JLayeredPane();
         JPanel Layer1 = new JPanel(new BorderLayout());
-        rightPanel = createRightPanel();
-//        rightPanel.setOpaque(false);
+        JPanel leftPanel = createDisasterPanel();
         mapViewer = new JXMapViewer();
         initializeMapViewer();
         waypoints = new ArrayList<>();
@@ -50,7 +48,7 @@ public class HomePage {
         loadWaypoints();
         Layer1.add(mapViewer);
         wrapper.add(Layer1, Integer.valueOf(0));
-        wrapper.add(rightPanel, Integer.valueOf(1));
+        wrapper.add(leftPanel, Integer.valueOf(1));
 
         homePage.add(wrapper, BorderLayout.CENTER);
         setupComponentResizeListener(mainContent, wrapper, Layer1);
@@ -58,7 +56,7 @@ public class HomePage {
         return homePage;
     }
 
-    private JPanel createLeftPanel() {
+    private JPanel createTopPanel() {
         JPanel leftPanel = new JPanel();
         leftPanel.setLayout(new MigLayout("", "[grow]", "[]"));
         leftPanel.setSize(new Dimension(500, 300));
@@ -74,13 +72,13 @@ public class HomePage {
         return leftPanel;
     }
 
-    private JPanel createRightPanel() {
+    private JPanel createDisasterPanel() {
         JPanel rightPanel = new JPanel();
         rightPanel.setLayout(new MigLayout("", "[grow]", "[grow][]"));
         rightPanel.setSize(new Dimension(350, 400));
 
-        JPanel leftPanel = createLeftPanel();
-        rightPanel.add(leftPanel, "wrap");
+        JPanel topPanel = createTopPanel();
+        rightPanel.add(topPanel, "wrap");
 
         JPanel disasterDetailsPanel = new JPanel(new MigLayout("wrap 1", "", ""));
 
@@ -144,7 +142,7 @@ public class HomePage {
     private JPanel createZoomControls() {
         JButton zoomInButton = new JButton();
         zoomInButton.setIcon(zoomInIcon);
-        zoomInButton.addActionListener(e -> {
+        zoomInButton.addActionListener(_ -> {
             int zoomLevel = mapViewer.getZoom() - 1;
             if(zoomLevel > 0 && zoomLevel < 18){
                 mapViewer.setZoom(zoomLevel);
@@ -154,7 +152,7 @@ public class HomePage {
 
         JButton zoomOutButton = new JButton();
         zoomOutButton.setIcon(zoomOutIcon);
-        zoomOutButton.addActionListener(e -> {
+        zoomOutButton.addActionListener(_ -> {
             int zoomLevel = mapViewer.getZoom() + 1;
             if(zoomLevel > 0 && zoomLevel < 18){
                 mapViewer.setZoom(zoomLevel);
@@ -163,7 +161,7 @@ public class HomePage {
         });
         refreshButton = new JButton();
         refreshButton.setIcon(refreshIcon);
-        refreshButton.addActionListener(e -> {
+        refreshButton.addActionListener(_ -> {
             refreshButton.setEnabled(false);
             refreshData();
         });
@@ -186,7 +184,7 @@ public class HomePage {
 
         JButton searchButton = new JButton();
         searchButton.setIcon(searchIcon);
-        searchButton.addActionListener(e -> searchLocation(searchField.getText()));
+        searchButton.addActionListener(_ -> searchLocation(searchField.getText()));
 
         searchPanel.add(searchField);
         searchPanel.add(searchButton);
@@ -311,8 +309,6 @@ public class HomePage {
                 Dimension newSize = new Dimension(width - 1, height - 1);
                 wrapper.setSize(newSize);
                 layer1.setSize(newSize);
-//                rightPanel.setBackground(Color.red);
-//                rightPanel.setSize(new Dimension(250, height));
                 homePage.revalidate();
             }
         });

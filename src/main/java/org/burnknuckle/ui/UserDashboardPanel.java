@@ -167,9 +167,6 @@ public class UserDashboardPanel {
         block.setLayout(new BorderLayout());
         menuBar = new JPanel();
         dashSpace = new JPanel(new BorderLayout());
-//        SwingUtilities.invokeLater(()->{
-////            dashSpace.setPreferredSize(new Dimension(frame.getWidth(), frame,ge));
-//        });
         cardLayout = new CardLayout();
         mainContent = new JPanel(cardLayout);
         menuBar.setPreferredSize(new Dimension(55, this.frame.getHeight()));
