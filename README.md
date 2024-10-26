@@ -1,4 +1,4 @@
-# Disaster Response Coordination System
+# Disaster Response Coordination System (Not Completed Yet)
 
 ## Overview
 The Disaster Response Coordination System is a robust Java application designed to enhance disaster management by facilitating effective communication between volunteers and administrators. This system streamlines coordination, ensuring timely responses to emergencies.
