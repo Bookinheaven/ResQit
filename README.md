@@ -34,7 +34,7 @@ Before running the application, ensure you have the following installed:
 ### Installation & Setup  
 1. Clone this repository:  
    ```sh
-   git clone https://github.com/your-repo/disaster-response-system.git
+   git clone https://github.com/Bookinheaven/ResQit.git
    cd disaster-response-system
    ```  
 2. Set up your PostgreSQL database and update the database connection settings in the application.  
