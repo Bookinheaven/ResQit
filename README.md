@@ -45,6 +45,10 @@ Before running the application, ensure you have the following installed:
    ```  
 4. Log in and explore the platform based on your assigned role.  
 
+## Flowchart
+![flowchart.png](others/images/flowchart.png)
+
+
 ## Roadmap 🛤️  
 - [ ] Implement a **real-time notification system** for urgent disaster alerts.  
 - [ ] Add a **geolocation-based incident tracking** feature.  
